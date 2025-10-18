@@ -1,4 +1,4 @@
-package main.java.com.zerooneblog.api.domain;
+package com.zerooneblog.api.domain;
 
 public class User {
     private Long id;

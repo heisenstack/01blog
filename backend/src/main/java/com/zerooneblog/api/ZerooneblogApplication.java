@@ -8,6 +8,7 @@ public class ZerooneblogApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ZerooneblogApplication.class, args);
+		System.out.println("Server is running! Access it at: http://localhost:8080");
 	}
 
 }
