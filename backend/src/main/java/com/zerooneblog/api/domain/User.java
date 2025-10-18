@@ -1,11 +1,21 @@
 package com.zerooneblog.api.domain;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name= "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
     private String username;
     private String email;
     private String password;
 
     // Constructor
+    public User() {}
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -13,6 +23,7 @@ public class User {
     }
 
     // Getters
+    public long getId() { return id; }
     public String getUsername() { return username;}
     public String getEmail() { return email;}
     public String getPassword() { return password;}
