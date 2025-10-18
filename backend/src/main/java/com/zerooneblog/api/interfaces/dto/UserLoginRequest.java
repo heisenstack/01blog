@@ -1,5 +1,6 @@
 package com.zerooneblog.api.interfaces.dto;
-class UserLoginRequest {
+
+public class UserLoginRequest {
     private String username;
     private String password;
 
