@@ -8,6 +8,13 @@ import com.zerooneblog.api.interfaces.dto.UserRegistrationRequest;
     @RequestMapping("/api/auth")
     public class AuthController {
 
+        @PostMapping("/signin")
+        public String LoginUser(@ResponseBody UserLoginRequest request) {
+            System.out.println("Registering user: " + request.username);
+            return "User Registered: " + request.username; 
+        }
+
+
         @PostMapping("/signup")
         public String RegisterUser(@RequestBody UserRegistrationRequest request) {
             System.out.println("Registering user: " + request.username);
