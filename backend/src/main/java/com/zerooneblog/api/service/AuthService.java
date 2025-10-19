@@ -4,14 +4,18 @@ import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.UserRegistrationRequest;
 import com.zerooneblog.api.domain.User;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(UserRegistrationRequest registrationRequest) {
@@ -24,7 +28,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(registrationRequest.getUsername());
         user.setEmail(registrationRequest.getEmail());
-        user.setPassword(registrationRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
 
         return userRepository.save(user);
     }
