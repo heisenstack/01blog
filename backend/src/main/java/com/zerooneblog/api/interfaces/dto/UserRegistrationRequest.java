@@ -6,12 +6,12 @@ public class UserRegistrationRequest {
     private String password;
 
     // Getters
-    public String GetUsername() { return username; }
-    public String GetEmail() { return email; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
     public String getPassword() { return password; }
 
     // Setters
-    public void SetUsername(String username) { this.username = username;}
-    public void SetEmail(String email) { this.email = email;}
-    public void SetPassword(String password) { this.password = password;}
+    public void setUsername(String username) { this.username = username;}
+    public void setEmail(String email) { this.email = email;}
+    public void setPassword(String password) { this.password = password;}
 }
