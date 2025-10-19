@@ -21,8 +21,8 @@ public class AuthController {
     }
     @PostMapping("/signin")
     public String LoginUser(@RequestBody UserLoginRequest signupRequest) {
-        System.out.println("Registering user: " + signupRequest.getUsername());
-        return "User Registered: " + signupRequest.getUsername();
+        String token = authService.authenticateUser(signupRequest);
+        return "User " + signupRequest.getUsername() +  "logged, token: " + token;
     }
 
     @PostMapping("/signup")
