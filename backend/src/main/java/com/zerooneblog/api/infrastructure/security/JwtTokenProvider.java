@@ -4,6 +4,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException; 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -29,12 +30,10 @@ public class JwtTokenProvider {
         this.userRepository = userRepository;
     }
 
-    // Helper method to create the key from secret
     private SecretKey key() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // Generate token for authenticated user
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
@@ -48,28 +47,37 @@ public class JwtTokenProvider {
                 .claim("userId", user.getId()) 
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(key())
+                .signWith(key(), Jwts.SIG.HS512) 
                 .compact();
     }
 
-    // Extract username from token
-    // public String getUsernameFromJWT(String token) {
-    //     Claims claims = Jwts.parser()
-    //             .verifyWith(key())
-    //             .build()
-    //             .parseSignedClaims(token)
-    //             .getPayload();
-    //     return claims.getSubject();
-    // }
+    public String getUsernameFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
+    }
 
-    // Validate token
-    // public boolean validateToken(String token) {
-    //     try {
-    //         Jwts.parser().setSigningKey(key()).parseClaimsJws(token);
-    //         return true;
-    //     } catch (JwtException | IllegalArgumentException ex) {
-    //         logger.error("Invalid JWT token: {}", ex.getMessage());
-    //     }
-    //     return false;
-    // }
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (SignatureException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            logger.error("Invalid JWT token");
+        } catch (ExpiredJwtException ex) {
+            logger.error("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            logger.error("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            logger.error("JWT claims string is empty.");
+        }
+        return false;
+    }
 }
