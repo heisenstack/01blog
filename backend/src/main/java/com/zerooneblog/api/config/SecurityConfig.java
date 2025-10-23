@@ -30,12 +30,9 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    // REMOVED: private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // FIX: Only inject UserRepository into the constructor to break the cycle
     public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
-        // REMOVED: this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -44,7 +41,6 @@ public class SecurityConfig {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-            // Create a list of authorities from the user's role
             List<GrantedAuthority> authorities = Collections.singletonList(
                     new SimpleGrantedAuthority(user.getRole())
             );
