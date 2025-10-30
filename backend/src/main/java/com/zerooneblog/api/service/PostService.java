@@ -6,6 +6,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
+import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
