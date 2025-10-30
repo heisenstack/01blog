@@ -37,5 +37,9 @@ public class PostService {
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
-
+   public Post getPostById(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() -> 
+            new ResourceNotFoundException("Post", "id", postId)
+        );
+    }
 }
