@@ -5,6 +5,8 @@ import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse; 
 import com.zerooneblog.api.interfaces.dto.PostAuthorResponse; 
 import com.zerooneblog.api.service.PostService;
+import java.util.stream.Collectors;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,5 +48,29 @@ public class PostController {
         );
 
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        
+        List<PostResponse> responseList = posts.stream()
+            .map(post -> {
+                PostAuthorResponse authorResponse = new PostAuthorResponse(
+                    post.getAuthor().getId(), 
+                    post.getAuthor().getUsername()
+                );
+                
+                return new PostResponse(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getContent(),
+                    post.getCreatedAt(),
+                    authorResponse
+                );
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseList);
     }
 }

@@ -8,6 +8,7 @@ import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 // import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class PostService {
         newPost.setAuthor(author);
 
         return postRepository.save(newPost);
+    }
+    public List<Post> getAllPosts() {
+        return postRepository.findAll();
     }
 
 }
