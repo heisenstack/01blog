@@ -66,7 +66,8 @@ public class PostService {
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
         if (!post.getAuthor().getUsername().equals(username)) {
-            
+            throw new UnauthorizedActionException(String.format("User '%s' is not authorized to delete post %d", username, id));
         }
+        postRepository.delete(post);
     }
 }
