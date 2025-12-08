@@ -1,5 +1,4 @@
 package com.zerooneblog.api.config;
-
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationFilter;
@@ -20,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.Customizer;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +41,17 @@ public class SecurityConfig {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-            List<GrantedAuthority> authorities = Collections.singletonList(
-                    new SimpleGrantedAuthority(user.getRole())
-            );
+            List<GrantedAuthority> authorities;
+            String userRole = user.getRole();
+            // System.out.println("This is a user role:", userRole);
+            
+            if (StringUtils.hasText(userRole)) {
+                authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority(userRole)
+                );
+            } else {
+                authorities = Collections.emptyList();
+            }
 
             return new org.springframework.security.core.userdetails.User(
                     user.getUsername(),
@@ -74,6 +82,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

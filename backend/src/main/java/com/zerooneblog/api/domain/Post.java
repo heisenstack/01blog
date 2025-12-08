@@ -17,6 +17,7 @@ public class Post {
     @Lob 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+    
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
