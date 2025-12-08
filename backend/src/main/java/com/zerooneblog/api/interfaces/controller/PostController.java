@@ -25,24 +25,10 @@ public class PostController {
         this.postService = postService;
     }
 
-    private PostResponse mapToPostResponse(Post post) {
-        PostAuthorResponse authorResponse = new PostAuthorResponse(
-                post.getAuthor().getId(),
-                post.getAuthor().getUsername());
-
-        return new PostResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt(),
-                authorResponse);
-    }
-
+    // POST CRUD
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostDTO request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // System.out.println("Request: " + request + " UserDetails: " + userDetails);
+    public ResponseEntity<PostResponse> createPost(@RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
         Post createdPost = postService.createPost(request, username);
         PostResponse postResponse = mapToPostResponse(createdPost);
@@ -60,7 +46,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPostById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
         Post post = postService.getPostById(id);
         PostResponse postResponse = mapToPostResponse(post);
         return ResponseEntity.ok(postResponse);
@@ -68,9 +54,7 @@ public class PostController {
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable(name = "id") Long id,
-            @RequestBody PostDTO request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
         Post updatedPost = postService.updatePost(id, request, username);
         PostResponse postResponse = mapToPostResponse(updatedPost);
@@ -78,10 +62,29 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable(name= "id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
         String message = postService.deletePost(id, username);
         return ResponseEntity.ok(message);
     }
-    
+
+    // Helper Methods
+    private PostResponse mapToPostResponse(Post post) {
+        String authorUsername = post.getAuthor().getUsername();
+        Long authorId = post.getAuthor().getId();
+
+        PostAuthorResponse authorResponse = new PostAuthorResponse(
+                post.getAuthor().getId(),
+                post.getAuthor().getUsername());
+
+        return new PostResponse(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt(),
+                authorResponse,
+                authorUsername,
+                authorId);
+    }
+
 }

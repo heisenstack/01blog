@@ -50,15 +50,12 @@ public class PostService {
     public Post updatePost(Long postId, PostDTO request, String username) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-
         if (!post.getAuthor().getUsername().equals(username)) {
             throw new UnauthorizedActionException(
                     "User " + username + " is not authorized to update post " + postId);
         }
-
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
-
         return postRepository.save(post);
     }
     public String deletePost(Long id, String username) {
