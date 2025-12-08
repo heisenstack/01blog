@@ -78,9 +78,10 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable(name= "id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> deletePost(@PathVariable(name= "id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        postService.deletePost(id, username);
+        String message = postService.deletePost(id, username);
+        return ResponseEntity.ok(message);
     }
     
 }

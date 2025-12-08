@@ -61,7 +61,7 @@ public class PostService {
 
         return postRepository.save(post);
     }
-    public void deletePost(Long id, String username) {
+    public String deletePost(Long id, String username) {
         Post post = postRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
@@ -69,5 +69,6 @@ public class PostService {
             throw new UnauthorizedActionException(String.format("User '%s' is not authorized to delete post %d", username, id));
         }
         postRepository.delete(post);
+        return "Post " + id + " has been deleted successfully!";
     }
 }
