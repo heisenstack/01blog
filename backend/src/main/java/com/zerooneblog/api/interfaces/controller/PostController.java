@@ -8,9 +8,11 @@ import com.zerooneblog.api.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,66 +27,42 @@ public class PostController {
         this.postService = postService;
     }
 
-    // POST CRUD
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> createPost(@RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        Post createdPost = postService.createPost(request, username);
-        PostResponse postResponse = mapToPostResponse(createdPost);
-        return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
+        PostResponse createdPost = postService.createPost(request, username);
+        return  ResponseEntity.ok(createdPost);
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        List<Post> posts = postService.getAllPosts();
+    public ResponseEntity<List<PostResponse>> getAllPosts(Authentication authentication) {
+        List<PostResponse> posts = postService.getAllPosts(authentication);
 
-        List<PostResponse> responseList = posts.stream()
-                .map(this::mapToPostResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(posts);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
-        Post post = postService.getPostById(id);
-        PostResponse postResponse = mapToPostResponse(post);
-        return ResponseEntity.ok(postResponse);
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
+    //     Post post = postService.getPostById(id);
+    //     PostResponse postResponse = mapToPostResponse(post);
+    //     return ResponseEntity.ok(postResponse);
+    // }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        Post updatedPost = postService.updatePost(id, request, username);
-        PostResponse postResponse = mapToPostResponse(updatedPost);
-        return ResponseEntity.ok(postResponse);
-    }
+    // @PutMapping("/{id}")
+    // @PreAuthorize("isAuthenticated()")
+    // public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
+    //     String username = userDetails.getUsername();
+    //     Post updatedPost = postService.updatePost(id, request, username);
+    //     PostResponse postResponse = mapToPostResponse(updatedPost);
+    //     return ResponseEntity.ok(postResponse);
+    // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        String message = postService.deletePost(id, username);
-        return ResponseEntity.ok(message);
-    }
-
-    // Helper Methods
-    private PostResponse mapToPostResponse(Post post) {
-        String authorUsername = post.getAuthor().getUsername();
-        Long authorId = post.getAuthor().getId();
-
-        PostAuthorResponse authorResponse = new PostAuthorResponse(
-                post.getAuthor().getId(),
-                post.getAuthor().getUsername());
-
-        return new PostResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt(),
-                authorResponse,
-                authorUsername,
-                authorId);
-    }
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+    //     String username = userDetails.getUsername();
+    //     String message = postService.deletePost(id, username);
+    //     return ResponseEntity.ok(message);
+    // }
 
 }

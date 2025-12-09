@@ -3,6 +3,9 @@ package com.zerooneblog.api.domain;
 import lombok.Data;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.List;
+import java.util.ArrayList;
+
 
 @Data
 @Entity
@@ -27,6 +30,12 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> likes = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
