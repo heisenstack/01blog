@@ -12,6 +12,7 @@ import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.ReportRepository;
 import com.zerooneblog.api.interfaces.dto.requestDto.ReportRequestDto;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 @Service
 public class ReportService {
@@ -19,20 +20,23 @@ public class ReportService {
     private final PostRepository postRepository;
     private final UserService userService;
 
-    public ReportService(ReportRepository reportRepository, PostRepository postRepository,UserService userService) {
+    public ReportService(ReportRepository reportRepository, PostRepository postRepository, UserService userService) {
         this.reportRepository = reportRepository;
         this.postRepository = postRepository;
-        this.userService =userService;
+        this.userService = userService;
     }
 
     @Transactional
     public String reportPost(Long postId, ReportRequestDto reportRequestDto, Authentication authentication) {
         Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new ResourceNotFoundException("post", "id", postId));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("post", "id", postId));
+
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         if (reportRepository.existsByPostIdAndReporterId(post.getId(), currentUser.getId())) {
-                throw new DuplicateResourceException("Report", "postId", postId);
+            throw new DuplicateResourceException("Report", "postId", postId);
+        }
+        if (post.getAuthor().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedActionException("You are not authorized to report your own post.");
         }
         PostReport postReport = new PostReport();
         postReport.setPost(post);
@@ -42,11 +46,12 @@ public class ReportService {
         postReport.setReporter(currentUser);
         if (post.getReportedCount() == null) {
             post.setReportedCount(1L);
-        }else {
+        } else {
             post.setReportedCount(post.getReportedCount() + 1L);
         }
         reportRepository.save(postReport);
-        return "The post with id: " + postId + " has been reported successfully! Reports count" + post.getReportedCount();
+        return "The post with id: " + postId + " has been reported successfully! Reports count"
+                + post.getReportedCount();
     }
 
 }
