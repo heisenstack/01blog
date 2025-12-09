@@ -54,7 +54,7 @@ public class PostLikeService {
                 });
 
         long updatedLikeCount = postLikeRepository.countByPostId(postId);
-        return new PostLikeResponseDto(updatedLikeCount, true);
+        return new PostLikeResponseDto(updatedLikeCount, false);
     }
 
 }

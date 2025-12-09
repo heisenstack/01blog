@@ -29,7 +29,7 @@ public class PostLikeController {
     }
     @PostMapping("/unlike")
     public ResponseEntity<PostLikeResponseDto> unlikePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
-            PostLikeResponseDto response = postLikeService.likePost(postId, userDetails.getUsername());
+            PostLikeResponseDto response = postLikeService.unlikePost(postId, userDetails.getUsername());
             return ResponseEntity.ok(response);
     }
 
