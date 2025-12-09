@@ -1,24 +1,23 @@
 package com.zerooneblog.api.interfaces.controller;
 
 
-import com.zerooneblog.api.interfaces.dto.CommentDTO;
-import com.zerooneblog.api.service.CommentService;
-
-
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.zerooneblog.api.interfaces.dto.CommentDTO;
+import com.zerooneblog.api.service.CommentService;
 
 
 
@@ -48,5 +47,9 @@ public class CommentController {
         CommentDTO updatedComment = commentService.updateComment(commentId, payload, userDetails.getUsername());
         return ResponseEntity.ok(updatedComment);
     }
-
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetails userDetails) {
+        String deletedComment = commentService.deleteComment(commentId, userDetails.getUsername());
+        return ResponseEntity.ok(deletedComment);
+    } 
 }

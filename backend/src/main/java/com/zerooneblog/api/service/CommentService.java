@@ -63,6 +63,18 @@ public class CommentService {
         return mapToDto(updaComment);
     }
 
+    @Transactional
+    public String deleteComment(Long commentId, String username) {
+        Comment comment = commentRepository.findById(commentId)
+         .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
+        
+         if (!comment.getUser().getUsername().equals(username)) {
+            throw new UnauthorizedActionException("You are not authorized to delete this comment.");
+         }
+         commentRepository.delete(comment);
+         return "The comment has been deleted successfully!";
+    }
+
     private CommentDTO mapToDto(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
