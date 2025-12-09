@@ -48,14 +48,12 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
 
-    // @PutMapping("/{id}")
-    // @PreAuthorize("isAuthenticated()")
-    // public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
-    //     String username = userDetails.getUsername();
-    //     Post updatedPost = postService.updatePost(id, request, username);
-    //     PostResponse postResponse = mapToPostResponse(updatedPost);
-    //     return ResponseEntity.ok(postResponse);
-    // }
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, Authentication authentication) {
+        PostResponse updatedPost = postService.updatePost(id, request, authentication);
+        return ResponseEntity.ok(updatedPost);
+    }
 
     // @DeleteMapping("/{id}")
     // public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {

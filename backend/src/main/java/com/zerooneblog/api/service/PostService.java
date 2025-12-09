@@ -60,16 +60,18 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long postId, PostDTO request, String username) {
+    public PostResponse updatePost(Long postId, PostDTO request, Authentication authentication) {
+        User currentUser = getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        if (!post.getAuthor().getUsername().equals(username)) {
+        if (!post.getAuthor().getUsername().equals(currentUser.getUsername())) {
             throw new UnauthorizedActionException(
-                    "User " + username + " is not authorized to update post " + postId);
+                    "User " + currentUser.getUsername() + " is not authorized to update post " + postId);
         }
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
-        return postRepository.save(post);
+        Post savedPost = postRepository.save(post);
+        return mapToDto(savedPost, currentUser);
     }
 
     public String deletePost(Long id, String username) {
