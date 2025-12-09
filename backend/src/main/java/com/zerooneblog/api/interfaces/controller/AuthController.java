@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.zerooneblog.api.service.AuthService;
 
 import com.zerooneblog.api.domain.User;
-import com.zerooneblog.api.interfaces.dto.RequestDto.UserLoginRequest;
-import com.zerooneblog.api.interfaces.dto.RequestDto.UserRegistrationRequest;
+import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
+import com.zerooneblog.api.interfaces.dto.requestDto.UserRegistrationRequest;
 
 
 @RestController

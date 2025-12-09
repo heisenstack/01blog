@@ -21,11 +21,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final UserService userService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, PostLikeRepository postLikeRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, PostLikeRepository postLikeRepository, UserService userService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.postLikeRepository = postLikeRepository;
+        this.userService = userService;
     }
 
     @Transactional
@@ -44,7 +46,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts(Authentication authentication) {
-        User currentUser = getCurrentUserFromAuthentication(authentication);
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         List<Post> posts = postRepository.findAll();
         return posts.stream()
         .map(post -> mapToDto(post, currentUser))
@@ -52,7 +54,7 @@ public class PostService {
     }
 
     public PostResponse getPostById(Long postId, Authentication authentication) {
-        User currentUser = getCurrentUserFromAuthentication(authentication);
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
@@ -61,7 +63,7 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(Long postId, PostDTO request, Authentication authentication) {
-        User currentUser = getCurrentUserFromAuthentication(authentication);
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
         if (!post.getAuthor().getUsername().equals(currentUser.getUsername())) {
@@ -98,12 +100,5 @@ public class PostService {
             postLikeRepository.existsByUserIdAndPostId(post.getId(), currentUser.getId())
         );
         return dto;
-    }
-    private User getCurrentUserFromAuthentication(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())){
-            return null;
-        }
-        String username = authentication.getName();
-        return userRepository.findByUsername(username).orElse(null);
     }
 }

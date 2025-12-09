@@ -1,0 +1,47 @@
+package com.zerooneblog.api.service;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
+
+import com.zerooneblog.api.domain.Post;
+import com.zerooneblog.api.domain.PostReport;
+import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.infrastructure.persistence.PostRepository;
+import com.zerooneblog.api.infrastructure.persistence.ReportRepository;
+import com.zerooneblog.api.interfaces.dto.requestDto.ReportRequestDto;
+import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+
+@Service
+public class ReportService {
+    private final ReportRepository reportRepository;
+    private final PostRepository postRepository;
+    private final UserService userService;
+
+    public ReportService(ReportRepository reportRepository, PostRepository postRepository,UserService userService) {
+        this.reportRepository = reportRepository;
+        this.postRepository = postRepository;
+        this.userService =userService;
+    }
+
+    @Transactional
+    public String reportPost(Long postId, ReportRequestDto reportRequestDto, Authentication authentication) {
+        Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new ResourceNotFoundException("post", "id", postId));
+        
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
+        if (reportRepository.existsByPostIdAndReporterId(post.getId(), currentUser.getId())) {
+                throw new DuplicateResourceException("Report", "postId", postId);
+        }
+        PostReport postReport = new PostReport();
+        postReport.setPost(post);
+        postReport.setReason(reportRequestDto.getReason());
+        postReport.setDetails(reportRequestDto.getDetials());
+        postReport.setReported(post.getAuthor());
+        postReport.setReporter(currentUser);
+        reportRepository.save(postReport);
+        return "The post with id: " + postId + " has been reported successfully!";
+    }
+
+}

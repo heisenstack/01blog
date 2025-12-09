@@ -1,5 +1,6 @@
 package com.zerooneblog.api.service;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.zerooneblog.api.domain.User;
@@ -18,5 +19,13 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
         .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+    }
+    
+    public User getCurrentUserFromAuthentication(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())){
+            return null;
+        }
+        String username = authentication.getName();
+        return userRepository.findByUsername(username).orElse(null);
     }
 }
