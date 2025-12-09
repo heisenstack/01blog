@@ -2,6 +2,7 @@ package com.zerooneblog.api.service;
 
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,19 @@ public class CommentService {
         .collect(Collectors.toList());    
     }
 
+    @Transactional
+    public CommentDTO updateComment(Long commentId, String content, String username) {
+        Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(()-> new ResourceNotFoundException("Comment", "id", commentId));
+
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new UnauthorizedActionException("You are not authorized to update this comment.");
+        }
+        comment.setContent(content);
+        Comment updaComment = commentRepository.save(comment);
+        return mapToDto(updaComment);
+    }
+
     private CommentDTO mapToDto(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
@@ -58,4 +72,6 @@ public class CommentService {
         dto.setUsername(comment.getPost().getAuthor().getUsername());
         return dto;
     } 
+
+
 }
