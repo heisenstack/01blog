@@ -42,12 +42,11 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
-    //     Post post = postService.getPostById(id);
-    //     PostResponse postResponse = mapToPostResponse(post);
-    //     return ResponseEntity.ok(postResponse);
-    // }
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id, Authentication authentication) {
+        PostResponse post = postService.getPostById(id, authentication);
+        return ResponseEntity.ok(post);
+    }
 
     // @PutMapping("/{id}")
     // @PreAuthorize("isAuthenticated()")

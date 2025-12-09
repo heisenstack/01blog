@@ -11,8 +11,6 @@ import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-// import jakarta.transaction.Transactional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -53,8 +51,12 @@ public class PostService {
         .collect(Collectors.toList());
     }
 
-    public Post getPostById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+    public PostResponse getPostById(Long postId, Authentication authentication) {
+        User currentUser = getCurrentUserFromAuthentication(authentication);
+        Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+
+        return mapToDto(post, currentUser);
     }
 
     @Transactional
