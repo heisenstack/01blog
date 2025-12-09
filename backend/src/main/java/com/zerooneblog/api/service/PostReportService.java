@@ -15,12 +15,12 @@ import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 @Service
-public class ReportService {
+public class PostReportService {
     private final ReportRepository reportRepository;
     private final PostRepository postRepository;
     private final UserService userService;
 
-    public ReportService(ReportRepository reportRepository, PostRepository postRepository, UserService userService) {
+    public PostReportService(ReportRepository reportRepository, PostRepository postRepository, UserService userService) {
         this.reportRepository = reportRepository;
         this.postRepository = postRepository;
         this.userService = userService;

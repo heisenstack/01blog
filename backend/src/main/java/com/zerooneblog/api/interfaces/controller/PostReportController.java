@@ -5,13 +5,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.zerooneblog.api.interfaces.dto.requestDto.ReportRequestDto;
-import com.zerooneblog.api.service.ReportService;
+import com.zerooneblog.api.service.PostReportService;
 
 @RestController
 @RequestMapping("/api/posts")
-public class ReportController {
-    private final ReportService reportService;
-    public ReportController(ReportService reportService) {
+public class PostReportController {
+    private final PostReportService reportService;
+    public PostReportController(PostReportService reportService) {
         this.reportService = reportService;
     }
 

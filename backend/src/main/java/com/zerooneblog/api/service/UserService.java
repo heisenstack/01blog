@@ -20,7 +20,13 @@ public class UserService {
         return userRepository.findByUsername(username)
         .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
-    
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+ 
+    }
+
     public User getCurrentUserFromAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())){
             return null;
