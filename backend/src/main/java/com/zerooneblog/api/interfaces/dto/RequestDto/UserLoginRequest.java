@@ -1,4 +1,4 @@
-package com.zerooneblog.api.interfaces.dto;
+package com.zerooneblog.api.interfaces.dto.RequestDto;
 
 public class UserLoginRequest {
     private String username;

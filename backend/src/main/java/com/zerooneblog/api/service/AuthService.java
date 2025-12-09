@@ -1,10 +1,10 @@
 package com.zerooneblog.api.service;
 
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
-import com.zerooneblog.api.interfaces.dto.UserRegistrationRequest;
-import com.zerooneblog.api.interfaces.dto.UserLoginRequest;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.security.JwtTokenProvider;
+import com.zerooneblog.api.interfaces.dto.RequestDto.UserLoginRequest;
+import com.zerooneblog.api.interfaces.dto.RequestDto.UserRegistrationRequest;
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;

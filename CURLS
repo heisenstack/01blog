@@ -1,0 +1,7 @@
+curl -X POST localhost:8080/api/auth/signup -H "Content-Type: application/json" -d '{"username": "amine", "email": "amine@gmail.com", "password" : "Amine123"}'
+curl -X POST localhost:8080/api/auth/signin -H "Content-Type: application/json" -d '{"username": "amine", "password" : "Amine123"}'
+
+
+curl localhost:8080/api/posts
+curl localhost:8080/api/posts/id
+curl -X POST localhost:8080/api/posts -H "Content-Type: application/json" -H "Authorization: Bearer " -d '{"title": "Posts title", "content": "Posts content"}'
