@@ -37,6 +37,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> likes = new ArrayList<>();
 
+    @Column
+    private Long reportedCount;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();

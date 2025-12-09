@@ -57,7 +57,9 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        
+        System.out.println(post.getReportedCount());
         return mapToDto(post, currentUser);
     }
 
@@ -99,6 +101,11 @@ public class PostService {
         dto.setLikedByCurrentUser(currentUser != null && 
             postLikeRepository.existsByUserIdAndPostId(post.getId(), currentUser.getId())
         );
+        if (post.getReportedCount() == null) {
+            dto.setReportedCount(0L);
+        }else {
+            dto.setReportedCount(post.getReportedCount());
+        }
         return dto;
     }
 }

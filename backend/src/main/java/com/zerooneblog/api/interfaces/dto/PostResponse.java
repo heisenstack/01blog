@@ -14,5 +14,6 @@ public class PostResponse {
     private String authorUsername;
     private Long authorId;
     private long likeCount;
+    private long reportedCount;
     private boolean isLikedByCurrentUser;
 }

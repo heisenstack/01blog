@@ -8,3 +8,5 @@ curl -X POST localhost:8080/api/posts -H "Content-Type: application/json" -H "Au
 
 
 curl -X DELETE localhost:8080/api/comments/1 -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbWluZSIsInVzZXJJZCI6MSwiaWF0IjoxNzY1Mjg1MzUyLCJleHAiOjE3NjUzNzE3NTJ9._c33XfbgL54IQwtUAARIhgxl6j89w0v7dqFXxTpckIz78P0zU2_mXONZ7zNIgZ7VX4mjRrNkWy3Wtxfk3BThRg"
+
+eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbWluZSIsInVzZXJJZCI6MSwiaWF0IjoxNzY1MzA1MjgzLCJleHAiOjE3NjUzOTE2ODN9.ypVCz6wgOAZ3V46JJtS8s5W-HQS2Vlecm4ALgzBEsyhZS4MbJNDlRZZVLyPzRq9V9z2Xryy3KK65UDb6w9_MYA

@@ -40,8 +40,13 @@ public class ReportService {
         postReport.setDetails(reportRequestDto.getDetials());
         postReport.setReported(post.getAuthor());
         postReport.setReporter(currentUser);
+        if (post.getReportedCount() == null) {
+            post.setReportedCount(1L);
+        }else {
+            post.setReportedCount(post.getReportedCount() + 1L);
+        }
         reportRepository.save(postReport);
-        return "The post with id: " + postId + " has been reported successfully!";
+        return "The post with id: " + postId + " has been reported successfully! Reports count" + post.getReportedCount();
     }
 
 }
