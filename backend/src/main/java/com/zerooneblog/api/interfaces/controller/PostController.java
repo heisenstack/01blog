@@ -1,11 +1,8 @@
 package com.zerooneblog.api.interfaces.controller;
 
-import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
-import com.zerooneblog.api.interfaces.dto.PostAuthorResponse;
 import com.zerooneblog.api.service.PostService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -55,11 +51,11 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-    //     String username = userDetails.getUsername();
-    //     String message = postService.deletePost(id, username);
-    //     return ResponseEntity.ok(message);
-    // }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        String message = postService.deletePost(id, username);
+        return ResponseEntity.ok(message);
+    }
 
 }
