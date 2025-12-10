@@ -78,6 +78,7 @@ public class GlobalExceptionHandler {
         MessageResponse errorResponse = new MessageResponse("FAILURE", detailMessage); 
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
+    // 403 Not Found: NoResourceFoundException
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<MessageResponse> handleNoResourceFound(
         NoResourceFoundException ex, 
