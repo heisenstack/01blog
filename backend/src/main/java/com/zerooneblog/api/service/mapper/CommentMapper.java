@@ -1,8 +1,12 @@
 package com.zerooneblog.api.service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.zerooneblog.api.domain.Comment;
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
 
+
+@Component
 public class CommentMapper {
     
         public CommentDTO toDto(Comment comment) {
