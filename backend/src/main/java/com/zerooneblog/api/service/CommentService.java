@@ -3,6 +3,7 @@ package com.zerooneblog.api.service;
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
+import com.zerooneblog.api.service.mapper.CommentMapper;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +23,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserService userService;
+    private final CommentMapper commentMapper;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserService userService) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserService userService, CommentMapper commentMapper) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userService = userService;
+        this.commentMapper = commentMapper;
     }
 
     @Transactional
@@ -46,7 +49,7 @@ public class CommentService {
     public List<CommentDTO> getCommentsByPostId(Long postId) {
         List<Comment> comments =  commentRepository.findByPostId(postId);
     return comments.stream()
-        .map(this::mapToDto)
+        .map(post -> commentMapper.toDto(post))
         .collect(Collectors.toList());    
     }
 
@@ -60,7 +63,7 @@ public class CommentService {
         }
         comment.setContent(content);
         Comment updaComment = commentRepository.save(comment);
-        return mapToDto(updaComment);
+        return commentMapper.toDto(updaComment);
     }
 
     @Transactional
@@ -74,16 +77,5 @@ public class CommentService {
          commentRepository.delete(comment);
          return "The comment has been deleted successfully!";
     }
-
-    private CommentDTO mapToDto(Comment comment) {
-        CommentDTO dto = new CommentDTO();
-        dto.setId(comment.getId());
-        dto.setContent(comment.getContent());
-        dto.setPostId(comment.getPost().getId());
-        dto.setCreatedAt(comment.getCreatedAt());
-        dto.setUsername(comment.getPost().getAuthor().getUsername());
-        return dto;
-    } 
-
 
 }
