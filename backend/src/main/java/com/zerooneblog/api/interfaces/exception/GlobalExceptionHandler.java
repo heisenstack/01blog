@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 @RestControllerAdvice
@@ -77,6 +78,20 @@ public class GlobalExceptionHandler {
         MessageResponse errorResponse = new MessageResponse("FAILURE", detailMessage); 
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<MessageResponse> handleNoResourceFound(
+        NoResourceFoundException ex, 
+        WebRequest request) {
+    
+    String detailMessage = String.format(
+        "The requested resource '%s' does not exist.", 
+        ex.getResourcePath()
+    );
+
+    MessageResponse errorResponse = new MessageResponse("FAILURE", detailMessage); 
+    
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+}
 
 
     // 409 Conflict: DuplicateResourceException 
