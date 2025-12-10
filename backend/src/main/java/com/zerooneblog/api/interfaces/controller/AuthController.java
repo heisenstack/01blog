@@ -1,5 +1,6 @@
 package com.zerooneblog.api.interfaces.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import com.zerooneblog.api.service.AuthService;
@@ -18,13 +19,13 @@ public class AuthController {
         this.authService = authService;
     }
     @PostMapping("/signin")
-    public String LoginUser(@RequestBody UserLoginRequest signupRequest) {
+    public String LoginUser(@Valid @RequestBody UserLoginRequest signupRequest) {
         String token = authService.authenticateUser(signupRequest);
         return "User " + signupRequest.getUsername() +  "logged, token: " + token;
     }
 
     @PostMapping("/signup")
-    public String RegisterUser(@RequestBody UserRegistrationRequest signinRequest) {
+    public String RegisterUser(@Valid @RequestBody UserRegistrationRequest signinRequest) {
         User savedUser = authService.registerUser(signinRequest);
         return "User Registered: " + savedUser.getUsername();
     }
