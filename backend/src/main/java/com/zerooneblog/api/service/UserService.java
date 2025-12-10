@@ -13,10 +13,10 @@ import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.interfaces.dto.UserProfileDto;
+import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.service.mapper.PostMapper;
-
 
 @Service
 public class UserService {
@@ -32,13 +32,13 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-        .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
     public User findById(Long userId) {
         return userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
- 
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
     }
 
     @Transactional(readOnly = true)
@@ -46,31 +46,29 @@ public class UserService {
         User user = findById(userId);
         User currentUser = getCurrentUserFromAuthentication(authentication);
 
-
         boolean isSubscribed = this.isUserSubscribedToProfile(currentUser, user);
 
         List<Post> posts = postRepository.findByAuthorIdAndHidden(userId, false);
-        
+
         List<PostResponse> postDto = posts.stream()
-            .map(post -> postMapper.toDto(post, currentUser))
-            .collect(Collectors.toList());
-        
+                .map(post -> postMapper.toDto(post, currentUser))
+                .collect(Collectors.toList());
+
         long followerCount = userRepository.countFollowers(userId);
         long followingCount = userRepository.countFollowing(userId);
-        
+
         return new UserProfileDto(
-            user.getId(), 
-            user.getName(), 
-            user.getUsername(), 
-            postDto,
-            followerCount, 
-            followingCount, 
-            isSubscribed, 
-            user.isEnabled()
-        );
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                postDto,
+                followerCount,
+                followingCount,
+                isSubscribed,
+                user.isEnabled());
     }
 
-    @Transactional 
+    @Transactional
     public String followUser(Long userId, Authentication authentication) {
         User currentUser = getCurrentUserFromAuthentication(authentication);
         User userToFollow = findById(userId);
@@ -78,47 +76,56 @@ public class UserService {
         if (currentUser.getId().equals(userToFollow.getId())) {
             throw new UnauthorizedActionException("You cannot follow yourself.");
         }
-        
-        if (currentUser.getFollowing().contains(userToFollow)) {
-            return "You are already following " + userToFollow.getUsername() + ".";
+
+        boolean alreadyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(),
+                userToFollow.getId()) > 0;
+
+        if (alreadyFollowing) {
+            throw new DuplicateResourceException("You are already following " + userToFollow.getUsername() + ".");
         }
 
-        currentUser.getFollowing().add(userToFollow);
-        userRepository.save(currentUser); 
-        
+        userRepository.insertFollowRelationship(currentUser.getId(), userToFollow.getId());
+
         return "You've followed " + userToFollow.getUsername() + " successfully!";
     }
 
-    @Transactional 
+    @Transactional
     public String unfollowUser(Long userId, Authentication authentication) {
         User currentUser = getCurrentUserFromAuthentication(authentication);
+        if (currentUser == null) {
+            throw new UnauthorizedActionException("You must be logged in to follow a user.");
+        }
+
         User userToUnfollow = findById(userId);
-        
+
         if (currentUser.getId().equals(userToUnfollow.getId())) {
             throw new UnauthorizedActionException("You cannot unfollow yourself.");
         }
-        
-        if (!currentUser.getFollowing().contains(userToUnfollow)) {
-            return "You are not currently following " + userToUnfollow.getUsername() + ".";
+
+        boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(), userToUnfollow.getId()) > 0;
+        if (!isCurrentlyFollowing) {
+            throw new ResourceNotFoundException(
+                    "Follow Relationship",
+                    "follower/following",
+                    currentUser.getUsername() + "/" + userToUnfollow.getUsername());
         }
 
-        currentUser.getFollowing().remove(userToUnfollow);
-        userRepository.save(currentUser);
-        
+        userRepository.deleteFollowRelationship(currentUser.getId(), userToUnfollow.getId());
+
         return "You've unfollowed " + userToUnfollow.getUsername() + " successfully!";
     }
-
 
     @Transactional(readOnly = true)
     private boolean isUserSubscribedToProfile(User viewer, User profileUser) {
         if (viewer == null || viewer.getId().equals(profileUser.getId())) {
-             return false; 
+            return false;
         }
-        return viewer.getFollowing().contains(profileUser);        
+        return viewer.getFollowing().contains(profileUser);
     }
 
     public User getCurrentUserFromAuthentication(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())){
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
             return null;
         }
         String username = authentication.getName();
