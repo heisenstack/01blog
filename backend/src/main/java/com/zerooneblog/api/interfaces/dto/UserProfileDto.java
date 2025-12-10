@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserProfileDto {
     private Long id;
-    private String fullName;
+    private String name;
     private String username;
     private List<PostResponse> posts;
     private Long followerCount;
