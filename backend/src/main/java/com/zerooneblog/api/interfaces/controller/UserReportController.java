@@ -28,6 +28,5 @@ public class UserReportController {
     public ResponseEntity<String> reportUser(@PathVariable Long userId,@RequestBody UserReportRequest userReportRequest,@AuthenticationPrincipal UserDetails userDetails) {
         userReportService.reportUser(userId, userReportRequest, userDetails.getUsername());
         return ResponseEntity.ok("Report submitted successfully!");
-    }
-    
+    }   
 }

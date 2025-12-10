@@ -1,6 +1,7 @@
 package com.zerooneblog.api.service;
 
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
+import com.zerooneblog.api.domain.Role;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.security.JwtTokenProvider;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
@@ -21,7 +22,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider; 
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
+                      AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -29,7 +31,12 @@ public class AuthService {
     }
 
     public String authenticateUser(UserLoginRequest userLoginRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                userLoginRequest.getUsername(), 
+                userLoginRequest.getPassword()
+            )
+        );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtTokenProvider.generateToken(authentication);
     }
@@ -41,11 +48,14 @@ public class AuthService {
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new RuntimeException("Email is already taken!");
         }
+        
         User user = new User();
         user.setUsername(registrationRequest.getUsername());
         user.setEmail(registrationRequest.getEmail());
+        user.setFullName(registrationRequest.getFullName()); 
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-        user.setRole("ROLE_USER");
+        user.setRole(Role.USER); 
+        
         return userRepository.save(user);
     }
 }

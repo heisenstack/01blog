@@ -1,5 +1,7 @@
 package com.zerooneblog.api.config;
+
 import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.domain.Role;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.Customizer;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,21 +42,26 @@ public class SecurityConfig {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
+            Role userRole = user.getRole();
             List<GrantedAuthority> authorities;
-            String userRole = user.getRole();
-            // System.out.println("This is a user role:", userRole);
             
-            if (StringUtils.hasText(userRole)) {
+            if (userRole != null) {
                 authorities = Collections.singletonList(
-                        new SimpleGrantedAuthority(userRole)
+                        new SimpleGrantedAuthority("ROLE_" + userRole.name())
                 );
             } else {
-                authorities = Collections.emptyList();
+                authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_USER")
+                );
             }
 
             return new org.springframework.security.core.userdetails.User(
                     user.getUsername(),
                     user.getPassword(),
+                    user.isEnabled(), 
+                    true,  
+                    true,
+                    true,  
                     authorities
             );
         };
@@ -82,7 +88,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/api/users/**").permitAll() 
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

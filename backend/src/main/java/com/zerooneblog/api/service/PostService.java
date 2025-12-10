@@ -8,6 +8,7 @@ import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
+import com.zerooneblog.api.service.mapper.PostMapper;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -20,14 +21,14 @@ import org.springframework.stereotype.Service;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostLikeRepository postLikeRepository;
     private final UserService userService;
+    private final PostMapper postMapper;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, PostLikeRepository postLikeRepository, UserService userService) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.postLikeRepository = postLikeRepository;
         this.userService = userService;
+        this.postMapper = postMapper;
     }
 
     @Transactional
@@ -41,7 +42,7 @@ public class PostService {
         post.setAuthor(author);
         Post savedPost = postRepository.save(post);
 
-        return mapToDto(savedPost,author);
+        return postMapper.toDto(savedPost,author);
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +50,7 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         List<Post> posts = postRepository.findAll();
         return posts.stream()
-        .map(post -> mapToDto(post, currentUser))
+        .map(post -> postMapper.toDto(post, currentUser))
         .collect(Collectors.toList());
     }
 
@@ -57,10 +58,8 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        
         System.out.println(post.getReportedCount());
-        return mapToDto(post, currentUser);
+        return postMapper.toDto(post, currentUser);
     }
 
     @Transactional
@@ -75,7 +74,7 @@ public class PostService {
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         Post savedPost = postRepository.save(post);
-        return mapToDto(savedPost, currentUser);
+        return postMapper.toDto(savedPost, currentUser);
     }
 
     public String deletePost(Long id, String username) {
@@ -87,25 +86,5 @@ public class PostService {
         }
         postRepository.delete(post);
         return "Post " + id + " has been deleted successfully!";
-    }
-
-    private PostResponse mapToDto(Post post, User currentUser) {
-        PostResponse dto = new PostResponse();
-        dto.setId(post.getId());
-        dto.setTitle(post.getTitle());
-        dto.setContent(post.getContent());
-        dto.setAuthorId(post.getAuthor().getId());
-        dto.setAuthorUsername(post.getAuthor().getUsername());
-        dto.setCreatedAt(post.getCreatedAt());
-        dto.setLikeCount(postLikeRepository.countByPostId(post.getId()));
-        dto.setLikedByCurrentUser(currentUser != null && 
-            postLikeRepository.existsByUserIdAndPostId(post.getId(), currentUser.getId())
-        );
-        if (post.getReportedCount() == null) {
-            dto.setReportedCount(0L);
-        }else {
-            dto.setReportedCount(post.getReportedCount());
-        }
-        return dto;
     }
 }

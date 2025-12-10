@@ -1,39 +1,64 @@
 package com.zerooneblog.api.domain;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore; 
-import java.util.List; 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
+
+import java.util.Set;
+import java.util.HashSet;
+import java.time.Instant;
 
 @Data
 @Entity
-@Table(name= "users")
+@Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false, unique = true)
+    private String fullName;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @JsonIgnore
+    @Column(nullable = false)
     private String password;
-    private String role; 
-    
+
+    @Column(nullable = false)
+    private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false)
+    private Role role = Role.USER;
+
+    @Column(nullable = false)
+    private boolean enabled = true;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore 
-    private List<Post> posts = new ArrayList<>();
+    @JsonIgnore
+    private Set<Post> posts = new HashSet<>();
 
-    // Constructor
-    public User() {}
+    @ManyToMany
+    @JoinTable(name = "user_followers", joinColumns = @JoinColumn(name = "follower_id"), inverseJoinColumns = @JoinColumn(name = "following_id"))
+    @JsonIgnore
+    private Set<User> following = new HashSet<>();
 
-    public User(String username, String email, String password) {
-        this(username, email, password, "USER");
-    }
-    public User(String username, String email, String password, String role) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
+    @ManyToMany(mappedBy = "following")
+    @JsonIgnore
+    private Set<User> followers = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Instant.now();
     }
 }

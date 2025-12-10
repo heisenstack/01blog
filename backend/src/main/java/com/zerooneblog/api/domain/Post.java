@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
 
-
 @Data
 @Entity
 @Table(name = "posts")
@@ -19,10 +18,9 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
-    @Lob 
+    @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
-    
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -38,7 +36,10 @@ public class Post {
     private List<PostLike> likes = new ArrayList<>();
 
     @Column
-    private Long reportedCount;
+    private Long reportedCount = 0L;
+
+    @Column(name = "is_hidden", nullable = false)
+    private boolean hidden = false;
 
     @PrePersist
     protected void onCreate() {

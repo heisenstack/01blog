@@ -1,19 +1,32 @@
 package com.zerooneblog.api.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
+import com.zerooneblog.api.interfaces.dto.PostResponse;
+import com.zerooneblog.api.interfaces.dto.UserProfileDto;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+import com.zerooneblog.api.service.mapper.PostMapper;
 
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final PostMapper postMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PostRepository postRepository, PostMapper postMapper) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.postMapper = postMapper;
     }
 
     public User findByUsername(String username) {
@@ -25,6 +38,43 @@ public class UserService {
         return userRepository.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
  
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileDto getUserProfile(Long userId, Authentication authentication) {
+        User user = findById(userId);
+        User currentUser = getCurrentUserFromAuthentication(authentication);
+
+
+        boolean isSubscribed = this.isUserSubscribedToProfile(currentUser, user);
+
+        List<Post> posts = postRepository.findByAuthorIdAndHidden(userId, false);
+        
+        List<PostResponse> postDto = posts.stream()
+            .map(post -> postMapper.toDto(post, currentUser))
+            .collect(Collectors.toList());
+        
+        long followerCount = userRepository.countFollowers(userId);
+        long followingCount = userRepository.countFollowing(userId);
+        
+        return new UserProfileDto(
+            user.getId(), 
+            user.getName(), 
+            user.getUsername(), 
+            postDto,
+            followerCount, 
+            followingCount, 
+            isSubscribed, 
+            user.isEnabled()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    private boolean isUserSubscribedToProfile(User viewer, User profileUser) {
+        if (viewer == null || viewer.getId().equals(profileUser.getId())) {
+             return false; 
+        }
+        return viewer.getFollowing().contains(profileUser);        
     }
 
     public User getCurrentUserFromAuthentication(Authentication authentication) {
