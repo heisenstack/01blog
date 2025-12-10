@@ -1,12 +1,14 @@
 package com.zerooneblog.api.interfaces.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.UserProfileDto;
 import com.zerooneblog.api.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 @RestController
@@ -23,5 +25,19 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(userId, authentication));
     }
     
-
+    @PostMapping("/{userId}/follow")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> followUser(@PathVariable Long userId, Authentication authentication) { 
+        String followMessaString = userService.followUser(userId, authentication);
+        MessageResponse message = new MessageResponse("SUCCESS", followMessaString);
+        return ResponseEntity.ok(message);
+    }
+    
+    @PostMapping("/{userId}/unfollow")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> unfollowUser(@PathVariable Long userId, Authentication authentication) { 
+        String unfollowMessage =  userService.unfollowUser(userId, authentication);
+        MessageResponse message = new MessageResponse("SUCCESS", unfollowMessage);
+        return ResponseEntity.ok(message);
+    }     
 }

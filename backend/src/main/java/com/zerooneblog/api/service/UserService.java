@@ -14,6 +14,7 @@ import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.interfaces.dto.UserProfileDto;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.service.mapper.PostMapper;
 
 
@@ -68,6 +69,45 @@ public class UserService {
             user.isEnabled()
         );
     }
+
+    @Transactional 
+    public String followUser(Long userId, Authentication authentication) {
+        User currentUser = getCurrentUserFromAuthentication(authentication);
+        User userToFollow = findById(userId);
+
+        if (currentUser.getId().equals(userToFollow.getId())) {
+            throw new UnauthorizedActionException("You cannot follow yourself.");
+        }
+        
+        if (currentUser.getFollowing().contains(userToFollow)) {
+            return "You are already following " + userToFollow.getUsername() + ".";
+        }
+
+        currentUser.getFollowing().add(userToFollow);
+        userRepository.save(currentUser); 
+        
+        return "You've followed " + userToFollow.getUsername() + " successfully!";
+    }
+
+    @Transactional 
+    public String unfollowUser(Long userId, Authentication authentication) {
+        User currentUser = getCurrentUserFromAuthentication(authentication);
+        User userToUnfollow = findById(userId);
+        
+        if (currentUser.getId().equals(userToUnfollow.getId())) {
+            throw new UnauthorizedActionException("You cannot unfollow yourself.");
+        }
+        
+        if (!currentUser.getFollowing().contains(userToUnfollow)) {
+            return "You are not currently following " + userToUnfollow.getUsername() + ".";
+        }
+
+        currentUser.getFollowing().remove(userToUnfollow);
+        userRepository.save(currentUser);
+        
+        return "You've unfollowed " + userToUnfollow.getUsername() + " successfully!";
+    }
+
 
     @Transactional(readOnly = true)
     private boolean isUserSubscribedToProfile(User viewer, User profileUser) {
