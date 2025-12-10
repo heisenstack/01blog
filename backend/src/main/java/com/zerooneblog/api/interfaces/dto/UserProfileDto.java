@@ -18,4 +18,6 @@ public class UserProfileDto {
     private Long followingCount;
     private boolean subscribed;
     private boolean enabled = true;
+    private Long reportedCount;
+    private Long reportingCount;
 }

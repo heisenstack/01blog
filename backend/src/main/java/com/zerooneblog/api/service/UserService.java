@@ -65,7 +65,9 @@ public class UserService {
                 followerCount,
                 followingCount,
                 isSubscribed,
-                user.isEnabled());
+                user.isEnabled(), 
+                user.getReportedCount(),
+                user.getReportingCount());
     }
 
     @Transactional
@@ -102,7 +104,8 @@ public class UserService {
             throw new UnauthorizedActionException("You cannot unfollow yourself.");
         }
 
-        boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(), userToUnfollow.getId()) > 0;
+        boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(),
+                userToUnfollow.getId()) > 0;
         if (!isCurrentlyFollowing) {
             throw new ResourceNotFoundException(
                     "Follow Relationship",

@@ -54,6 +54,12 @@ public class User {
     @JsonIgnore
     private Set<User> followers = new HashSet<>();
 
+    @Column
+    private Long reportedCount = 0L;
+
+    @Column
+    private Long reportingCount = 0L;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
