@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PostService {
+    private static final int MAX_MEDIA_FILES = 5;
+
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final UserService userService;

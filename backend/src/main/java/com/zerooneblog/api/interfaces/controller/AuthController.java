@@ -1,11 +1,14 @@
 package com.zerooneblog.api.interfaces.controller;
 
 import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.zerooneblog.api.service.AuthService;
 
 import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.interfaces.dto.JwtAuthenticationResponse;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserRegistrationRequest;
 
@@ -19,9 +22,11 @@ public class AuthController {
         this.authService = authService;
     }
     @PostMapping("/signin")
-    public String LoginUser(@Valid @RequestBody UserLoginRequest signupRequest) {
-        String token = authService.authenticateUser(signupRequest);
-        return "User " + signupRequest.getUsername() +  "logged, token: " + token;
+    public ResponseEntity<JwtAuthenticationResponse> LoginUser(@Valid @RequestBody UserLoginRequest signupRequest) {
+        //  String token = authService.authenticateUser(loginRequest);
+         String token = authService.authenticateUser(signupRequest);
+         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
+        // return token;
     }
 
     @PostMapping("/signup")
