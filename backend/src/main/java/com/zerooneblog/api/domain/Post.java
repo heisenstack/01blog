@@ -2,6 +2,9 @@ package com.zerooneblog.api.domain;
 
 import lombok.Data;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
@@ -10,15 +13,23 @@ import java.util.ArrayList;
 @Entity
 @Table(name = "posts")
 public class Post {
+    public enum MediaType {
+        IMAGE,
+        VIDEO,
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 150, message = "Title must not exceed 150 characters")
     @Column(nullable = false)
     private String title;
 
+    
     @Lob
+    @NotBlank(message = "Content is required")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -28,6 +39,9 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<PostMedia> mediaFoLES = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
