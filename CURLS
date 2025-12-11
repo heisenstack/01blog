@@ -1,0 +1,15 @@
+curl -X POST localhost:8080/api/auth/signup -H "Content-Type: application/json" -d '{"username": "amine", "email": "amine@gmail.com", "password" : "Amine123"}'
+curl -X POST localhost:8080/api/auth/signin -H "Content-Type: application/json" -d '{"username": "amine", "password" : "Amine123"}'
+
+
+curl localhost:8080/api/posts
+curl localhost:8080/api/posts/id
+curl -X POST localhost:8080/api/posts -H "Content-Type: application/json" -H "Authorization: Bearer " -d '{"title": "Posts title", "content": "Posts content"}'
+
+
+curl -X DELETE localhost:8080/api/comments/1 -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbWluZSIsInVzZXJJZCI6MSwiaWF0IjoxNzY1Mjg1MzUyLCJleHAiOjE3NjUzNzE3NTJ9._c33XfbgL54IQwtUAARIhgxl6j89w0v7dqFXxTpckIz78P0zU2_mXONZ7zNIgZ7VX4mjRrNkWy3Wtxfk3BThRg"
+
+eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbWluZSIsInVzZXJJZCI6MSwiaWF0IjoxNzY1MzU5NzY4LCJleHAiOjE3NjU0NDYxNjh9.Pg0wBPARa49T67C2157-GxTG9xiGTOfKPt4iMoKOreSUeS0qOfa-zR65UT6xIFclH8SPH_AeIOjlLzRMeE1gYw
+
+
+problem when sending non sufficient data in register (invalid exception returned)

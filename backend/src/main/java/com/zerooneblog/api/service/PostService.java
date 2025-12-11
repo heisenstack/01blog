@@ -29,13 +29,15 @@ public class PostService {
     private final UserService userService;
     private final PostMapper postMapper;
     private final FileStorageService fileStorageService;
+    private final PostMediaRepository postMediaRepository;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper, FileStorageService fileStorageService) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper, FileStorageService fileStorageService, PostMediaRepository postMediaRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.postMapper = postMapper;
         this.fileStorageService = fileStorageService;
+        this.postMediaRepository = postMediaRepository;
     }
 
     @Transactional
@@ -134,5 +136,6 @@ public class PostService {
             post.getMediaFoLES().add(savedPostMedia);
             return savedPostMedia;
         }
+        return null;
     }
 }
