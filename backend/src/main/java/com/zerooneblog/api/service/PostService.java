@@ -1,6 +1,7 @@
 package com.zerooneblog.api.service;
 
 import com.zerooneblog.api.domain.Post;
+import com.zerooneblog.api.domain.PostMedia;
 import com.zerooneblog.api.domain.User;
 
 import com.zerooneblog.api.infrastructure.persistence.*;
@@ -11,6 +12,8 @@ import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.service.mapper.PostMapper;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,11 +41,27 @@ public class PostService {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
+        int fileCount = (request.getMediaFiles() != null) ? request.getMediaFiles().length : 0;
+        if (fileCount > MAX_MEDIA_FILES) {
+            throw new IllegalArgumentException("Cannot upload more than " + MAX_MEDIA_FILES + " media files.");
+        }
+        
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setAuthor(author);
+        post.setHidden(false);
+
         Post savedPost = postRepository.save(post);
+        if (request.getMediaFiles() != null && request.getMediaFiles().length > 0) {
+            int order = 0;
+            for (MultipartFile mediaFile: request.getMediaFiles()) {
+                PostMedia postMedia = processAndSaveMedia(mediaFile, savedPost, order);
+                if (postMedia != null)    {
+                    order++;
+                }
+            }
+        }
 
         return postMapper.toDto(savedPost,author);
     }
@@ -88,5 +107,21 @@ public class PostService {
         }
         postRepository.delete(post);
         return "Post " + id + " has been deleted successfully!";
+    }
+
+    private PostMedia processAndSaveMedia(MultipartFile mediaFile, Post post, int order) {
+        String contentType = mediaFile.getContentType();
+        PostMedia.MediaType mediaType = null;
+
+        if (contentType != null) {
+            if (contentType.startsWith("image/")) {
+                mediaType = PostMedia.MediaType.IMAGE;
+            }else if(contentType.startsWith("video/")) {
+                mediaType = PostMedia.MediaType.VIDEO;
+            }
+        }
+        if (mediaType != null) {
+            String fileName = fileStorageService.storeFile(mediaFile);
+        }
     }
 }

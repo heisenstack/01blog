@@ -27,7 +27,6 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
-    
     @Lob
     @NotBlank(message = "Content is required")
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -42,6 +41,13 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<PostMedia> mediaFoLES = new ArrayList<>();
+
+    @Column(name = "media_url")
+    private String mediaUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "media_type")
+    private MediaType mediaType;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
