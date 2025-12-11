@@ -28,12 +28,14 @@ public class PostService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PostMapper postMapper;
+    private final FileStorageService fileStorageService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper, FileStorageService fileStorageService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.postMapper = postMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -122,6 +124,15 @@ public class PostService {
         }
         if (mediaType != null) {
             String fileName = fileStorageService.storeFile(mediaFile);
+            PostMedia postMedia = new PostMedia();
+            postMedia.setPost(post);
+            postMedia.setMediaUrl(fileName);
+            postMedia.setMediaType(mediaType);
+            postMedia.setDisplayOrder(order);
+
+            PostMedia savedPostMedia = postMediaRepository.save(postMedia);
+            post.getMediaFoLES().add(savedPostMedia);
+            return savedPostMedia;
         }
     }
 }
