@@ -1,6 +1,9 @@
 package com.zerooneblog.api.interfaces.dto;
 
 import java.time.Instant;
+import java.util.List;
+
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +19,7 @@ public class PostResponse {
     private long likeCount;
     private long reportedCount;
     private boolean isLikedByCurrentUser;
+    private List<PostMediaDto> mediaFiles;
+    private boolean hidden;
+
 }

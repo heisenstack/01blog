@@ -66,7 +66,7 @@ public class PostService {
                 }
             }
         }
-
+        savedPost.getMediaFoLES().size(); 
         return postMapper.toDto(savedPost,author);
     }
 

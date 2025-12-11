@@ -3,16 +3,19 @@ package com.zerooneblog.api.domain;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
-@Data
 public class PostMedia {
     public enum MediaType {
         IMAGE,
         VIDEO,
     }
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,5 +39,17 @@ public class PostMedia {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PostMedia)) return false;
+        PostMedia that = (PostMedia) o;
+        return id != null && id.equals(that.id);
+    }
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

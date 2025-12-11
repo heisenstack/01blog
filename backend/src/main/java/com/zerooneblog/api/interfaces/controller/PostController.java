@@ -2,6 +2,7 @@ package com.zerooneblog.api.interfaces.controller;
 
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
+import com.zerooneblog.api.interfaces.dto.requestDto.PostRequest;
 import com.zerooneblog.api.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,10 +26,17 @@ public class PostController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostDTO request, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PostResponse> createPost(
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,
+            @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        PostResponse createdPost = postService.createPost(request, username);
-        return  ResponseEntity.ok(createdPost);
+
+        PostDTO postDto = new PostDTO(title, content, mediaFiles);
+
+        PostResponse createdPost = postService.createPost(postDto, username);
+        return ResponseEntity.ok(createdPost);
     }
 
     @GetMapping
@@ -46,7 +54,8 @@ public class PostController {
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request, Authentication authentication) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request,
+            Authentication authentication) {
         PostResponse updatedPost = postService.updatePost(id, request, authentication);
         return ResponseEntity.ok(updatedPost);
     }

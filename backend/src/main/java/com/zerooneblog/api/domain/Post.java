@@ -1,6 +1,7 @@
 package com.zerooneblog.api.domain;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,7 +10,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -39,7 +41,7 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PostMedia> mediaFoLES = new ArrayList<>();
 
     @Column(name = "media_url")
@@ -64,5 +66,17 @@ public class Post {
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
+    }
+      @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Post)) return false;
+        Post post = (Post) o;
+        return id != null && id.equals(post.id);
+    }
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
