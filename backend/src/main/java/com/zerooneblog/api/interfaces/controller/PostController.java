@@ -1,5 +1,6 @@
 package com.zerooneblog.api.interfaces.controller;
 
+import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.service.PostService;
@@ -53,17 +54,22 @@ public class PostController {
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO request,
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,
             Authentication authentication) {
-        PostResponse updatedPost = postService.updatePost(id, request, authentication);
+        PostResponse updatedPost = postService.updatePost(id, title, content, authentication);
         return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        String message = postService.deletePost(id, username);
-        return ResponseEntity.ok(message);
+    public ResponseEntity<MessageResponse> deletePost(@PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String message = postService.deletePost(id, userDetails.getUsername());
+        MessageResponse messageResponse = new MessageResponse("SUCCESS", message);
+        return ResponseEntity.ok(messageResponse);
     }
 
 }

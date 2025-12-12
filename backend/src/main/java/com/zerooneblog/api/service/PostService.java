@@ -88,7 +88,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse updatePost(Long postId, PostDTO request, Authentication authentication) {
+    public PostResponse updatePost(Long postId, String title, String content, Authentication authentication) {
+        
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println(authentication);
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
@@ -96,8 +101,8 @@ public class PostService {
             throw new UnauthorizedActionException(
                     "User " + currentUser.getUsername() + " is not authorized to update post " + postId);
         }
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
+        post.setTitle(title);
+        post.setContent(content);
         Post savedPost = postRepository.save(post);
         return postMapper.toDto(savedPost, currentUser);
     }
