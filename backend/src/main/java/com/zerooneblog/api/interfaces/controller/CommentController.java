@@ -1,7 +1,7 @@
 package com.zerooneblog.api.interfaces.controller;
 
 
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
+import com.zerooneblog.api.interfaces.dto.CommentResponseDto;
 import com.zerooneblog.api.service.CommentService;
-
-
-
 
 @RestController
 @RequestMapping("/api")
@@ -32,24 +31,30 @@ public class CommentController {
     }
 
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<String> createComment(@PathVariable Long postId,@RequestBody String payload, @AuthenticationPrincipal UserDetails userDetails) {
-        String newComment = commentService.createComment(postId, payload, userDetails.getUsername());
+    public ResponseEntity<String> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
         return new ResponseEntity<>(newComment, HttpStatus.CREATED);
     }
 
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
-        return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
+    public ResponseEntity<CommentResponseDto> getCommentsByPostId(@PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(commentService.getCommentsByPostId(postId, page, size));
     }
-    
+
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId,@RequestBody String payload,  @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody String payload,
+            @AuthenticationPrincipal UserDetails userDetails) {
         CommentDTO updatedComment = commentService.updateComment(commentId, payload, userDetails.getUsername());
         return ResponseEntity.ok(updatedComment);
     }
+
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
         String deletedComment = commentService.deleteComment(commentId, userDetails.getUsername());
         return ResponseEntity.ok(deletedComment);
-    } 
+    }
 }

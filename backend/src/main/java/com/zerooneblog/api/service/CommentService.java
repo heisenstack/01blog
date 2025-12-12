@@ -1,5 +1,6 @@
 package com.zerooneblog.api.service;
 
+import com.zerooneblog.api.interfaces.dto.CommentResponseDto;
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
@@ -7,6 +8,7 @@ import com.zerooneblog.api.service.mapper.CommentMapper;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.*;
 import com.zerooneblog.api.infrastructure.persistence.*;
 
 import java.util.List;
@@ -46,11 +48,20 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentDTO> getCommentsByPostId(Long postId) {
-        List<Comment> comments =  commentRepository.findByPostId(postId);
-    return comments.stream()
-        .map(post -> commentMapper.toDto(post))
-        .collect(Collectors.toList());    
+    public CommentResponseDto getCommentsByPostId(Long postId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Comment> commentPage =commentRepository.findByPostId(postId, pageable);
+        List<CommentDTO> commentDTOs = commentPage.getContent().stream()
+        .map(commentDto -> commentMapper.toDto(commentDto))
+        .collect(Collectors.toList());
+        return new CommentResponseDto(
+            commentDTOs,
+            commentPage.getNumber(),
+            commentPage.getSize(),
+            commentPage.getTotalElements(),
+            commentPage.getTotalPages(),
+            commentPage.isLast()
+        );
     }
 
     @Transactional

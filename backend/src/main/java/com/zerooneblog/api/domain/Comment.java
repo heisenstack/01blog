@@ -14,7 +14,7 @@ public class Comment {
     private Long id;
 
     @Lob
-    @Column(nullable = false, columnDefinition= "TEXT")
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
 

@@ -8,7 +8,6 @@ import com.zerooneblog.api.interfaces.dto.CommentDTO;
 
 @Component
 public class CommentMapper {
-    
         public CommentDTO toDto(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
