@@ -16,6 +16,8 @@ public class PostsResponseDto {
     private long totalElements;
     private boolean last;
 
+    public PostsResponseDto(){}
+
      public PostsResponseDto(List<PostResponse> content, int pageNumber, int pageSize, long totalElements, int totalPages, boolean last) {
         this.content = content;
         this.pageNumber = pageNumber;

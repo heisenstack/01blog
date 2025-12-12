@@ -5,6 +5,7 @@ import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
 import com.zerooneblog.api.service.PostService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -12,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 @RestController
 @RequestMapping("/api/posts")
@@ -41,11 +41,20 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PostsResponseDto> getAllPosts(
-        @RequestParam(defaultValue =  "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        Authentication authentication) {
-        PostsResponseDto posts = postService.getAllPosts(page, size,authentication);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+        PostsResponseDto posts = postService.getAllPosts(page, size, authentication);
 
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<PostsResponseDto> getFeedForCurrentUser(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+        PostsResponseDto posts = postService.getFeedForCurrentUser(page, size, authentication);
         return ResponseEntity.ok(posts);
     }
 

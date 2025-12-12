@@ -36,7 +36,8 @@ public class PostService {
     private final FileStorageService fileStorageService;
     private final PostMediaRepository postMediaRepository;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService, PostMapper postMapper, FileStorageService fileStorageService, PostMediaRepository postMediaRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService,
+            PostMapper postMapper, FileStorageService fileStorageService, PostMediaRepository postMediaRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userService = userService;
@@ -54,7 +55,7 @@ public class PostService {
         if (fileCount > MAX_MEDIA_FILES) {
             throw new IllegalArgumentException("Cannot upload more than " + MAX_MEDIA_FILES + " media files.");
         }
-        
+
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
@@ -64,15 +65,15 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         if (request.getMediaFiles() != null && request.getMediaFiles().length > 0) {
             int order = 0;
-            for (MultipartFile mediaFile: request.getMediaFiles()) {
+            for (MultipartFile mediaFile : request.getMediaFiles()) {
                 PostMedia postMedia = processAndSaveMedia(mediaFile, savedPost, order);
-                if (postMedia != null)    {
+                if (postMedia != null) {
                     order++;
                 }
             }
         }
-        savedPost.getMediaFoLES().size(); 
-        return postMapper.toDto(savedPost,author);
+        savedPost.getMediaFoLES().size();
+        return postMapper.toDto(savedPost, author);
     }
 
     @Transactional(readOnly = true)
@@ -80,25 +81,47 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Post> postsPage = postRepository.findAllWithDetails(pageable);
-        List <PostResponse> postsResponse = postsPage.getContent().stream().map(post -> postMapper.toDto(post, currentUser)).collect(Collectors.toList());
-        return new PostsResponseDto(postsResponse,postsPage.getNumber(), postsPage.getSize(), postsPage.getTotalElements(),postsPage.getTotalPages(), false);
+        List<PostResponse> postsResponse = postsPage.getContent().stream()
+                .map(post -> postMapper.toDto(post, currentUser)).collect(Collectors.toList());
+        return new PostsResponseDto(postsResponse, postsPage.getNumber(), postsPage.getSize(),
+                postsPage.getTotalElements(), postsPage.getTotalPages(), false);
+    }
+
+    @Transactional(readOnly = true)
+    public PostsResponseDto getFeedForCurrentUser(int page, int size, Authentication authentication) {
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
+
+        List<Long> followedUserIds = userRepository.findFollowingIds(currentUser.getId());
+        followedUserIds.add(currentUser.getId());
+
+        if (followedUserIds.isEmpty()) {
+            return new PostsResponseDto();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findPostsByUserIdIn(followedUserIds, pageable);
+
+        List<PostResponse> postsResponse = postsPage.getContent().stream()
+                .map(post -> postMapper.toDto(post, currentUser)).collect(Collectors.toList());
+        return new PostsResponseDto(postsResponse, postsPage.getNumber(), postsPage.getSize(),
+                postsPage.getTotalElements(), postsPage.getTotalPages(), false);
     }
 
     public PostResponse getPostById(Long postId, Authentication authentication) {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
         System.out.println(post.getReportedCount());
         return postMapper.toDto(post, currentUser);
     }
 
     @Transactional
     public PostResponse updatePost(Long postId, String title, String content, Authentication authentication) {
-        
+
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println(authentication);
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        
+
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
@@ -114,10 +137,11 @@ public class PostService {
 
     public String deletePost(Long id, String username) {
         Post post = postRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
         if (!post.getAuthor().getUsername().equals(username)) {
-            throw new UnauthorizedActionException(String.format("User '%s' is not authorized to delete post %d", username, id));
+            throw new UnauthorizedActionException(
+                    String.format("User '%s' is not authorized to delete post %d", username, id));
         }
         postRepository.delete(post);
         return "Post " + id + " has been deleted successfully!";
@@ -130,7 +154,7 @@ public class PostService {
         if (contentType != null) {
             if (contentType.startsWith("image/")) {
                 mediaType = PostMedia.MediaType.IMAGE;
-            }else if(contentType.startsWith("video/")) {
+            } else if (contentType.startsWith("video/")) {
                 mediaType = PostMedia.MediaType.VIDEO;
             }
         }
