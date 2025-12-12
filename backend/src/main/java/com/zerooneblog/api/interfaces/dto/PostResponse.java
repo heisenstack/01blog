@@ -18,7 +18,7 @@ public class PostResponse {
     private Long authorId;
     private long likeCount;
     private long reportedCount;
-    private boolean isLikedByCurrentUser;
+    private boolean likedByCurrentUser;
     private List<PostMediaDto> mediaFiles;
     private boolean hidden;
 

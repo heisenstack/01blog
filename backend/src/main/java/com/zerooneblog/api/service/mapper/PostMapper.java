@@ -33,7 +33,6 @@ public class PostMapper {
         dto.setLikeCount(postLikeRepository.countByPostId(post.getId()));
         dto.setLikedByCurrentUser(currentUser != null &&
                 postLikeRepository.existsByUserIdAndPostId(currentUser.getId(), post.getId())
-
         );
         dto.setHidden(false);
         dto.setReportedCount(post.getReportedCount() != null ? post.getReportedCount() : 0L);
