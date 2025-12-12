@@ -35,7 +35,7 @@ public class CommentService {
     }
 
     @Transactional
-    public String createComment(Long postId, String content, String username) {
+    public CommentDTO createComment(Long postId, String content, String username) {
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
         User user = userService.findByUsername(username);
@@ -43,8 +43,8 @@ public class CommentService {
         newComment.setContent(content);
         newComment.setPost(post);
         newComment.setUser(user);
-        commentRepository.save(newComment);
-        return "Comment: " + newComment.getContent() + " on post: " + newComment.getPost().getId() + " has been created successfully!";
+        Comment savedComment = commentRepository.save(newComment);
+        return commentMapper.toDto(savedComment);
     }
 
     @Transactional(readOnly = true)

@@ -3,7 +3,6 @@ package com.zerooneblog.api.interfaces.controller;
 
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zerooneblog.api.interfaces.dto.CommentDTO;
 import com.zerooneblog.api.interfaces.dto.CommentResponseDto;
+import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.service.CommentService;
 
 @RestController
@@ -31,10 +31,10 @@ public class CommentController {
     }
 
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<String> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
+    public ResponseEntity<CommentDTO> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
-        String newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
-        return new ResponseEntity<>(newComment, HttpStatus.CREATED);
+        CommentDTO newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
+        return  ResponseEntity.ok(newComment);
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -45,16 +45,17 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody String payload,
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody Map<String,String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
-        CommentDTO updatedComment = commentService.updateComment(commentId, payload, userDetails.getUsername());
+        CommentDTO updatedComment = commentService.updateComment(commentId, payload.get("content"), userDetails.getUsername());
         return ResponseEntity.ok(updatedComment);
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
+    public ResponseEntity<MessageResponse> deleteComment(@PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        String deletedComment = commentService.deleteComment(commentId, userDetails.getUsername());
-        return ResponseEntity.ok(deletedComment);
+        String message = commentService.deleteComment(commentId, userDetails.getUsername());
+        MessageResponse response = new MessageResponse("SUCCESS", message);
+        return ResponseEntity.ok(response);
     }
 }
