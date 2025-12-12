@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>{
-    @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.user LEFT JOIN FETCH p.likes WHERE p.hidden = false",
+    @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.author LEFT JOIN FETCH p.likes WHERE p.hidden = false",
     countQuery = "SELECT COUNT(p) FROM Post p WHERE p.hidden = false")
     Page<Post> findAllWithDetails(Pageable pageable);
     
