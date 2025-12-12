@@ -7,6 +7,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
+import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.service.mapper.PostMapper;
@@ -17,6 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -71,12 +76,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts(Authentication authentication) {
+    public PostsResponseDto getAllPosts(int page, int size, Authentication authentication) {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
-        List<Post> posts = postRepository.findAll();
-        return posts.stream()
-        .map(post -> postMapper.toDto(post, currentUser))
-        .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findAllWithDetails(pageable);
+        List <PostResponse> postsResponse = postsPage.getContent().stream().map(post -> postMapper.toDto(post, currentUser)).collect(Collectors.toList());
+        return new PostsResponseDto(postsResponse,postsPage.getNumber(), postsPage.getSize(), postsPage.getTotalElements(),postsPage.getTotalPages(), false);
     }
 
     public PostResponse getPostById(Long postId, Authentication authentication) {

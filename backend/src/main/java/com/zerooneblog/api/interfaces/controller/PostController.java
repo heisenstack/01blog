@@ -3,6 +3,7 @@ package com.zerooneblog.api.interfaces.controller;
 import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.PostDTO;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
+import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
 import com.zerooneblog.api.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -40,8 +40,11 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts(Authentication authentication) {
-        List<PostResponse> posts = postService.getAllPosts(authentication);
+    public ResponseEntity<PostsResponseDto> getAllPosts(
+        @RequestParam(defaultValue =  "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        Authentication authentication) {
+        PostsResponseDto posts = postService.getAllPosts(page, size,authentication);
 
         return ResponseEntity.ok(posts);
     }
