@@ -3,11 +3,13 @@ package com.zerooneblog.api.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
 
+@Service
 public class AdminService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
