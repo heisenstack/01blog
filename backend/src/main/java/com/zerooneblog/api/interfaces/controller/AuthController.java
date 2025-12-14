@@ -9,6 +9,8 @@ import com.zerooneblog.api.service.AuthService;
 
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.interfaces.dto.JwtAuthenticationResponse;
+import com.zerooneblog.api.interfaces.dto.MessageResponse;
+
 import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserRegistrationRequest;
 
@@ -30,8 +32,8 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public String RegisterUser(@Valid @RequestBody UserRegistrationRequest signinRequest) {
+    public ResponseEntity<MessageResponse> RegisterUser(@Valid @RequestBody UserRegistrationRequest signinRequest) {
         User savedUser = authService.registerUser(signinRequest);
-        return "User Registered: " + savedUser.getUsername();
+        return ResponseEntity.ok(new MessageResponse("SUCCESS", "User: " + savedUser.getName() +  " has been registered successfully."));
     }
 }

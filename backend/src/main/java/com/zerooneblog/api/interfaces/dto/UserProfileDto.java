@@ -1,7 +1,5 @@
 package com.zerooneblog.api.interfaces.dto;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +11,7 @@ public class UserProfileDto {
     private Long id;
     private String name;
     private String username;
-    private List<PostResponse> posts;
+    private PostsResponseDto posts;  
     private Long followerCount;
     private Long followingCount;
     private boolean subscribed;

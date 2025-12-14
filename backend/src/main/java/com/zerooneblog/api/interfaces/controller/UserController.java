@@ -18,9 +18,12 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long userId, Authentication authentication) {
-        return ResponseEntity.ok(userService.getUserProfile(userId, authentication));
+    @GetMapping("/{username}")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+        return ResponseEntity.ok(userService.getUserProfile(username, page, size, authentication));
     }
 
     @PostMapping("/{userId}/follow")

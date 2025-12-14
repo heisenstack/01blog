@@ -3,6 +3,10 @@ package com.zerooneblog.api.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +16,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
+import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
 import com.zerooneblog.api.interfaces.dto.UserProfileDto;
 import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
@@ -42,33 +47,45 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserProfileDto getUserProfile(Long userId, Authentication authentication) {
-        User user = findById(userId);
-        User currentUser = getCurrentUserFromAuthentication(authentication);
+public UserProfileDto getUserProfile(String username, int page, int size, Authentication authentication) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        boolean isSubscribed = this.isUserSubscribedToProfile(currentUser, user);
+    User user = findByUsername(username);
+    User currentUser = getCurrentUserFromAuthentication(authentication);
 
-        List<Post> posts = postRepository.findByAuthorIdAndHidden(userId, false);
+    boolean isSubscribed = this.isUserSubscribedToProfile(currentUser, user);
 
-        List<PostResponse> postDto = posts.stream()
-                .map(post -> postMapper.toDto(post, currentUser))
-                .collect(Collectors.toList());
+    Page<Post> postsPage = postRepository.findByUserId(user.getId(), pageable);
 
-        long followerCount = userRepository.countFollowers(userId);
-        long followingCount = userRepository.countFollowing(userId);
+    List<PostResponse> postDtos = postsPage.getContent().stream()
+            .map(post -> postMapper.toDto(post, currentUser))
+            .collect(Collectors.toList());
 
-        return new UserProfileDto(
-                user.getId(),
-                user.getName(),
-                user.getUsername(),
-                postDto,
-                followerCount,
-                followingCount,
-                isSubscribed,
-                user.isEnabled(), 
-                user.getReportedCount(),
-                user.getReportingCount());
-    }
+    PostsResponseDto postsResponseDto = new PostsResponseDto(
+            postDtos,                       
+            postsPage.getNumber(),         
+            postsPage.getSize(),             
+            postsPage.getTotalElements(),    
+            postsPage.getTotalPages(),     
+            postsPage.isLast()            
+    );
+
+    long followerCount = userRepository.countFollowers(user.getId());
+    long followingCount = userRepository.countFollowing(user.getId());
+
+    return new UserProfileDto(
+            user.getId(),
+            user.getName(),
+            user.getUsername(),
+            postsResponseDto,         
+            followerCount,
+            followingCount,
+            isSubscribed,
+            user.isEnabled(), 
+            user.getReportedCount(),
+            user.getReportingCount()
+    );
+}
 
     @Transactional
     public String followUser(Long userId, Authentication authentication) {

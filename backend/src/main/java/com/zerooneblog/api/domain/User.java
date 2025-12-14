@@ -31,9 +31,11 @@ public class User {
     @Column(name = "full_name", nullable = false)
     private String name;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role", nullable = false)
-    private Role role = Role.USER;
+    private Set<Role> roles = new HashSet<>();
 
     @Column(nullable = false)
     private boolean enabled = true;

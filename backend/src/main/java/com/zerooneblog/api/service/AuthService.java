@@ -7,6 +7,8 @@ import com.zerooneblog.api.infrastructure.security.JwtTokenProvider;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserRegistrationRequest;
 import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
+import java.util.Set;
+
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,7 +54,7 @@ public class AuthService {
         user.setEmail(registrationRequest.getEmail());
         user.setName(registrationRequest.getName());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-        user.setRole(Role.USER);
+        user.setRoles(Set.of(Role.USER));
 
         return userRepository.save(user);
     }

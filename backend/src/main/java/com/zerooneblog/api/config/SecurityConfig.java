@@ -28,8 +28,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableMethodSecurity
@@ -44,33 +45,33 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> {
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+   @Bean
+public UserDetailsService userDetailsService() {
+    return username -> {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-            Role userRole = user.getRole();
-            List<GrantedAuthority> authorities;
+        Set<Role> userRoles = user.getRoles();
+        
+        List<GrantedAuthority> authorities = 
+                userRoles.stream()
+                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                         .collect(Collectors.toList());
 
-            if (userRole != null) {
-                authorities = Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_" + userRole.name()));
-            } else {
-                authorities = Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_USER"));
-            }
+        if (authorities.isEmpty()) {
+             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
 
-            return new org.springframework.security.core.userdetails.User(
-                    user.getUsername(),
-                    user.getPassword(),
-                    user.isEnabled(),
-                    true,
-                    true,
-                    true,
-                    authorities);
-        };
-    }
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                user.isEnabled(),
+                true, 
+                true,
+                true, 
+                authorities);
+    };
+}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
