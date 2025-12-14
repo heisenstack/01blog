@@ -1,5 +1,6 @@
 package com.zerooneblog.api.interfaces.controller;
 
+import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
 import com.zerooneblog.api.service.AdminService;
 import com.zerooneblog.api.service.PostService;
 
