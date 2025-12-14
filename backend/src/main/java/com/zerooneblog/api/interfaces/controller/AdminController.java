@@ -1,6 +1,6 @@
 package com.zerooneblog.api.interfaces.controller;
 
-import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
+import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.AdminService;
 import com.zerooneblog.api.service.PostService;
 
@@ -26,4 +26,13 @@ public class AdminController {
         DashboardStatsDto stats = adminService.getDashboardStats();
         return ResponseEntity.ok(stats);
     }
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserAdminViewResponse> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UserAdminViewResponse users = adminService.getAllUsersPaginated(page, size);
+        return ResponseEntity.ok(users);
+    }
+
 }
