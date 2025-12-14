@@ -21,4 +21,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.author.id = :userId AND p.hidden = false")
     Page<Post> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    long countByHidden(boolean hidden);
+
 }

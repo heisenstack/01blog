@@ -2,13 +2,13 @@ package com.zerooneblog.api.infrastructure.persistence;
 
 import com.zerooneblog.api.domain.User;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,4 +42,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "INSERT INTO user_followers (follower_id, following_id) VALUES (:followerId, :followingId)", nativeQuery = true)
     void insertFollowRelationship(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+
+    long countByCreatedAtAfter(Instant date);
+
+    long countByEnabled(boolean enabled);
+
 }
