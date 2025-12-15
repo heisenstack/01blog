@@ -8,4 +8,6 @@ import com.zerooneblog.api.domain.PostReport;
 @Repository
 public interface ReportRepository extends JpaRepository<PostReport, Long>{
     boolean existsByPostIdAndReporterId(Long postId, Long reportedId);
+    void deleteAllByPostId(Long postId);
+
 }

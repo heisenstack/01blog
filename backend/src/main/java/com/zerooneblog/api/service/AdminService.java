@@ -15,6 +15,7 @@ import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewDto;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewResponse;
+import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.service.mapper.UserAdminViewMapper;
 
 @Service
@@ -69,6 +70,15 @@ public class AdminService {
                 userPage.getTotalPages(),
                 userPage.isLast());
 
+    }
+
+        @Transactional
+    public void deletePost(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new ResourceNotFoundException("Post", "id", postId);
+        }
+        reportRepository.deleteAllByPostId(postId);
+        postRepository.deleteById(postId);
     }
 
 }
