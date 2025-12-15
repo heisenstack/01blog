@@ -34,5 +34,11 @@ public class AdminController {
         UserAdminViewResponse users = adminService.getAllUsersPaginated(page, size);
         return ResponseEntity.ok(users);
     }
+        @DeleteMapping("/posts/{postId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        adminService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
 
 }
