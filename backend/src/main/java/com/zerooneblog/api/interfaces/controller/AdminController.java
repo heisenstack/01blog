@@ -34,11 +34,19 @@ public class AdminController {
         UserAdminViewResponse users = adminService.getAllUsersPaginated(page, size);
         return ResponseEntity.ok(users);
     }
-        @DeleteMapping("/posts/{postId}")
+    @DeleteMapping("/posts/{postId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         adminService.deletePost(postId);
         return ResponseEntity.noContent().build();
+    }
+        @GetMapping("/reports")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ReportResponse> getAllReports(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ReportResponse reports = adminService.getAllReportsPaginated(page, size);
+        return ResponseEntity.ok(reports);
     }
 
 }
