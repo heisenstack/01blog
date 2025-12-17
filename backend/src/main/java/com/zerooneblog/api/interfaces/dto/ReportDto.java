@@ -2,6 +2,8 @@ package com.zerooneblog.api.interfaces.dto;
 
 import java.time.LocalDateTime;
 
+import com.zerooneblog.api.domain.ReportReason;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +12,7 @@ import lombok.Setter;
 public class ReportDto {
 
     private Long id;
-    private String reason;
+    private ReportReason reason;
     private String details;
     private LocalDateTime createdAt;
     private String reporterUsername;
