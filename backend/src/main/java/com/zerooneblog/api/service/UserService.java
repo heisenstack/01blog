@@ -151,4 +151,5 @@ public UserProfileDto getUserProfile(String username, int page, int size, Authen
         String username = authentication.getName();
         return userRepository.findByUsername(username).orElse(null);
     }
+    
 }

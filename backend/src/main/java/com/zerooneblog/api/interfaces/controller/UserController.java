@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.UserProfileDto;
+import com.zerooneblog.api.interfaces.dto.UserSuggestionResponse;
 import com.zerooneblog.api.service.UserService;
 
 @RestController
@@ -40,5 +41,13 @@ public class UserController {
         String unfollowMessage = userService.unfollowUser(userId, authentication);
         MessageResponse message = new MessageResponse("SUCCESS", unfollowMessage);
         return ResponseEntity.ok(message);
+    }
+
+    @GetMapping("/users/suggestions")
+    public ResponseEntity<UserSuggestionResponse> getSuggestedUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UserSuggestionResponse suggestions = userService.getSuggestedUsers(page, size);
+        return ResponseEntity.ok(suggestions);
     }
 }
