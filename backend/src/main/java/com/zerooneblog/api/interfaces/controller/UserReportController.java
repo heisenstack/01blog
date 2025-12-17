@@ -24,9 +24,9 @@ public class UserReportController {
     }
 
 
-    @PostMapping("/{userId}/report")
-    public ResponseEntity<String> reportUser(@PathVariable Long userId,@RequestBody UserReportRequest userReportRequest,@AuthenticationPrincipal UserDetails userDetails) {
-        userReportService.reportUser(userId, userReportRequest, userDetails.getUsername());
+    @PostMapping("/{username}/report")
+    public ResponseEntity<String> reportUser(@PathVariable String username,@RequestBody UserReportRequest userReportRequest,@AuthenticationPrincipal UserDetails userDetails) {
+        userReportService.reportUser(username, userReportRequest, userDetails.getUsername());
         return ResponseEntity.ok("Report submitted successfully!");
     }   
 }

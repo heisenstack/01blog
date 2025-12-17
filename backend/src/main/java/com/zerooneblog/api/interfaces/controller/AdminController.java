@@ -129,5 +129,14 @@ public class AdminController {
         UserAdminViewResponse bannedUsers = adminService.getBannedUsers(page, size);
         return ResponseEntity.ok(bannedUsers);
     }
+        @GetMapping("/reports/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserReportResponse> getReportedUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UserReportResponse reportedUsers = adminService.getAllUserReportsPaginated(page, size);
+        return ResponseEntity.ok(reportedUsers);
+    }
+
 
 }

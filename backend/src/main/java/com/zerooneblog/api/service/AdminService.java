@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.PostReport;
 import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.domain.UserReport;
 import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
 import com.zerooneblog.api.interfaces.dto.PostResponse;
@@ -19,6 +20,8 @@ import com.zerooneblog.api.interfaces.dto.ReportDto;
 import com.zerooneblog.api.interfaces.dto.ReportResponse;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewDto;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewResponse;
+import com.zerooneblog.api.interfaces.dto.UserReportDto;
+import com.zerooneblog.api.interfaces.dto.UserReportResponse;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 import com.zerooneblog.api.service.mapper.PostMapper;
 import com.zerooneblog.api.service.mapper.ReportMapper;
@@ -163,24 +166,53 @@ public class AdminService {
         user.setEnabled(true);
         userRepository.save(user);
     }
+
     @Transactional(readOnly = true)
-public UserAdminViewResponse getBannedUsers(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    Page<User> bannedUsersPage = userRepository.findByEnabled(false, pageable);
+    public UserAdminViewResponse getBannedUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> bannedUsersPage = userRepository.findByEnabled(false, pageable);
 
-    List<UserAdminViewDto> userDtos = bannedUsersPage.getContent().stream()
-            .filter(user -> user.getRoles().stream().noneMatch(role -> role.equals("ROLE_ADMIN")))
-            .map(user -> userAdminViewMapper.toDto(user))
-            .collect(Collectors.toList());
+        List<UserAdminViewDto> userDtos = bannedUsersPage.getContent().stream()
+                .filter(user -> user.getRoles().stream().noneMatch(role -> role.equals("ROLE_ADMIN")))
+                .map(user -> userAdminViewMapper.toDto(user))
+                .collect(Collectors.toList());
 
-    return new UserAdminViewResponse(
-            userDtos,
-            bannedUsersPage.getNumber(),
-            bannedUsersPage.getSize(),
-            (long) userDtos.size(),
-            bannedUsersPage.getTotalPages(),
-            bannedUsersPage.isLast());
-}
+        return new UserAdminViewResponse(
+                userDtos,
+                bannedUsersPage.getNumber(),
+                bannedUsersPage.getSize(),
+                (long) userDtos.size(),
+                bannedUsersPage.getTotalPages(),
+                bannedUsersPage.isLast());
+    }
 
+    @Transactional(readOnly = true)
+    public UserReportResponse getAllUserReportsPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<UserReport> userReportPage = userReportRepository.findAll(pageable);
+
+        List<UserReportDto> userReportDtos = userReportPage.getContent().stream()
+                .map(this::toUserReportDto)
+                .collect(Collectors.toList());
+
+        return new UserReportResponse(
+                userReportDtos,
+                userReportPage.getNumber(),
+                userReportPage.getSize(),
+                userReportPage.getTotalElements(),
+                userReportPage.getTotalPages(),
+                userReportPage.isLast());
+    }
+
+       private UserReportDto toUserReportDto(UserReport userReport) {
+        UserReportDto dto = new UserReportDto();
+        dto.setId(userReport.getId());
+        dto.setReason(userReport.getReason());
+        dto.setDetails(userReport.getDetails());
+        dto.setCreatedAt(userReport.getCreatedAt());
+        dto.setReporterUsername(userReport.getReporter().getUsername());
+        dto.setReportedUserId(userReport.getReported().getId());
+        return dto;
+    }
 
 }

@@ -22,8 +22,8 @@ public class UserReportService {
     }
 
     @Transactional
-    public void reportUser(Long userId, UserReportRequest userReportRequest, String username ) {
-        User toBeReportedUser = userService.findById(userId);
+    public void reportUser(String userToReport, UserReportRequest userReportRequest, String username ) {
+        User toBeReportedUser = userService.findByUsername(userToReport);
         User currentUser = userService.findByUsername(username);
 
         if (toBeReportedUser.getId().equals(currentUser.getId())) {
