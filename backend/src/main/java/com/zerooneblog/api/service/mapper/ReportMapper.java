@@ -1,8 +1,12 @@
 package com.zerooneblog.api.service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.zerooneblog.api.domain.PostReport;
 import com.zerooneblog.api.interfaces.dto.ReportDto;
 
+
+@Component
 public class ReportMapper {
         public ReportDto toDto(PostReport report) {
         ReportDto dto = new ReportDto();
@@ -17,4 +21,5 @@ public class ReportMapper {
         }
         return dto;
     }
+    
 }

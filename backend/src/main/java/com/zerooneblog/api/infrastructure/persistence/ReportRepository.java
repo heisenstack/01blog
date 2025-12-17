@@ -14,7 +14,7 @@ public interface ReportRepository extends JpaRepository<PostReport, Long> {
 
     void deleteAllByPostId(Long postId);
 
-    @Query("SELECT r FROM Report r LEFT JOIN FETCH r.reporter LEFT JOIN FETCH r.post")
+    @Query("SELECT r FROM PostReport r LEFT JOIN FETCH r.reporter LEFT JOIN FETCH r.post")
     Page<PostReport> findAllWithDetails(Pageable pageable);
 
 }
