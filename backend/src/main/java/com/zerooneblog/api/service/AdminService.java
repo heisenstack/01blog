@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.PostReport;
+import com.zerooneblog.api.domain.Role;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.domain.UserReport;
 import com.zerooneblog.api.infrastructure.persistence.*;
@@ -74,7 +75,7 @@ public class AdminService {
         Page<User> userPage = userRepository.findAll(pageable);
 
         List<UserAdminViewDto> userDtos = userPage.getContent().stream()
-                .filter(user -> user.getRoles().stream().noneMatch(role -> role.equals("ROLE_ADMIN")))
+                .filter(user -> user.getRoles().stream().noneMatch(role -> role == Role.ADMIN))
                 .map(user -> userAdminViewMapper.toDto(user))
                 .collect(Collectors.toList());
 
@@ -143,7 +144,7 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (user.getRoles().stream().anyMatch(role -> role.equals("ROLE_ADMIN"))) {
+        if (user.getRoles().contains(Role.ADMIN)) {
             throw new IllegalStateException("Admin users cannot be banned.");
         }
 
@@ -173,7 +174,7 @@ public class AdminService {
         Page<User> bannedUsersPage = userRepository.findByEnabled(false, pageable);
 
         List<UserAdminViewDto> userDtos = bannedUsersPage.getContent().stream()
-                .filter(user -> user.getRoles().stream().noneMatch(role -> role.equals("ROLE_ADMIN")))
+                .filter(user -> user.getRoles().contains(Role.ADMIN))
                 .map(user -> userAdminViewMapper.toDto(user))
                 .collect(Collectors.toList());
 
@@ -223,7 +224,7 @@ public class AdminService {
         reportRepository.deleteById(reportId);
     }
 
-        @Transactional
+    @Transactional
     public void dismissUserReport(Long userReportId) {
         if (!userReportRepository.existsById(userReportId)) {
             throw new ResourceNotFoundException("UserReport", "id", userReportId);
