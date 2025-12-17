@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.PostReport;
@@ -162,6 +166,15 @@ public class AdminService {
 
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    @GetMapping("/users/banned")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserAdminViewResponse> getBannedUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UserAdminViewResponse bannedUsers = adminService.getBannedUsers(page, size);
+        return ResponseEntity.ok(bannedUsers);
     }
 
 }
