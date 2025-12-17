@@ -223,4 +223,12 @@ public class AdminService {
         reportRepository.deleteById(reportId);
     }
 
+        @Transactional
+    public void dismissUserReport(Long userReportId) {
+        if (!userReportRepository.existsById(userReportId)) {
+            throw new ResourceNotFoundException("UserReport", "id", userReportId);
+        }
+        userReportRepository.deleteById(userReportId);
+    }
+
 }
