@@ -204,7 +204,7 @@ public class AdminService {
                 userReportPage.isLast());
     }
 
-       private UserReportDto toUserReportDto(UserReport userReport) {
+    private UserReportDto toUserReportDto(UserReport userReport) {
         UserReportDto dto = new UserReportDto();
         dto.setId(userReport.getId());
         dto.setReason(userReport.getReason());
@@ -213,6 +213,14 @@ public class AdminService {
         dto.setReporterUsername(userReport.getReporter().getUsername());
         dto.setReportedUserId(userReport.getReported().getId());
         return dto;
+    }
+
+    @Transactional
+    public void dismissReport(Long reportId) {
+        if (!reportRepository.existsById(reportId)) {
+            throw new ResourceNotFoundException("Report", "id", reportId);
+        }
+        reportRepository.deleteById(reportId);
     }
 
 }
