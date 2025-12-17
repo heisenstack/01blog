@@ -79,12 +79,10 @@ public class AdminController {
     @PutMapping("/posts/{postId}/unhide")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> unhidePost(@PathVariable Long postId) {
-        try {
-            PostResponse result = adminService.unhidePost(postId);
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        PostResponse result = adminService.unhidePost(postId);
+        return ResponseEntity.ok(result);
+
     }
 
     @GetMapping("/posts/hidden")
@@ -103,6 +101,15 @@ public class AdminController {
                 hiddenPostsPage.isLast());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/users/{userId}/ban")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> banUser(@PathVariable Long userId) {
+
+        adminService.banUser(userId);
+        return ResponseEntity.noContent().build();
+
     }
 
 }

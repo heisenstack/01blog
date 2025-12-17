@@ -133,7 +133,22 @@ public class AdminService {
         Post hiddenPost = postRepository.save(post);
         reportRepository.deleteAllByPostId(postId);
         return postMapper.toDto(hiddenPost, null);
+    }
 
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (user.getRoles().stream().anyMatch(role -> equals("ROLE_ADMIN"))) {
+            throw new IllegalStateException("Admin users cannot be banned.");
+        }
+
+        if (!user.isEnabled()) {
+            throw new IllegalStateException("User is already banned.");
+        }
+        user.setEnabled(false);
+        userRepository.save(user);
     }
 
 }

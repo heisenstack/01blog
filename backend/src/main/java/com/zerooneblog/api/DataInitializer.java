@@ -39,15 +39,12 @@ public class DataInitializer {
                 Set<Role> adminRoles = new HashSet<>();
                 adminRoles.add(Role.USER);
                 adminRoles.add(Role.ADMIN);
-
                 adminUser.setRoles(adminRoles);
                 adminUser.setEnabled(true);
                 adminUser.setReportedCount(0L);
                 adminUser.setReportingCount(0L);
                 adminUser.setCreatedAt(Instant.now());
-
                 userRepository.save(adminUser);
-
                 System.out.println("Admin user initialized successfully.");
             } else {
                 System.out.println("Admin user already exists. Skipping initialization.");
