@@ -151,4 +151,17 @@ public class AdminService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void unbanUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (user.isEnabled()) {
+            throw new IllegalStateException("User is not banned.");
+        }
+
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
 }

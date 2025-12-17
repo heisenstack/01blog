@@ -112,4 +112,13 @@ public class AdminController {
 
     }
 
+    @PutMapping("/users/{userId}/unban")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> unbanUser(@PathVariable Long userId) {
+
+        adminService.unbanUser(userId);
+        return ResponseEntity.noContent().build();
+
+    }
+
 }
