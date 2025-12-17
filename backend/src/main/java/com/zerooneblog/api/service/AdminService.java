@@ -9,15 +9,18 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.PostReport;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
+import com.zerooneblog.api.interfaces.dto.PostResponse;
 import com.zerooneblog.api.interfaces.dto.ReportDto;
 import com.zerooneblog.api.interfaces.dto.ReportResponse;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewDto;
 import com.zerooneblog.api.interfaces.dto.UserAdminViewResponse;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
+import com.zerooneblog.api.service.mapper.PostMapper;
 import com.zerooneblog.api.service.mapper.ReportMapper;
 import com.zerooneblog.api.service.mapper.UserAdminViewMapper;
 
@@ -30,16 +33,18 @@ public class AdminService {
     private final UserReportRepository userReportRepository;
     private final UserAdminViewMapper userAdminViewMapper;
     private final ReportMapper reportMapper;
+    private final PostMapper postMapper;
 
     public AdminService(UserRepository userRepository, PostRepository postRepository, ReportRepository reportRepository,
             UserReportRepository userReportRepository, UserAdminViewMapper userAdminViewMapper,
-            ReportMapper reportMapper) {
+            ReportMapper reportMapper, PostMapper postMapper) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.reportRepository = reportRepository;
         this.userReportRepository = userReportRepository;
         this.userAdminViewMapper = userAdminViewMapper;
         this.reportMapper = reportMapper;
+        this.postMapper = postMapper;
     }
 
     @Transactional(readOnly = true)
@@ -106,6 +111,18 @@ public class AdminService {
         }
         reportRepository.deleteAllByPostId(postId);
         postRepository.deleteById(postId);
+    }
+
+    @Transactional 
+        public PostResponse hidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId)); 
+
+        post.setHidden(true);
+        Post hiddenPost = postRepository.save(post);
+        reportRepository.deleteAllByPostId(postId);
+        return postMapper.toDto(hiddenPost, null);
+
     }
 
 }

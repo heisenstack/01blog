@@ -51,5 +51,16 @@ public class AdminController {
         ReportResponse reports = adminService.getAllReportsPaginated(page, size);
         return ResponseEntity.ok(reports);
     }
+    @PutMapping("/posts/{postId}/hide")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostResponse> hidePost(@PathVariable Long postId) {
+        try {
+            PostResponse result = adminService.hidePost(postId);
+           
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
