@@ -6,6 +6,7 @@ import com.zerooneblog.api.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,6 +26,17 @@ public class AdminController {
     public ResponseEntity<DashboardStatsDto> getDashboardStats() {
         DashboardStatsDto stats = adminService.getDashboardStats();
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/posts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostsResponseDto> getAllPostsForAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+        PostsResponseDto posts = postService.getAllPostsForAdmin(page, size, authentication);
+
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/users")
@@ -51,34 +63,45 @@ public class AdminController {
         ReportResponse reports = adminService.getAllReportsPaginated(page, size);
         return ResponseEntity.ok(reports);
     }
+
     @PutMapping("/posts/{postId}/hide")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> hidePost(@PathVariable Long postId) {
         try {
             PostResponse result = adminService.hidePost(postId);
-           
+
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
-    }   
+    }
 
-        @GetMapping("/posts/hidden")
+    @PutMapping("/posts/{postId}/unhide")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostResponse> unhidePost(@PathVariable Long postId) {
+        try {
+            PostResponse result = adminService.unhidePost(postId);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/posts/hidden")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HiddenPostsResponse> getHiddenPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Page<PostResponse> hiddenPostsPage = postService.getHiddenPosts(page, size);
-        
+
         HiddenPostsResponse response = new HiddenPostsResponse(
-            hiddenPostsPage.getContent(),
-            hiddenPostsPage.getNumber(),
-            hiddenPostsPage.getSize(),
-            hiddenPostsPage.getTotalElements(),
-            hiddenPostsPage.getTotalPages(),
-            hiddenPostsPage.isLast()
-        );
-        
+                hiddenPostsPage.getContent(),
+                hiddenPostsPage.getNumber(),
+                hiddenPostsPage.getSize(),
+                hiddenPostsPage.getTotalElements(),
+                hiddenPostsPage.getTotalPages(),
+                hiddenPostsPage.isLast());
+
         return ResponseEntity.ok(response);
     }
 

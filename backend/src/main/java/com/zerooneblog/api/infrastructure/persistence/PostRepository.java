@@ -16,6 +16,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.author LEFT JOIN FETCH p.likes WHERE p.hidden = false", countQuery = "SELECT COUNT(p) FROM Post p WHERE p.hidden = false")
     Page<Post> findAllWithDetails(Pageable pageable);
 
+    Page<Post> findAll(Pageable pageable);
+
+
     @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.author u LEFT JOIN FETCH p.likes WHERE u.id IN :userIds AND p.hidden = false", countQuery = "SELECT COUNT(p) FROM Post p WHERE p.author.id IN :userIds AND p.hidden = false")
     Page<Post> findPostsByUserIdIn(@Param("userIds") List<Long> userIds, Pageable pageable);
 

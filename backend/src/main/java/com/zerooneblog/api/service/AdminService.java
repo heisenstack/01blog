@@ -24,7 +24,6 @@ import com.zerooneblog.api.service.mapper.PostMapper;
 import com.zerooneblog.api.service.mapper.ReportMapper;
 import com.zerooneblog.api.service.mapper.UserAdminViewMapper;
 
-
 @Service
 public class AdminService {
     private final UserRepository userRepository;
@@ -113,12 +112,24 @@ public class AdminService {
         postRepository.deleteById(postId);
     }
 
-    @Transactional 
-        public PostResponse hidePost(Long postId) {
+    @Transactional
+    public PostResponse hidePost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId)); 
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
         post.setHidden(true);
+        Post hiddenPost = postRepository.save(post);
+        reportRepository.deleteAllByPostId(postId);
+        return postMapper.toDto(hiddenPost, null);
+
+    }
+
+    @Transactional
+    public PostResponse unhidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+
+        post.setHidden(false);
         Post hiddenPost = postRepository.save(post);
         reportRepository.deleteAllByPostId(postId);
         return postMapper.toDto(hiddenPost, null);

@@ -87,6 +87,17 @@ public class PostService {
                 postsPage.getTotalElements(), postsPage.getTotalPages(), false);
     }
 
+        @Transactional(readOnly = true)
+    public PostsResponseDto getAllPostsForAdmin(int page, int size, Authentication authentication) {
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findAll(pageable);
+        List<PostResponse> postsResponse = postsPage.getContent().stream()
+                .map(post -> postMapper.toDto(post, currentUser)).collect(Collectors.toList());
+        return new PostsResponseDto(postsResponse, postsPage.getNumber(), postsPage.getSize(),
+                postsPage.getTotalElements(), postsPage.getTotalPages(), false);
+    }
+
     @Transactional(readOnly = true)
     public PostsResponseDto getFeedForCurrentUser(int page, int size, Authentication authentication) {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);

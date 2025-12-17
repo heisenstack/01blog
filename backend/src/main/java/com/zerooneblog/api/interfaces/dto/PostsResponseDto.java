@@ -15,6 +15,7 @@ public class PostsResponseDto {
     private int totalPages;
     private long totalElements;
     private boolean last;
+    
 
     public PostsResponseDto(){}
 

@@ -34,7 +34,7 @@ public class PostMapper {
         dto.setLikedByCurrentUser(currentUser != null &&
                 postLikeRepository.existsByUserIdAndPostId(currentUser.getId(), post.getId())
         );
-        dto.setHidden(false);
+        dto.setHidden(post.isHidden());
         dto.setReportedCount(post.getReportedCount() != null ? post.getReportedCount() : 0L);
         List<PostMediaDto> postMediaDto = post.getMediaFoLES().stream()
         .map(mediafile -> 
