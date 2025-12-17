@@ -2,6 +2,8 @@ package com.zerooneblog.api.infrastructure.persistence;
 
 import com.zerooneblog.api.domain.User;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -46,5 +48,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByCreatedAtAfter(Instant date);
 
     long countByEnabled(boolean enabled);
+
+    @Query("SELECT u FROM User u WHERE u.enabled = :enabled ORDER BY u.createdAt DESC")
+    Page<User> findByEnabled(@Param("enabled") boolean enabled, Pageable pageable);
 
 }

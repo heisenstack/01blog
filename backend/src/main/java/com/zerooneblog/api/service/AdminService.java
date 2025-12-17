@@ -6,12 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.PostReport;
@@ -144,7 +140,7 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (user.getRoles().stream().anyMatch(role -> equals("ROLE_ADMIN"))) {
+        if (user.getRoles().stream().anyMatch(role -> role.equals("ROLE_ADMIN"))) {
             throw new IllegalStateException("Admin users cannot be banned.");
         }
 
@@ -167,14 +163,24 @@ public class AdminService {
         user.setEnabled(true);
         userRepository.save(user);
     }
+    @Transactional(readOnly = true)
+public UserAdminViewResponse getBannedUsers(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    Page<User> bannedUsersPage = userRepository.findByEnabled(false, pageable);
 
-    @GetMapping("/users/banned")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserAdminViewResponse> getBannedUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        UserAdminViewResponse bannedUsers = adminService.getBannedUsers(page, size);
-        return ResponseEntity.ok(bannedUsers);
-    }
+    List<UserAdminViewDto> userDtos = bannedUsersPage.getContent().stream()
+            .filter(user -> user.getRoles().stream().noneMatch(role -> role.equals("ROLE_ADMIN")))
+            .map(user -> userAdminViewMapper.toDto(user))
+            .collect(Collectors.toList());
+
+    return new UserAdminViewResponse(
+            userDtos,
+            bannedUsersPage.getNumber(),
+            bannedUsersPage.getSize(),
+            (long) userDtos.size(),
+            bannedUsersPage.getTotalPages(),
+            bannedUsersPage.isLast());
+}
+
 
 }
