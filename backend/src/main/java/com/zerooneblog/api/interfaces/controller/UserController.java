@@ -27,23 +27,25 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(username, page, size, authentication));
     }
 
-    @PostMapping("/{userId}/follow")
+    @PostMapping("/{username}/follow")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponse> followUser(@PathVariable Long userId, Authentication authentication) {
-        String followMessaString = userService.followUser(userId, authentication);
+    public ResponseEntity<MessageResponse> followUser(@PathVariable String username, Authentication authentication) {
+        String followMessaString = userService.followUser(username, authentication);
         MessageResponse message = new MessageResponse("SUCCESS", followMessaString);
         return ResponseEntity.ok(message);
     }
 
-    @DeleteMapping("/{userId}/follow")
+    @DeleteMapping("/{username}/unfollow")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponse> unfollowUser(@PathVariable Long userId, Authentication authentication) {
-        String unfollowMessage = userService.unfollowUser(userId, authentication);
+    public ResponseEntity<MessageResponse> unfollowUser(@PathVariable String username, Authentication authentication) {
+        String unfollowMessage = userService.unfollowUser(username, authentication);
         MessageResponse message = new MessageResponse("SUCCESS", unfollowMessage);
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/users/suggestions")
+
+    @GetMapping("/suggestions")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserSuggestionResponse> getSuggestedUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
