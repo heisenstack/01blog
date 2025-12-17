@@ -24,4 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     long countByHidden(boolean hidden);
 
+    @Query(value = "SELECT p FROM Post p LEFT JOIN FETCH p.author WHERE p.hidden = true", countQuery = "SELECT COUNT(p) FROM Post p WHERE p.hidden = true")
+    Page<Post> findAllHiddenPosts(Pageable pageable);
 }

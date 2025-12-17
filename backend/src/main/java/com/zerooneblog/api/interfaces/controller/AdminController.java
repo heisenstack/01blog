@@ -3,7 +3,7 @@ package com.zerooneblog.api.interfaces.controller;
 import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.AdminService;
 import com.zerooneblog.api.service.PostService;
-
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +61,25 @@ public class AdminController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }   
+
+        @GetMapping("/posts/hidden")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<HiddenPostsResponse> getHiddenPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponse> hiddenPostsPage = postService.getHiddenPosts(page, size);
+        
+        HiddenPostsResponse response = new HiddenPostsResponse(
+            hiddenPostsPage.getContent(),
+            hiddenPostsPage.getNumber(),
+            hiddenPostsPage.getSize(),
+            hiddenPostsPage.getTotalElements(),
+            hiddenPostsPage.getTotalPages(),
+            hiddenPostsPage.isLast()
+        );
+        
+        return ResponseEntity.ok(response);
     }
 
 }

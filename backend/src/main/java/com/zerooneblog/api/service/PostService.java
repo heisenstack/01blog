@@ -172,6 +172,11 @@ public class PostService {
         }
         return null;
     }
-
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getHiddenPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> hiddenPosts = postRepository.findAllHiddenPosts(pageable);
+        return hiddenPosts.map(post -> postMapper.toDto(post, null));
+    }
 
 }
