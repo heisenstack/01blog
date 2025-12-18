@@ -4,7 +4,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException; 
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,11 +50,11 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
         return Jwts.builder()
                 .subject(username)
-                .claim("userId", user.getId()) 
+                .claim("userId", user.getId())
                 .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(key(), Jwts.SIG.HS512) 
+                .signWith(key(), Jwts.SIG.HS512)
                 .compact();
     }
 
@@ -70,9 +70,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                .verifyWith(key())
-                .build()
-                .parseSignedClaims(token);
+                    .verifyWith(key())
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (SignatureException ex) {
             logger.error("Invalid JWT signature");

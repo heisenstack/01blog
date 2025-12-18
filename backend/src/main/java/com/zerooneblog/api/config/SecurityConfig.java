@@ -45,33 +45,32 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
-   @Bean
-public UserDetailsService userDetailsService() {
-    return username -> {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        Set<Role> userRoles = user.getRoles();
-        
-        List<GrantedAuthority> authorities = 
-                userRoles.stream()
-                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                         .collect(Collectors.toList());
+            Set<Role> userRoles = user.getRoles();
 
-        if (authorities.isEmpty()) {
-             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        }
+            List<GrantedAuthority> authorities = userRoles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                    .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.isEnabled(),
-                true, 
-                true,
-                true, 
-                authorities);
-    };
-}
+            if (authorities.isEmpty()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            }
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getUsername(),
+                    user.getPassword(),
+                    user.isEnabled(),
+                    true,
+                    true,
+                    true,
+                    authorities);
+        };
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -95,7 +94,7 @@ public UserDetailsService userDetailsService() {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
                         // .requestMatchers("/api/users/**").permitAll()
@@ -112,6 +111,7 @@ public UserDetailsService userDetailsService() {
 
         return http.build();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

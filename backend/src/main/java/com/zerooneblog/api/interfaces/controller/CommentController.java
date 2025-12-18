@@ -1,6 +1,5 @@
 package com.zerooneblog.api.interfaces.controller;
 
-
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class CommentController {
     public ResponseEntity<CommentDTO> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
         CommentDTO newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
-        return  ResponseEntity.ok(newComment);
+        return ResponseEntity.ok(newComment);
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -34,9 +33,11 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody Map<String,String> payload,
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId,
+            @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
-        CommentDTO updatedComment = commentService.updateComment(commentId, payload.get("content"), userDetails.getUsername());
+        CommentDTO updatedComment = commentService.updateComment(commentId, payload.get("content"),
+                userDetails.getUsername());
         return ResponseEntity.ok(updatedComment);
     }
 

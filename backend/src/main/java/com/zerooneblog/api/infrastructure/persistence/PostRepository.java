@@ -4,10 +4,8 @@ import com.zerooneblog.api.domain.Post;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +15,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllWithDetails(Pageable pageable);
 
     Page<Post> findAll(Pageable pageable);
-
 
     @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.author u LEFT JOIN FETCH p.likes WHERE u.id IN :userIds AND p.hidden = false", countQuery = "SELECT COUNT(p) FROM Post p WHERE p.author.id IN :userIds AND p.hidden = false")
     Page<Post> findPostsByUserIdIn(@Param("userIds") List<Long> userIds, Pageable pageable);

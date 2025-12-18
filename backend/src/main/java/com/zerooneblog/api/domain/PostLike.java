@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "post_likes", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "post_id"})
+        @UniqueConstraint(columnNames = { "user_id", "post_id" })
 })
 public class PostLike {
     @Id

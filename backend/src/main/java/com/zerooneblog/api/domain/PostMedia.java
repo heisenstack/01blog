@@ -40,14 +40,17 @@ public class PostMedia {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PostMedia)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof PostMedia))
+            return false;
         PostMedia that = (PostMedia) o;
         return id != null && id.equals(that.id);
     }
-    
+
     @Override
     public int hashCode() {
         return getClass().hashCode();

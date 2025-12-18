@@ -134,7 +134,7 @@ public class AdminController {
         return ResponseEntity.ok(bannedUsers);
     }
 
-        @GetMapping("/reports/users")
+    @GetMapping("/reports/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserReportResponse> getReportedUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -142,18 +142,19 @@ public class AdminController {
         UserReportResponse reportedUsers = adminService.getAllUserReportsPaginated(page, size);
         return ResponseEntity.ok(reportedUsers);
     }
+
     @DeleteMapping("/reports/{reportId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> dismissReport(@PathVariable Long reportId) {
         adminService.dismissReport(reportId);
         return ResponseEntity.noContent().build();
     }
-        @DeleteMapping("/reports/users/{reportId}")
+
+    @DeleteMapping("/reports/users/{reportId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> dismissUserReport(@PathVariable Long reportId) {
         adminService.dismissUserReport(reportId);
         return ResponseEntity.noContent().build();
     }
-
 
 }

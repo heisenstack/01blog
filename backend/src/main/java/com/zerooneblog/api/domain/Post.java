@@ -67,14 +67,17 @@ public class Post {
     protected void onCreate() {
         this.createdAt = Instant.now();
     }
-      @Override
+
+    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Post)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Post))
+            return false;
         Post post = (Post) o;
         return id != null && id.equals(post.id);
     }
-    
+
     @Override
     public int hashCode() {
         return getClass().hashCode();

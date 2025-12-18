@@ -15,7 +15,8 @@ public class CommentResponseDto {
     private long totalElements;
     private boolean last;
 
-        public CommentResponseDto(List<CommentDTO> content, int pageNumber, int pageSize, long totalElements, int totalPages, boolean last) {
+    public CommentResponseDto(List<CommentDTO> content, int pageNumber, int pageSize, long totalElements,
+            int totalPages, boolean last) {
         this.content = content;
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;

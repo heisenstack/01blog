@@ -14,18 +14,17 @@ import java.io.IOException;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, 
-                         HttpServletResponse response, 
-                         AuthenticationException authException) throws IOException {
-        
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); 
+    public void commence(HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException) throws IOException {
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        
+
         MessageResponse errorResponse = new MessageResponse(
-            "FAILURE", 
-            "Authentication failed: You must be logged in to access this resource."
-        );
-        
+                "FAILURE",
+                "Authentication failed: You must be logged in to access this resource.");
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), errorResponse);
     }

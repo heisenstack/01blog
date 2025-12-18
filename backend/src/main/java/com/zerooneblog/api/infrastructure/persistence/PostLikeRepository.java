@@ -8,6 +8,8 @@ import com.zerooneblog.api.domain.PostLike;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     boolean existsByUserIdAndPostId(Long userId, Long postId);
+
     long countByPostId(Long postId);
+
     Optional<PostLike> findByUserIdAndPostId(Long userId, Long postId);
 }

@@ -2,9 +2,7 @@ package com.zerooneblog.api.infrastructure.persistence;
 
 import com.zerooneblog.api.domain.Comment;
 
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

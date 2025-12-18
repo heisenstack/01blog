@@ -16,10 +16,10 @@ public class UserReportController {
         this.userReportService = userReportService;
     }
 
-
     @PostMapping("/{username}/report")
-    public ResponseEntity<String> reportUser(@PathVariable String username,@RequestBody UserReportRequest userReportRequest,@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> reportUser(@PathVariable String username,
+            @RequestBody UserReportRequest userReportRequest, @AuthenticationPrincipal UserDetails userDetails) {
         userReportService.reportUser(username, userReportRequest, userDetails.getUsername());
         return ResponseEntity.ok("Report submitted successfully!");
-    }   
+    }
 }
