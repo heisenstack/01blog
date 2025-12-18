@@ -1,11 +1,7 @@
 package com.zerooneblog.api.interfaces.controller;
 
-import com.zerooneblog.api.interfaces.dto.MessageResponse;
-import com.zerooneblog.api.interfaces.dto.PostDTO;
-import com.zerooneblog.api.interfaces.dto.PostResponse;
-import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
+import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.PostService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

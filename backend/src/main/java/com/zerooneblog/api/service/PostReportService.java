@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 
-import com.zerooneblog.api.domain.Post;
-import com.zerooneblog.api.domain.PostReport;
-import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.domain.*;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.ReportRepository;
 import com.zerooneblog.api.interfaces.dto.requestDto.ReportRequestDto;

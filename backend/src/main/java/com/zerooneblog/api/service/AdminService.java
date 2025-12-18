@@ -1,32 +1,18 @@
 package com.zerooneblog.api.service;
 
+import com.zerooneblog.api.domain.*;
+import com.zerooneblog.api.infrastructure.persistence.*;
+import com.zerooneblog.api.service.mapper.*;
+import com.zerooneblog.api.interfaces.dto.*;
+import org.springframework.data.domain.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.zerooneblog.api.domain.Post;
-import com.zerooneblog.api.domain.PostReport;
-import com.zerooneblog.api.domain.Role;
-import com.zerooneblog.api.domain.User;
-import com.zerooneblog.api.domain.UserReport;
-import com.zerooneblog.api.infrastructure.persistence.*;
-import com.zerooneblog.api.interfaces.dto.DashboardStatsDto;
-import com.zerooneblog.api.interfaces.dto.PostResponse;
-import com.zerooneblog.api.interfaces.dto.ReportDto;
-import com.zerooneblog.api.interfaces.dto.ReportResponse;
-import com.zerooneblog.api.interfaces.dto.UserAdminViewDto;
-import com.zerooneblog.api.interfaces.dto.UserAdminViewResponse;
-import com.zerooneblog.api.interfaces.dto.UserReportDto;
-import com.zerooneblog.api.interfaces.dto.UserReportResponse;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
-import com.zerooneblog.api.service.mapper.PostMapper;
-import com.zerooneblog.api.service.mapper.ReportMapper;
-import com.zerooneblog.api.service.mapper.UserAdminViewMapper;
+
 
 @Service
 public class AdminService {

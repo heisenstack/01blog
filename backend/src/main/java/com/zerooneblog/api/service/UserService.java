@@ -3,10 +3,7 @@ package com.zerooneblog.api.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,14 +13,8 @@ import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
-import com.zerooneblog.api.interfaces.dto.PostResponse;
-import com.zerooneblog.api.interfaces.dto.PostsResponseDto;
-import com.zerooneblog.api.interfaces.dto.UserProfileDto;
-import com.zerooneblog.api.interfaces.dto.UserSuggestionDto;
-import com.zerooneblog.api.interfaces.dto.UserSuggestionResponse;
-import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
-import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
-import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
+import com.zerooneblog.api.interfaces.dto.*;
+import com.zerooneblog.api.interfaces.exception.*;
 import com.zerooneblog.api.service.mapper.PostMapper;
 
 @Service
