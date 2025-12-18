@@ -43,7 +43,6 @@ public class UserController {
         return ResponseEntity.ok(message);
     }
 
-
     @GetMapping("/suggestions")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserSuggestionResponse> getSuggestedUsers(
@@ -51,5 +50,13 @@ public class UserController {
             @RequestParam(defaultValue = "10") int size) {
         UserSuggestionResponse suggestions = userService.getSuggestedUsers(page, size);
         return ResponseEntity.ok(suggestions);
+    }
+
+    @GetMapping("/following")
+    public ResponseEntity<UserSuggestionResponse> getFollowingUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UserSuggestionResponse following = userService.getFollowingUsers(page, size);
+        return ResponseEntity.ok(following);
     }
 }

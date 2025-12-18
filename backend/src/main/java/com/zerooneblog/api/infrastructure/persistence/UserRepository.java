@@ -38,7 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Long> findFollowingIds(@Param("userId") Long userId);
 
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
-           "FROM User u JOIN u.following f WHERE u.id = :viewerId AND f.id = :profileUserId")
+            "FROM User u JOIN u.following f WHERE u.id = :viewerId AND f.id = :profileUserId")
     boolean isFollowing(@Param("viewerId") Long viewerId, @Param("profileUserId") Long profileUserId);
 
     @Modifying
@@ -57,14 +57,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByEnabled(@Param("enabled") boolean enabled, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.id NOT IN :excludedIds AND u.id != :currentUserId " +
-           "ORDER BY SIZE(u.followers) DESC")
+            "ORDER BY SIZE(u.followers) DESC")
     Page<User> findSuggestedUsers(@Param("currentUserId") Long currentUserId,
-                                   @Param("excludedIds") java.util.List<Long> excludedIds,
-                                   Pageable pageable);
+            @Param("excludedIds") java.util.List<Long> excludedIds,
+            Pageable pageable);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.following WHERE u.username = :username")
     Optional<User> findByUsernameWithFollowing(@Param("username") String username);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.following WHERE u.id = :id")
     Optional<User> findByIdWithFollowing(@Param("id") Long id);
+
+    @Query("SELECT f FROM User u JOIN u.following f WHERE u.id = :userId " +
+            "ORDER BY f.username ASC")
+    Page<User> findFollowingByUserId(@Param("userId") Long userId, Pageable pageable);
 }

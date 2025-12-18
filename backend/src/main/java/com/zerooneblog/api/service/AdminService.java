@@ -174,7 +174,7 @@ public class AdminService {
         Page<User> bannedUsersPage = userRepository.findByEnabled(false, pageable);
 
         List<UserAdminViewDto> userDtos = bannedUsersPage.getContent().stream()
-                .filter(user -> user.getRoles().contains(Role.ADMIN))
+                .filter(user -> !user.getRoles().contains(Role.ADMIN))
                 .map(user -> userAdminViewMapper.toDto(user))
                 .collect(Collectors.toList());
 

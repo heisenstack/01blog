@@ -181,6 +181,27 @@ public class UserService {
                 suggestedUsersPage.isLast());
     }
 
+    @Transactional(readOnly = true)
+public UserSuggestionResponse getFollowingUsers(int page, int size) {
+    User currentUser = getCurrentUser();
+    
+    Pageable pageable = PageRequest.of(page, size);
+    Page<User> followingPage = userRepository.findFollowingByUserId(currentUser.getId(), pageable);
+    
+    List<UserSuggestionDto> following = followingPage.getContent().stream()
+        .map(user -> toUserSuggestionDto(user, true))
+        .collect(Collectors.toList());
+    
+    return new UserSuggestionResponse(
+        following,
+        followingPage.getNumber(),
+        followingPage.getSize(),
+        followingPage.getTotalElements(),
+        followingPage.getTotalPages(),
+        followingPage.isLast()
+    );
+}
+
     private UserSuggestionDto toUserSuggestionDto(User user, boolean subscribed) {
         long followerCount = userRepository.countFollowers(user.getId());
         return new UserSuggestionDto(

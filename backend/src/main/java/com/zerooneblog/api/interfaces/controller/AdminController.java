@@ -126,7 +126,11 @@ public class AdminController {
     public ResponseEntity<UserAdminViewResponse> getBannedUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
         UserAdminViewResponse bannedUsers = adminService.getBannedUsers(page, size);
+        // System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+        // System.out.println(bannedUsers.getContent());
         return ResponseEntity.ok(bannedUsers);
     }
 
