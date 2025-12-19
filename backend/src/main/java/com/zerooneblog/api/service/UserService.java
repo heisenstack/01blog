@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zerooneblog.api.domain.Notification;
 import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
@@ -22,11 +23,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final NotificationService notificationService;
 
-    public UserService(UserRepository userRepository, PostRepository postRepository, PostMapper postMapper) {
+    public UserService(UserRepository userRepository, PostRepository postRepository, PostMapper postMapper, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
+        this.notificationService = notificationService;
     }
 
     public User findByUsername(String username) {
@@ -95,6 +98,9 @@ public class UserService {
         }
 
         userRepository.insertFollowRelationship(currentUser.getId(), userToFollow.getId());
+        String message = currentUser.getUsername() + " started following you.";
+
+        notificationService.createNotification(userToFollow, currentUser, Notification.NotificationType.NEW_FOLLOWER, message, null);
 
         return "You've followed " + userToFollow.getUsername() + " successfully!";
     }

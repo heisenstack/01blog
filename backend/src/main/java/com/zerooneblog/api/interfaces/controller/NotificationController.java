@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
