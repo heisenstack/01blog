@@ -1,6 +1,7 @@
 package com.zerooneblog.api.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,9 +47,9 @@ public class NotificationService {
         notification.setPost(post);
         notification.setRead(false);
 
-        Notification savedNotification = notificationRepository.save(notification);
+        notificationRepository.save(notification);
 
-        NotificationDto notificationDto = mapToDto(savedNotification);
+        // NotificationDto notificationDto = mapToDto(savedNotification);
     }
 
     @Transactional(readOnly = true)
@@ -132,18 +133,32 @@ public class NotificationService {
     }
 
     @Transactional
-public void deleteNotifications(List<Long> notificationIds, String username) {
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public void deleteNotifications(List<Long> notificationIds, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-    List<Notification> notifications = notificationRepository.findAllById(notificationIds);
-    
-    notifications.forEach(notification -> {
-        if (!notification.getRecipient().getId().equals(user.getId())) {
-            throw new UnauthorizedOperationException("You are not authorized to delete these notifications.");
-        }
-    });
-    
-    notificationRepository.deleteAll(notifications);
-}
+        List<Notification> notifications = notificationRepository.findAllById(notificationIds);
+
+        notifications.forEach(notification -> {
+            if (!notification.getRecipient().getId().equals(user.getId())) {
+                throw new UnauthorizedOperationException("You are not authorized to delete these notifications.");
+            }
+        });
+
+        notificationRepository.deleteAll(notifications);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotificationDto> getUnreadNotifications(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Notification> notifications = notificationRepository
+                .findByRecipientAndIsReadOrderByCreatedAtDesc(user, false, pageable);
+
+        return notifications.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
 }

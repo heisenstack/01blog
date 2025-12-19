@@ -107,4 +107,10 @@ public class NotificationController {
             return ResponseEntity.status(403).build();
         }
     }
+        @GetMapping
+    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        List<NotificationDto> notifications = notificationService.getUnreadNotifications(userDetails.getUsername());
+        return ResponseEntity.ok(notifications);
+    }
 }
