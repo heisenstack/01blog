@@ -199,6 +199,9 @@ public class AdminService {
         dto.setCreatedAt(userReport.getCreatedAt());
         dto.setReporterUsername(userReport.getReporter().getUsername());
         dto.setReportedUserId(userReport.getReported().getId());
+        dto.setReportedUsername(userReport.getReported().getUsername());
+        dto.setEnabled(userReport.getReported().isEnabled());
+
         return dto;
     }
 

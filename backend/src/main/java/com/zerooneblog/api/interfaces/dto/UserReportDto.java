@@ -19,4 +19,5 @@ public class UserReportDto {
     private String reporterUsername;
     private String reportedUsername;
     private Long reportedUserId; 
+    private boolean enabled;
 }

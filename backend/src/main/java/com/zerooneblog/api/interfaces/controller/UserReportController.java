@@ -1,6 +1,8 @@
 package com.zerooneblog.api.interfaces.controller;
 
 import org.springframework.web.bind.annotation.*;
+
+import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserReportRequest;
 import com.zerooneblog.api.service.UserReportService;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,9 @@ public class UserReportController {
     }
 
     @PostMapping("/{username}/report")
-    public ResponseEntity<String> reportUser(@PathVariable String username,
+    public ResponseEntity<MessageResponse> reportUser(@PathVariable String username,
             @RequestBody UserReportRequest userReportRequest, @AuthenticationPrincipal UserDetails userDetails) {
         userReportService.reportUser(username, userReportRequest, userDetails.getUsername());
-        return ResponseEntity.ok("Report submitted successfully!");
+        return ResponseEntity.ok(new MessageResponse("SUCCESS", "Report submitted successfully!"));
     }
 }
