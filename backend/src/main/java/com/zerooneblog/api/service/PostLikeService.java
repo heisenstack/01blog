@@ -12,12 +12,14 @@ public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public PostLikeService(PostLikeRepository postLikeRepository, PostRepository postRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository, NotificationService notificationService) {
         this.postLikeRepository = postLikeRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public PostLikeResponseDto likePost(Long postId, String username) {
@@ -33,6 +35,14 @@ public class PostLikeService {
             newLike.setPost(post);
             postLikeRepository.save(newLike);
         }
+        User postAuthor = post.getAuthor();
+        String message = user.getUsername() + " liked your post: \"" + post.getTitle() + "\"";
+        notificationService.createNotification(
+                postAuthor,
+                user,
+                Notification.NotificationType.NEW_LIKE,
+                message,
+                post);
         long updatedLikeCount = postLikeRepository.countByPostId(postId);
         return new PostLikeResponseDto(updatedLikeCount, true);
     }
