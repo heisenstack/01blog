@@ -26,12 +26,14 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final CommentMapper commentMapper;
+    private final NotificationService notificationService;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserService userService, CommentMapper commentMapper) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserService userService, CommentMapper commentMapper, NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userService = userService;
         this.commentMapper = commentMapper;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -44,6 +46,15 @@ public class CommentService {
         newComment.setPost(post);
         newComment.setUser(user);
         Comment savedComment = commentRepository.save(newComment);
+            User postAuthor = post.getAuthor();
+    String message = user.getUsername() + " commented on your post: \"" + post.getTitle() + "\"";
+    notificationService.createNotification(
+        postAuthor, 
+        user, 
+        Notification.NotificationType.NEW_COMMENT, 
+        message,
+        post  
+    );
         return commentMapper.toDto(savedComment);
     }
 
