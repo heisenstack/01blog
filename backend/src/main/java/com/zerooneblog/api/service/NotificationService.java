@@ -10,7 +10,10 @@ import com.zerooneblog.api.domain.Post;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.infrastructure.persistence.NotificationRepository;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
+import com.zerooneblog.api.interfaces.dto.NotificationCountDto;
 import com.zerooneblog.api.interfaces.dto.NotificationDto;
+import com.zerooneblog.api.interfaces.exception.NotificationNotFoundException;
+import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 @Service
 public class NotificationService {
@@ -26,11 +29,12 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createNotification(User recipient, User sender, Notification.NotificationType type, String message, Post post) {
+    public void createNotification(User recipient, User sender, Notification.NotificationType type, String message,
+            Post post) {
         if (recipient.getId().equals(sender.getId())) {
             return;
         }
-        
+
         Notification notification = new Notification();
         notification.setRecipient(recipient);
         notification.setSender(sender);
@@ -38,9 +42,9 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setPost(post);
         notification.setRead(false);
-        
+
         Notification savedNotification = notificationRepository.save(notification);
-        
+
         NotificationDto notificationDto = mapToDto(savedNotification);
     }
 
@@ -57,18 +61,19 @@ public class NotificationService {
 
         return notifications.map(this::mapToDto);
     }
+
     @Transactional(readOnly = true)
-public Page<NotificationDto> getAllNotificationsPaginated(String username, int page, int size) {
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public Page<NotificationDto> getAllNotificationsPaginated(String username, int page, int size) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user, pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user, pageable);
 
-    return notifications.map(this::mapToDto);
-}
+        return notifications.map(this::mapToDto);
+    }
 
-        private NotificationDto mapToDto(Notification notification) {
+    private NotificationDto mapToDto(Notification notification) {
         return new NotificationDto(
                 notification.getId(),
                 notification.getMessage(),
@@ -76,8 +81,38 @@ public Page<NotificationDto> getAllNotificationsPaginated(String username, int p
                 notification.getType(),
                 notification.getSender().getUsername(),
                 notification.getPost() != null ? notification.getPost().getId() : null,
-                notification.getCreatedAt()
-        );
+                notification.getCreatedAt());
+    }
+
+    @Transactional
+    public void markNotificationAsRead(Long notificationId, String username) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(
+                        () -> new NotificationNotFoundException("Notification not found with id: " + notificationId));
+
+        if (!notification.getRecipient().getUsername().equals(username)) {
+            throw new UnauthorizedActionException("You are not authorized to access this notification.");
+        }
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void markAllAsRead(Long userId) {
+        notificationRepository.markAllAsReadForUser(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationCountDto getNotificationCounts(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        long totalCount = notificationRepository.countByRecipient(user);
+        long unreadCount = notificationRepository.countByRecipientAndIsRead(user, false);
+        long readCount = notificationRepository.countByRecipientAndIsRead(user, true);
+
+        return new NotificationCountDto(totalCount, unreadCount, readCount);
     }
 
 }

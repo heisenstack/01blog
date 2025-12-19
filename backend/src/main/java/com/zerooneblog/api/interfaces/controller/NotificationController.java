@@ -1,6 +1,7 @@
 package com.zerooneblog.api.interfaces.controller;
 
 import com.zerooneblog.api.domain.User;
+import com.zerooneblog.api.interfaces.dto.NotificationCountDto;
 import com.zerooneblog.api.interfaces.dto.NotificationDto;
 import com.zerooneblog.api.service.NotificationService;
 import com.zerooneblog.api.service.UserService;
@@ -10,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
-
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
@@ -19,7 +19,7 @@ public class NotificationController {
     private final UserService userService;
 
     public NotificationController(
-            NotificationService notificationService, 
+            NotificationService notificationService,
             UserService userService) {
         this.notificationService = notificationService;
         this.userService = userService;
@@ -31,25 +31,48 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
-        
+
         Page<NotificationDto> notifications;
-        
+
         switch (filter.toLowerCase()) {
             case "unread":
                 notifications = notificationService.getNotificationsByReadStatus(
-                    userDetails.getUsername(), false, page, size);
+                        userDetails.getUsername(), false, page, size);
                 break;
             case "read":
                 notifications = notificationService.getNotificationsByReadStatus(
-                    userDetails.getUsername(), true, page, size);
+                        userDetails.getUsername(), true, page, size);
                 break;
             default:
                 notifications = notificationService.getAllNotificationsPaginated(
-                    userDetails.getUsername(), page, size);
+                        userDetails.getUsername(), page, size);
         }
-        
+
         return ResponseEntity.ok(notifications);
     }
 
-    
+    @PostMapping("/{id}/read")
+    public ResponseEntity<NotificationCountDto> markNotificationAsRead(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+            notificationService.markNotificationAsRead(id, userDetails.getUsername());
+            NotificationCountDto counts = notificationService.getNotificationCounts(userDetails.getUsername());
+            return ResponseEntity.ok(counts);
+       
+    }
+        @GetMapping("/counts")
+    public ResponseEntity<NotificationCountDto> getNotificationCounts(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        NotificationCountDto counts = notificationService.getNotificationCounts(userDetails.getUsername());
+        return ResponseEntity.ok(counts);
+    }
+        @PostMapping("/read-all")
+    public ResponseEntity<NotificationCountDto> markAllNotificationsAsRead(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User currentUser = userService.findByUsername(userDetails.getUsername());
+        notificationService.markAllAsRead(currentUser.getId());
+        NotificationCountDto counts = notificationService.getNotificationCounts(userDetails.getUsername());
+        return ResponseEntity.ok(counts);
+    }
+
 }
