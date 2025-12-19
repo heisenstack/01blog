@@ -8,7 +8,7 @@ import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.domain.UserReport;
 import com.zerooneblog.api.infrastructure.persistence.UserReportRepository;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserReportRequest;
-import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
+// import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
 @Service
@@ -29,9 +29,9 @@ public class UserReportService {
         if (toBeReportedUser.getId().equals(currentUser.getId())) {
             throw new UnauthorizedActionException("You cannot report yourself.");
         }
-        if (userReportRepository.existsByReportedIdAndReporterId(toBeReportedUser.getId(), currentUser.getId())) {
-        throw new DuplicateResourceException("UserReport", "reportedUserId", toBeReportedUser.getId());
-    }
+    //     if (userReportRepository.existsByReportedIdAndReporterId(toBeReportedUser.getId(), currentUser.getId())) {
+    //     throw new DuplicateResourceException("UserReport", "reportedUserId", toBeReportedUser.getId());
+    // }
 
         UserReport userReport = new UserReport();
         userReport.setReported(toBeReportedUser);

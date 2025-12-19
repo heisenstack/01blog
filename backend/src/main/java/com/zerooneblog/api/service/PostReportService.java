@@ -3,7 +3,7 @@ package com.zerooneblog.api.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
+// import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 
 import com.zerooneblog.api.domain.*;
 import com.zerooneblog.api.infrastructure.persistence.PostRepository;
@@ -30,9 +30,9 @@ public class PostReportService {
                 .orElseThrow(() -> new ResourceNotFoundException("post", "id", postId));
 
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
-        if (reportRepository.existsByPostIdAndReporterId(post.getId(), currentUser.getId())) {
-            throw new DuplicateResourceException("Report", "postId", postId);
-        }
+        // if (reportRepository.existsByPostIdAndReporterId(post.getId(), currentUser.getId())) {
+        //     throw new DuplicateResourceException("Report", "postId", postId);
+        // }
         if (post.getAuthor().getId().equals(currentUser.getId())) {
             throw new UnauthorizedActionException("You are not authorized to report your own post.");
         }
