@@ -161,4 +161,22 @@ public class NotificationService {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+    @Transactional
+    public void createNotificationsForFollowers(List<User> followers, User sender, Notification.NotificationType type, String message, Post post) {
+        List<Notification> notifications = followers.stream()
+                .filter(follower -> !follower.getId().equals(sender.getId())) 
+                .map(follower -> {
+                    Notification notification = new Notification();
+                    notification.setRecipient(follower);
+                    notification.setSender(sender);
+                    notification.setType(type);
+                    notification.setMessage(message);
+                    notification.setPost(post);
+                    notification.setRead(false);
+                    return notification;
+                })
+                .collect(Collectors.toList());
+        
+        notificationRepository.saveAll(notifications);
+    }
 }

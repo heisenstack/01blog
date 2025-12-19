@@ -25,15 +25,18 @@ public class PostService {
     private final PostMapper postMapper;
     private final FileStorageService fileStorageService;
     private final PostMediaRepository postMediaRepository;
+    private final NotificationService notificationService;
 
     public PostService(PostRepository postRepository, UserRepository userRepository, UserService userService,
-            PostMapper postMapper, FileStorageService fileStorageService, PostMediaRepository postMediaRepository) {
+            PostMapper postMapper, FileStorageService fileStorageService, PostMediaRepository postMediaRepository,
+            NotificationService notificationService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.postMapper = postMapper;
         this.fileStorageService = fileStorageService;
         this.postMediaRepository = postMediaRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -62,7 +65,18 @@ public class PostService {
                 }
             }
         }
+
         savedPost.getMediaFoLES().size();
+        List<User> followers = userRepository.findFollowersByUserId(author.getId());
+        if (!followers.isEmpty()) {
+            String message = author.getUsername() + " posted: \"" + request.getTitle() + "\"";
+            notificationService.createNotificationsForFollowers(
+                    followers,
+                    author,
+                    Notification.NotificationType.NEW_POST,
+                    message,
+                    savedPost);
+        }
         return postMapper.toDto(savedPost, author);
     }
 
@@ -77,7 +91,7 @@ public class PostService {
                 postsPage.getTotalElements(), postsPage.getTotalPages(), false);
     }
 
-        @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public PostsResponseDto getAllPostsForAdmin(int page, int size, Authentication authentication) {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -112,16 +126,12 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        System.out.println(post.getReportedCount());
+        // System.out.println(post.getReportedCount());
         return postMapper.toDto(post, currentUser);
     }
 
     @Transactional
     public PostResponse updatePost(Long postId, String title, String content, Authentication authentication) {
-
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        System.out.println(authentication);
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
@@ -173,6 +183,7 @@ public class PostService {
         }
         return null;
     }
+
     @Transactional(readOnly = true)
     public Page<PostResponse> getHiddenPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
