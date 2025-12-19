@@ -1,5 +1,7 @@
 package com.zerooneblog.api.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import com.zerooneblog.api.interfaces.dto.NotificationCountDto;
 import com.zerooneblog.api.interfaces.dto.NotificationDto;
 import com.zerooneblog.api.interfaces.exception.NotificationNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
+import com.zerooneblog.api.interfaces.exception.UnauthorizedOperationException;
 
 @Service
 public class NotificationService {
@@ -115,4 +118,32 @@ public class NotificationService {
         return new NotificationCountDto(totalCount, unreadCount, readCount);
     }
 
+    @Transactional
+    public void deleteNotification(Long notificationId, String username) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(
+                        () -> new NotificationNotFoundException("Notification not found with id: " + notificationId));
+
+        if (!notification.getRecipient().getUsername().equals(username)) {
+            throw new UnauthorizedOperationException("You are not authorized to delete this notification.");
+        }
+
+        notificationRepository.delete(notification);
+    }
+
+    @Transactional
+public void deleteNotifications(List<Long> notificationIds, String username) {
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+    List<Notification> notifications = notificationRepository.findAllById(notificationIds);
+    
+    notifications.forEach(notification -> {
+        if (!notification.getRecipient().getId().equals(user.getId())) {
+            throw new UnauthorizedOperationException("You are not authorized to delete these notifications.");
+        }
+    });
+    
+    notificationRepository.deleteAll(notifications);
+}
 }
