@@ -8,6 +8,7 @@ import com.zerooneblog.api.interfaces.exception.UnauthorizedOperationException;
 import com.zerooneblog.api.service.NotificationService;
 import com.zerooneblog.api.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +58,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{id}/read")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> markNotificationAsRead(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -74,6 +76,7 @@ public class NotificationController {
     }
 
     @PostMapping("/read-all")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> markAllNotificationsAsRead(
             @AuthenticationPrincipal UserDetails userDetails) {
         User currentUser = userService.findByUsername(userDetails.getUsername());
@@ -83,6 +86,7 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> deleteNotification(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -95,7 +99,8 @@ public class NotificationController {
         }
     }
 
-        @DeleteMapping
+    @DeleteMapping
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> deleteNotifications(
             @RequestBody List<Long> notificationIds,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -107,7 +112,7 @@ public class NotificationController {
             return ResponseEntity.status(403).build();
         }
     }
-        @GetMapping
+    @GetMapping
     public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
         List<NotificationDto> notifications = notificationService.getUnreadNotifications(userDetails.getUsername());

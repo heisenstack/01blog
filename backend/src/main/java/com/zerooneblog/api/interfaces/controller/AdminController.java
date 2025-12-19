@@ -156,5 +156,11 @@ public class AdminController {
         adminService.dismissUserReport(reportId);
         return ResponseEntity.noContent().build();
     }
+        @DeleteMapping("/users/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
 
 }

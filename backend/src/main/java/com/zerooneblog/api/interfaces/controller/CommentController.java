@@ -3,6 +3,7 @@ package com.zerooneblog.api.interfaces.controller;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class CommentController {
     }
 
     @PostMapping("/posts/{postId}/comments")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
         CommentDTO newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
@@ -33,6 +35,7 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentId}")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId,
             @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -42,6 +45,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/comments/{commentId}")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> deleteComment(@PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
         String message = commentService.deleteComment(commentId, userDetails.getUsername());

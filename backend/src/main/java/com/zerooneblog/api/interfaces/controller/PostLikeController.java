@@ -1,6 +1,7 @@
 package com.zerooneblog.api.interfaces.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.zerooneblog.api.interfaces.dto.PostLikeResponseDto;
 import com.zerooneblog.api.service.PostLikeService;
@@ -15,8 +16,9 @@ public class PostLikeController {
     public PostLikeController(PostLikeService postLikeService) {
         this.postLikeService = postLikeService;
     }
-
+    
     @PostMapping("/like")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<PostLikeResponseDto> likePost(@PathVariable Long postId,
             @AuthenticationPrincipal UserDetails userDetails) {
         PostLikeResponseDto response = postLikeService.likePost(postId, userDetails.getUsername());
@@ -24,6 +26,7 @@ public class PostLikeController {
     }
 
     @PostMapping("/unlike")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<PostLikeResponseDto> unlikePost(@PathVariable Long postId,
             @AuthenticationPrincipal UserDetails userDetails) {
         PostLikeResponseDto response = postLikeService.unlikePost(postId, userDetails.getUsername());

@@ -46,6 +46,7 @@ public class PostController {
     }
 
     @GetMapping("/feed")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<PostsResponseDto> getFeedForCurrentUser(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -73,6 +74,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> deletePost(@PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         String message = postService.deletePost(id, userDetails.getUsername());

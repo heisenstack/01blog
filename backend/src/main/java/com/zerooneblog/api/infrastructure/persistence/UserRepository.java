@@ -72,4 +72,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
         @Query("SELECT f FROM User u JOIN u.followers f WHERE u.id = :userId")
         List<User> findFollowersByUserId(@Param("userId") Long userId);
+
+        @Modifying
+        @Query(value = "DELETE FROM user_followers WHERE follower_id = :userId OR following_id = :userId", nativeQuery = true)
+        void deleteUserRelationships(@Param("userId") Long userId);
 }

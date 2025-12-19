@@ -5,6 +5,8 @@ import com.zerooneblog.api.domain.Role;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationFilter;
+import com.zerooneblog.api.infrastructure.security.UserStatusFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -39,10 +41,12 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final UserStatusFilter userStatusFilter;
 
-    public SecurityConfig(UserRepository userRepository, JwtAuthenticationEntryPoint authenticationEntryPoint) {
+    public SecurityConfig(UserRepository userRepository, JwtAuthenticationEntryPoint authenticationEntryPoint, UserStatusFilter userStatusFilter) {
         this.userRepository = userRepository;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.userStatusFilter = userStatusFilter;
     }
 
     @Bean
@@ -108,6 +112,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(userStatusFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

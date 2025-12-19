@@ -50,6 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/following")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<UserSuggestionResponse> getFollowingUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {

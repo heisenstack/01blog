@@ -6,6 +6,7 @@ import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserReportRequest;
 import com.zerooneblog.api.service.UserReportService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,6 +20,7 @@ public class UserReportController {
     }
 
     @PostMapping("/{username}/report")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> reportUser(@PathVariable String username,
             @RequestBody UserReportRequest userReportRequest, @AuthenticationPrincipal UserDetails userDetails) {
         userReportService.reportUser(username, userReportRequest, userDetails.getUsername());

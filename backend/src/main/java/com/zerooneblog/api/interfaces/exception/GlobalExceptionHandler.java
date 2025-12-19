@@ -3,6 +3,7 @@ package com.zerooneblog.api.interfaces.exception;
 import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException; 
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,6 +42,15 @@ public class GlobalExceptionHandler {
         );
         
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<MessageResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        MessageResponse errorResponse = new MessageResponse(
+            "FAILURE", 
+            "You don't have permission to access this resource."
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthenticationException.class)

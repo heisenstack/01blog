@@ -7,12 +7,12 @@ import com.zerooneblog.api.interfaces.dto.*;
 import org.springframework.data.domain.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
-
 
 @Service
 public class AdminService {
@@ -220,5 +220,24 @@ public class AdminService {
         }
         userReportRepository.deleteById(userReportId);
     }
+
+    @Transactional
+public void deleteUser(Long userId) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+    if (user.getRoles().contains(Role.ADMIN)) {
+        throw new IllegalStateException("Admin users cannot be deleted.");
+    }
+
+    userRepository.deleteUserRelationships(userId);
+    
+
+    reportRepository.deleteAllByReporterId(userId);
+    userReportRepository.deleteAllByReporterId(userId);
+    userReportRepository.deleteAllByReportedId(userId);
+    
+    userRepository.deleteById(userId);
+}
 
 }

@@ -2,6 +2,8 @@ package com.zerooneblog.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete; // Global Import
+import org.hibernate.annotations.OnDeleteAction; // Global Import
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,14 +24,17 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) 
     private User recipient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) 
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")  
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
     @Enumerated(EnumType.STRING)
