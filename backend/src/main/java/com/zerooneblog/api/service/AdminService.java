@@ -7,7 +7,6 @@ import com.zerooneblog.api.interfaces.dto.*;
 import org.springframework.data.domain.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -231,11 +230,6 @@ public void deleteUser(Long userId) {
     }
 
     userRepository.deleteUserRelationships(userId);
-    
-
-    reportRepository.deleteAllByReporterId(userId);
-    userReportRepository.deleteAllByReporterId(userId);
-    userReportRepository.deleteAllByReportedId(userId);
     
     userRepository.deleteById(userId);
 }
