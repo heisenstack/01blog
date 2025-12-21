@@ -3,7 +3,6 @@ package com.zerooneblog.api.interfaces.controller;
 import com.zerooneblog.api.domain.User;
 import com.zerooneblog.api.interfaces.dto.NotificationCountDto;
 import com.zerooneblog.api.interfaces.dto.NotificationDto;
-import com.zerooneblog.api.interfaces.exception.NotificationNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedOperationException;
 import com.zerooneblog.api.service.NotificationService;
 import com.zerooneblog.api.service.UserService;
@@ -85,20 +84,6 @@ public class NotificationController {
         return ResponseEntity.ok(counts);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()") 
-    public ResponseEntity<NotificationCountDto> deleteNotification(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            notificationService.deleteNotification(id, userDetails.getUsername());
-            NotificationCountDto counts = notificationService.getNotificationCounts(userDetails.getUsername());
-            return ResponseEntity.ok(counts);
-        } catch (NotificationNotFoundException | UnauthorizedOperationException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @DeleteMapping
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> deleteNotifications(
@@ -112,6 +97,7 @@ public class NotificationController {
             return ResponseEntity.status(403).build();
         }
     }
+    
     @GetMapping
     public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
