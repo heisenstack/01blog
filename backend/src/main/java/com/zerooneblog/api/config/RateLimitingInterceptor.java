@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitingInterceptor implements HandlerInterceptor {
 
     
-    private static final int ACTION_LIMIT = 20;
+    private static final int ACTION_LIMIT = 100;
     
     private final Map<String, SimpleRateLimiter> limiters = new ConcurrentHashMap<>();
 
