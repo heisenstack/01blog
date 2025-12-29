@@ -1,0 +1,14 @@
+# Stage 1: Build
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+COPY . .
+
+RUN npm install -g @angular/cli
+
+RUN npm install
+
+CMD ["ng", "serve", "--host", "0.0.0.0"]
