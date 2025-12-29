@@ -1,0 +1,97 @@
+<div *ngIf="isOpen" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      
+      <!-- MODAL HEADER -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="fa-solid fa-flag"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="modal-title">Report {{ entityType }}</h2>
+            <p *ngIf="entityName" class="modal-subtitle">
+              You are reporting: <strong>{{ entityName }}</strong>
+            </p>
+          </div>
+        </div>
+        <button 
+          type="button" 
+          class="btn-close" 
+          (click)="closeModal()"
+          aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- MODAL BODY & FORM -->
+      <form (ngSubmit)="submitReport()" #reportForm="ngForm">
+        <div class="modal-body">
+          
+          <!-- Reason Field -->
+          <div class="form-group">
+            <label for="reportReason" class="form-label">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Reason for reporting</span>
+              <span class="required">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="reportReason" 
+                name="reportReason" 
+                class="form-select" 
+                [(ngModel)]="reportReason" 
+                required>
+                <option value="" disabled selected>Select a reason...</option>
+                <option *ngFor="let reason of reportReasons" [value]="reason.value">
+                  {{ reason.display }}
+                </option>
+              </select>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+
+          <!-- Details Field -->
+          <div class="form-group">
+            <label for="reportDetails" class="form-label">
+              <i class="fa-solid fa-align-left"></i>
+              <span>Additional details</span>
+              <span class="optional-badge">Optional</span>
+            </label>
+            <textarea 
+              id="reportDetails" 
+              name="reportDetails" 
+              class="form-control" 
+              [(ngModel)]="reportDetails" 
+              rows="5" 
+              placeholder="Please provide any additional context that might help us review this report..."></textarea>
+            <div class="form-hint">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Your report will be reviewed by our moderation team</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeModal()">
+            <i class="fa-solid fa-xmark"></i>
+            <span>Cancel</span>
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-danger" 
+            [disabled]="!reportForm.valid">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Submit Report</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

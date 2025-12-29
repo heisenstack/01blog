@@ -1,0 +1,823 @@
+<div class="admin-wrapper">
+  <div class="admin-container">
+    <!-- HEADER -->
+    <header class="admin-header">
+      <div class="header-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage reports, users, and site content</p>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="admin-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'dashboard'"
+        (click)="selectTab('dashboard')"
+        type="button"
+      >
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'reports'"
+        (click)="selectTab('reports')"
+        type="button"
+      >
+        <i class="fa-solid fa-flag"></i>
+        <span>Reported Posts</span>
+        <span *ngIf="reportsTotalElements > 0" class="tab-badge">
+          {{ reportsTotalElements }}
+        </span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'reportedUsers'"
+        (click)="selectTab('reportedUsers')"
+        type="button"
+      >
+        <i class="fa-solid fa-user-xmark"></i>
+        <span>Reported Profiles</span>
+        <span *ngIf="reportedUsersTotalElements > 0" class="tab-badge">
+          {{ reportedUsersTotalElements }}
+        </span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'users'"
+        (click)="selectTab('users')"
+        type="button"
+      >
+        <i class="fa-solid fa-users"></i>
+        <span>Manage Users</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'bannedUsers'"
+        (click)="selectTab('bannedUsers')"
+        type="button"
+      >
+        <i class="fa-solid fa-user-slash"></i>
+        <span>Banned Users</span>
+        <span *ngIf="bannedUsersTotalElements > 0" class="tab-badge warning">
+          {{ bannedUsersTotalElements }}
+        </span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'posts'"
+        (click)="selectTab('posts')"
+        type="button"
+      >
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Manage Posts</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'hiddenPosts'"
+        (click)="selectTab('hiddenPosts')"
+        type="button"
+      >
+        <i class="fa-solid fa-eye-slash"></i>
+        <span>Hidden Posts</span>
+        <span *ngIf="hiddenPostsTotalElements > 0" class="tab-badge warning">
+          {{ hiddenPostsTotalElements }}
+        </span>
+      </button>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <div class="tab-content">
+      <!-- DASHBOARD PANEL -->
+      <div *ngIf="activeTab === 'dashboard'" class="tab-panel">
+        <div *ngIf="isStatsLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading statistics...</p>
+        </div>
+
+        <div *ngIf="statsError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ statsError }}</span>
+        </div>
+
+        <div *ngIf="dashboardStats && !isStatsLoading" class="dashboard-content">
+          <!-- KPI CARDS -->
+          <div class="kpi-grid">
+            <div class="kpi-card users">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.totalUsers }}</div>
+                <div class="kpi-label">Total Users</div>
+              </div>
+            </div>
+
+            <div class="kpi-card posts">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-file-lines"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.totalPosts }}</div>
+                <div class="kpi-label">Total Posts</div>
+              </div>
+            </div>
+
+            <div class="kpi-card reports">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-flag"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.activeReports }}</div>
+                <div class="kpi-label">Active Reports</div>
+              </div>
+            </div>
+
+            <div class="kpi-card new-users">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-user-plus"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.newUsersLast30Days }}</div>
+                <div class="kpi-label">New Users (30d)</div>
+              </div>
+            </div>
+
+            <div class="kpi-card hidden">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-eye-slash"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.hiddenPosts }}</div>
+                <div class="kpi-label">Hidden Posts</div>
+              </div>
+            </div>
+            <div class="kpi-card banned" *ngIf="dashboardStats?.bannedUsers !== undefined">
+              <div class="kpi-icon">
+                <i class="fa-solid fa-user-slash"></i>
+              </div>
+              <div class="kpi-info">
+                <div class="kpi-value">{{ dashboardStats.bannedUsers }}</div>
+                <div class="kpi-label">Banned Users</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div class="quick-actions-card">
+            <div class="card-header">
+              <i class="fa-solid fa-bolt"></i>
+              <div>
+                <h2>Quick Actions</h2>
+                <p>Jump directly to the most common management tasks</p>
+              </div>
+            </div>
+            <div class="actions-grid">
+              <button class="action-btn primary" (click)="selectTab('reports')">
+                <i class="fa-solid fa-flag"></i>
+                <span>Review Reports</span>
+              </button>
+              <button class="action-btn secondary" (click)="selectTab('users')">
+                <i class="fa-solid fa-users"></i>
+                <span>Manage Users</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTED POSTS PANEL -->
+      <div *ngIf="activeTab === 'reports'" class="tab-panel">
+        <div *ngIf="isReportsLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading reports...</p>
+        </div>
+
+        <div *ngIf="reportsError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ reportsError }}</span>
+        </div>
+
+        <div *ngIf="!isReportsLoading && !reportsError">
+          <div *ngIf="reports.length > 0; else noReports" class="content-list">
+            <div *ngFor="let report of reports" class="content-card report-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <i class="fa-solid fa-file-lines"></i>
+                  <a
+                    [routerLink]="['/post', report.reportedPostId]"
+                    target="_blank"
+                    class="title-link"
+                  >
+                    {{ report.reportedPostTitle }}
+                  </a>
+                </div>
+                <span class="badge">{{ report.reason }}</span>
+              </div>
+
+              <div class="card-body">
+                <div class="info-section">
+                  <div class="info-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span class="label">Reporter:</span>
+                    <a [routerLink]="['/profile', report.reporterUsername]" class="link">
+                      {{ report.reporterUsername }}
+                    </a>
+                  </div>
+                  <div class="info-item">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span class="label">Reported:</span>
+                    <span>{{ report.createdAt | date : 'medium' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span class="label">Details:</span>
+                    <p>{{ report.details || 'No details provided.' }}</p>
+                  </div>
+                </div>
+
+                <div class="actions">
+                  <button
+                    class="btn btn-warning"
+                    (click)="onHidePost(report.reportedPostId, report.reportedPostTitle)"
+                  >
+                    <i class="fa-solid fa-eye-slash"></i>
+                    <span>Hide Post</span>
+                  </button>
+                  <button class="btn btn-secondary" (click)="onDismissReport(report.id)">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>Dismiss</span>
+                  </button>
+                  <button class="btn btn-danger" (click)="onDeletePost(report.reportedPostId)">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete Post</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="reportsTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ reports.length }} of {{ reportsTotalElements }} reports
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMoreReports()"
+                [disabled]="isLoadingMoreReports || reportsCurrentPage >= reportsTotalPages - 1"
+              >
+                <span *ngIf="isLoadingMoreReports" class="spinner-sm"></span>
+                <span>{{ isLoadingMoreReports ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noReports>
+            <div class="empty-state">
+              <i class="fa-solid fa-circle-check"></i>
+              <h3>All Clear!</h3>
+              <p>There are currently no post reports to review.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- REPORTED USERS PANEL -->
+      <div *ngIf="activeTab === 'reportedUsers'" class="tab-panel">
+        <div *ngIf="isReportedUsersLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading reported profiles...</p>
+        </div>
+
+        <div *ngIf="reportedUsersError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ reportedUsersError }}</span>
+        </div>
+
+        <div *ngIf="!isReportedUsersLoading && !reportedUsersError">
+          <div *ngIf="reportedUsers.length > 0; else noUserReports" class="content-list">
+            <div *ngFor="let report of reportedUsers" class="content-card report-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <i class="fa-solid fa-user"></i>
+                  <a
+                    [routerLink]="['/profile', report.reportedUsername]"
+                    target="_blank"
+                    class="title-link"
+                  >
+                    {{ report.reportedUsername }}
+                  </a>
+                </div>
+                <span class="badge">{{ report.reason }}</span>
+              </div>
+
+              <div class="card-body">
+                <div class="info-section">
+                  <div class="info-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span class="label">Reporter:</span>
+                    <a [routerLink]="['/profile', report.reporterUsername]" class="link">
+                      {{ report.reporterUsername }}
+                    </a>
+                  </div>
+                  <div class="info-item">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span class="label">Reported:</span>
+                    <span>{{ report.createdAt | date : 'medium' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span class="label">Details:</span>
+                    <p>{{ report.details || 'No details provided.' }}</p>
+                  </div>
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-secondary" (click)="onDismissUserReport(report.id)">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>Dismiss</span>
+                  </button>
+                  <button
+                    *ngIf="report.enabled"
+                    class="btn btn-warning"
+                    (click)="onBanUserAction(report.reportedUserId, report.reportedUsername)"
+                  >
+                    <i class="fa-solid fa-user-slash"></i>
+                    <span>Ban</span>
+                  </button>
+                  <button
+                    *ngIf="!report.enabled"
+                    class="btn btn-success"
+                    (click)="onUnbanUser(report.reportedUserId, report.reportedUsername)"
+                  >
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Unban</span>
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    (click)="onDeleteUser(report.reportedUserId, report.reportedUsername)"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="reportedUsersTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ reportedUsers.length }} of {{ reportedUsersTotalElements }} reported
+                users
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMoreReportedUsers()"
+                [disabled]="
+                  isLoadingMoreReportedUsers ||
+                  reportedUsersCurrentPage >= reportedUsersTotalPages - 1
+                "
+              >
+                <span *ngIf="isLoadingMoreReportedUsers" class="spinner-sm"></span>
+                <span>{{ isLoadingMoreReportedUsers ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noUserReports>
+            <div class="empty-state">
+              <i class="fa-solid fa-circle-check"></i>
+              <h3>All Clear!</h3>
+              <p>No user profiles are currently reported.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- BANNED USERS PANEL -->
+      <div *ngIf="activeTab === 'bannedUsers'" class="tab-panel">
+        <div *ngIf="isBannedUsersLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading banned users...</p>
+        </div>
+
+        <div *ngIf="bannedUsersError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ bannedUsersError }}</span>
+        </div>
+
+        <div *ngIf="!isBannedUsersLoading && !bannedUsersError">
+          <div *ngIf="bannedUsers.length > 0; else noBannedUsers" class="content-list">
+            <div *ngFor="let user of bannedUsers" class="content-card user-card banned-user-card">
+              <div class="user-info">
+                <div class="user-avatar banned">
+                  <span>{{ user.username.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="user-details">
+                  <div class="user-header">
+                    <a [routerLink]="['/profile', user.username]" class="user-name">
+                      {{ user.username }}
+                    </a>
+                    <span class="badge warning">
+                      <i class="fa-solid fa-ban"></i>
+                      Banned
+                    </span>
+                  </div>
+                  <p class="user-email">{{ user.email }}</p>
+                  <div class="user-meta">
+                    <div class="user-roles">
+                      <span *ngFor="let role of user.roles" class="role-badge">
+                        {{ role }}
+                      </span>
+                    </div>
+                    <div class="user-stats">
+                      <span class="stat-item">
+                        <i class="fa-solid fa-flag"></i>
+                        {{ user.reportsSubmitted || 0 }} reports
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="user-actions">
+                <button class="btn btn-success" (click)="onUnbanUser(user.id, user.username)">
+                  <i class="fa-solid fa-user-check"></i>
+                  <span>Unban</span>
+                </button>
+                <button class="btn btn-danger" (click)="onDeleteUser(user.id, user.username)">
+                  <i class="fa-solid fa-trash"></i>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="bannedUsersTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ bannedUsers.length }} of {{ bannedUsersTotalElements }} banned users
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMoreBannedUsers()"
+                [disabled]="
+                  isLoadingMoreBannedUsers || bannedUsersCurrentPage >= bannedUsersTotalPages - 1
+                "
+              >
+                <span *ngIf="isLoadingMoreBannedUsers" class="spinner-sm"></span>
+                <span>{{ isLoadingMoreBannedUsers ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noBannedUsers>
+            <div class="empty-state">
+              <i class="fa-solid fa-circle-check"></i>
+              <h3>No Banned Users</h3>
+              <p>There are currently no banned users.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- MANAGE USERS PANEL -->
+      <div *ngIf="activeTab === 'users'" class="tab-panel">
+        <div *ngIf="isUsersLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading users...</p>
+        </div>
+
+        <div *ngIf="usersError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ usersError }}</span>
+        </div>
+
+        <div *ngIf="!isUsersLoading && !usersError">
+          <div *ngIf="users.length > 0; else noUsers" class="content-list">
+            <div
+              *ngFor="let user of users"
+              class="content-card user-card"
+              [class.banned-user-card]="!user.enabled"
+            >
+              <div class="user-info">
+                <div class="user-avatar" [class.banned]="!user.enabled">
+                  <span>{{ user.username.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="user-details">
+                  <div class="user-header">
+                    <a [routerLink]="['/profile', user.username]" class="user-name">
+                      {{ user.username }}
+                    </a>
+                    <span *ngIf="!user.enabled" class="badge warning">
+                      <i class="fa-solid fa-ban"></i> Banned
+                    </span>
+                  </div>
+                  <p class="user-email">{{ user.email }}</p>
+                  <div class="user-meta">
+                    <div class="user-roles">
+                      <span *ngFor="let role of user.roles" class="role-badge">
+                        {{ role }}
+                      </span>
+                    </div>
+                    <div class="user-stats">
+                      <span class="stat-item">
+                        <i class="fa-solid fa-flag"></i> {{ user.reportsSubmitted || 0 }}
+                        reports
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="user-actions">
+                <button
+                  *ngIf="!user.enabled"
+                  class="btn btn-success"
+                  (click)="onUnbanUser(user.id, user.username)"
+                >
+                  <i class="fa-solid fa-user-check"></i> <span>Unban</span>
+                </button>
+                <button
+                  *ngIf="user.enabled"
+                  class="btn btn-warning"
+                  (click)="onBanUser(user.id, user.username)"
+                >
+                  <i class="fa-solid fa-user-slash"></i> <span>Ban</span>
+                </button>
+                <button class="btn btn-danger" (click)="onDeleteUser(user.id, user.username)">
+                  <i class="fa-solid fa-trash"></i> <span>Delete</span>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="usersTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ users.length }} of {{ usersTotalElements }} users
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMoreUsers()"
+                [disabled]="isLoadingMoreUsers || usersCurrentPage >= usersTotalPages - 1"
+              >
+                <span *ngIf="isLoadingMoreUsers" class="spinner-sm"></span>
+                <span>{{ isLoadingMoreUsers ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noUsers>
+            <div class="empty-state">
+              <i class="fa-solid fa-users"></i>
+              <h3>No Users Found</h3>
+              <p>There are no users in the system.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- MANAGE POSTS PANEL -->
+      <div *ngIf="activeTab === 'posts'" class="tab-panel">
+        <div *ngIf="isPostsLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading posts...</p>
+        </div>
+
+        <div *ngIf="postsError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ postsError }}</span>
+        </div>
+
+        <div *ngIf="!isPostsLoading && !postsError">
+          <div *ngIf="posts.length > 0; else noPosts" class="content-list">
+            <div *ngFor="let post of posts" class="content-card post-card">
+              <div class="card-header">
+                <div class="header-content">
+                  <h3>
+                    <a [routerLink]="['/post', post.id]" target="_blank">{{ post.title }}</a>
+                  </h3>
+                  <div class="post-meta">
+                    <span>
+                      <i class="fa-solid fa-user"></i>
+                      <a [routerLink]="['/profile', post.authorUsername]" target="_blank">
+                        {{ post.authorUsername }}
+                      </a>
+                    </span>
+                    <span>
+                      <i class="fa-regular fa-calendar"></i>
+                      {{ post.createdAt | date : 'medium' }}
+                    </span>
+                  </div>
+                </div>
+                <span *ngIf="post.hidden" class="badge warning">
+                  <i class="fa-solid fa-eye-slash"></i>
+                  Hidden
+                </span>
+              </div>
+
+              <div class="card-body">
+                <p class="post-content">
+                  {{ post.content | slice : 0 : 200 }}
+                  <span *ngIf="post.content.length > 200">...</span>
+                </p>
+
+                <div class="post-stats">
+                  <div class="stat-badge">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>{{ post.likeCount }} likes</span>
+                  </div>
+                  <div class="stat-badge" *ngIf="post.reportedCount > 0">
+                    <i class="fa-solid fa-flag"></i>
+                    <span>{{ post.reportedCount }} reports</span>
+                  </div>
+                  <div class="stat-badge" *ngIf="post.mediaFiles && post.mediaFiles.length > 0">
+                    <i class="fa-solid fa-image"></i>
+                    <span>{{ post.mediaFiles.length }} media</span>
+                  </div>
+                </div>
+
+                <div class="actions">
+                  <button
+                    *ngIf="!post.hidden"
+                    class="btn btn-warning"
+                    (click)="onHidePost(post.id, post.title)"
+                  >
+                    <i class="fa-solid fa-eye-slash"></i>
+                    <span>Hide</span>
+                  </button>
+                  <button
+                    *ngIf="post.hidden"
+                    class="btn btn-success"
+                    (click)="onUnhidePost(post.id)"
+                  >
+                    <i class="fa-solid fa-eye"></i>
+                    <span>Unhide</span>
+                  </button>
+                  <button class="btn btn-danger" (click)="onDeletePost(post.id)">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="postsTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ posts.length }} of {{ postsTotalElements }} posts
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMorePosts()"
+                [disabled]="isLoadingMorePosts || postsCurrentPage >= postsTotalPages - 1"
+              >
+                <span *ngIf="isLoadingMorePosts" class="spinner-sm"></span>
+                <span>{{ isLoadingMorePosts ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noPosts>
+            <div class="empty-state">
+              <i class="fa-solid fa-file-lines"></i>
+              <h3>No Posts Found</h3>
+              <p>There are currently no posts in the system.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- HIDDEN POSTS PANEL -->
+      <div *ngIf="activeTab === 'hiddenPosts'" class="tab-panel">
+        <div *ngIf="isHiddenPostsLoading" class="loading-state">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Loading hidden posts...</p>
+        </div>
+
+        <div *ngIf="hiddenPostsError" class="alert alert-error">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ hiddenPostsError }}</span>
+        </div>
+
+        <div *ngIf="!isHiddenPostsLoading && !hiddenPostsError">
+          <div *ngIf="hiddenPosts.length > 0; else noHiddenPosts" class="content-list">
+            <div *ngFor="let post of hiddenPosts" class="content-card hidden-post-card">
+              <div class="card-header">
+                <div class="header-content">
+                  <h3>{{ post.title }}</h3>
+                  <div class="post-meta">
+                    <span>
+                      <i class="fa-solid fa-user"></i>
+                      <a [routerLink]="['/profile', post.authorUsername]" target="_blank">
+                        {{ post.authorUsername }}
+                      </a>
+                    </span>
+                    <span>
+                      <i class="fa-regular fa-calendar"></i>
+                      {{ post.createdAt | date : 'medium' }}
+                    </span>
+                  </div>
+                </div>
+                <span class="badge warning">
+                  <i class="fa-solid fa-eye-slash"></i>
+                  Hidden
+                </span>
+              </div>
+
+              <div class="card-body">
+                <p class="post-content">
+                  {{ post.content | slice : 0 : 200 }}
+                  <span *ngIf="post.content.length > 200">...</span>
+                </p>
+
+                <div *ngIf="post.hideReason" class="alert alert-info">
+                  <i class="fa-solid fa-circle-info"></i>
+                  <div>
+                    <strong>Reason:</strong>
+                    <span>{{ post.hideReason }}</span>
+                  </div>
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-success" (click)="onUnhidePost(post.id)">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>Unhide</span>
+                  </button>
+                  <button class="btn btn-danger" (click)="onDeletePost(post.id)">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="hiddenPostsTotalPages > 1" class="pagination">
+              <p class="pagination-info">
+                Showing {{ hiddenPosts.length }} of {{ hiddenPostsTotalElements }} hidden posts
+              </p>
+              <button
+                class="btn btn-load-more"
+                (click)="loadMoreHiddenPosts()"
+                [disabled]="
+                  isLoadingMoreHiddenPosts || hiddenPostsCurrentPage >= hiddenPostsTotalPages - 1
+                "
+              >
+                <span *ngIf="isLoadingMoreHiddenPosts" class="spinner-sm"></span>
+                <span>{{ isLoadingMoreHiddenPosts ? 'Loading...' : 'Load More' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noHiddenPosts>
+            <div class="empty-state">
+              <i class="fa-solid fa-circle-check"></i>
+              <h3>No Hidden Posts</h3>
+              <p>There are currently no hidden posts.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<app-hide-post-modal
+  [isOpen]="isHidePostModalOpen"
+  [postTitle]="hidePostTitle"
+  [isSubmitting]="isHidingPost"
+  (onConfirm)="onHidePostConfirm()"
+  (onCancel)="onHidePostCancel()"
+>
+</app-hide-post-modal>
+
+<app-confirmation-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  confirmButtonText="Yes, Delete"
+  confirmButtonClass="btn-danger"
+  (onConfirm)="handleConfirm()"
+  (onClose)="closeModal()"
+>
+</app-confirmation-modal>

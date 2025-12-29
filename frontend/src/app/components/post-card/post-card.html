@@ -1,0 +1,85 @@
+<div *ngIf="post" class="post-card" (click)="navigateToPost()">
+  <!-- Gradient accent line at top -->
+  <div class="card-accent"></div>
+
+  <!-- Card glow effect on hover -->
+  <div class="card-glow"></div>
+
+  <div class="post-content">
+    <!-- HEADER: Author & Media Badge -->
+    <div class="post-header">
+      <div class="author-section">
+        <div class="avatar-wrapper">
+          <div class="avatar">
+            <span>{{ post.authorUsername.charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="avatar-ring"></div>
+        </div>
+        
+        <div class="author-meta">
+          <a 
+            [routerLink]="['/profile', post.authorUsername]" 
+            (click)="$event.stopPropagation()" 
+            class="author-name"
+          >
+            {{ post.authorUsername }}
+          </a>
+          <div class="post-date">
+            <i class="fa-regular fa-calendar"></i>
+            <span>{{ post.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Media Badge -->
+      <div *ngIf="post.mediaFiles && post.mediaFiles.length > 0" class="media-badge">
+        <i class="fa-solid fa-images"></i>
+        <span>{{ post.mediaFiles.length }}</span>
+      </div>
+    </div>
+
+    <!-- TITLE & EXCERPT -->
+    <div class="post-body">
+      <h2 class="post-title">{{ post.title }}</h2>
+      <p class="post-excerpt">{{ post.content }}</p>
+    </div>
+
+    <!-- META INFO -->
+    <div class="post-meta">
+      <div class="meta-item reading-time">
+        <i class="fa-regular fa-clock"></i>
+        <span>~3 min read</span>
+      </div>
+      
+      <div *ngIf="post.mediaFiles && post.mediaFiles.length > 0" class="meta-item media-indicator">
+        <i class="fa-solid fa-photo-film"></i>
+        <span>{{ post.mediaFiles.length }} media</span>
+      </div>
+    </div>
+
+    <!-- FOOTER: Actions -->
+    <div class="post-footer">
+      <div class="engagement-stats">
+        <button 
+          (click)="toggleLike($event); $event.stopPropagation()" 
+          class="engagement-btn like-btn" 
+          [class.liked]="post.likedByCurrentUser"
+          [title]="post.likeCount + ' likes'"
+        >
+          <i [ngClass]="post.likedByCurrentUser ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+          <span class="count">{{ post.likeCount }}</span>
+        </button>
+
+        <div *ngIf="post.commentCount !== undefined" class="engagement-btn comment-btn" [title]="post.commentCount + ' comments'">
+          <i class="fa-regular fa-comment"></i>
+          <span class="count">{{ post.commentCount }}</span>
+        </div>
+      </div>
+
+      <div class="action-hint">
+        <span>Read more</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </div>
+    </div>
+  </div>
+</div>

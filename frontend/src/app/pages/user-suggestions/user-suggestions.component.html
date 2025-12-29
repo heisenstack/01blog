@@ -1,0 +1,134 @@
+<div class="suggestions-container">
+  <header class="suggestions-header">
+    <h1>Discover Users</h1>
+    <p>Find interesting people to follow and see who you're already following.</p>
+  </header>
+
+  <nav class="suggestions-tabs">
+    <button 
+      class="tab-link" 
+      [class.active]="activeTab === 'suggestions'" 
+      (click)="selectTab('suggestions')">
+      <i class="fa-solid fa-user-plus"></i>
+      <span>Suggestions</span>
+    </button>
+    <button 
+      class="tab-link" 
+      [class.active]="activeTab === 'following'" 
+      (click)="selectTab('following')">
+      <i class="fa-solid fa-user-check"></i>
+      <span>Following</span>
+      <span *ngIf="followingTotalElements > 0" class="badge">{{ followingTotalElements }}</span>
+    </button>
+  </nav>
+
+  <div class="tab-content">
+    <!-- SUGGESTIONS TAB -->
+    <div *ngIf="activeTab === 'suggestions'">
+      <div *ngIf="isSuggestionsLoading" class="status-container">
+        <p>Loading suggestions...</p>
+      </div>
+      <div *ngIf="suggestionsError" class="status-container error">
+        <p>{{ suggestionsError }}</p>
+      </div>
+      <div *ngIf="!isSuggestionsLoading && !suggestionsError">
+        <div *ngIf="suggestions.length > 0; else noSuggestions" class="users-grid">
+          <div *ngFor="let user of suggestions" class="user-card">
+            <div class="user-info">
+              <div class="user-avatar">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="user-details">
+                <a [routerLink]="['/profile', user.username]" class="user-name">{{ user.name }}</a>
+                <p class="user-username">@{{ user.username }}</p>
+                <p class="user-stats">
+                  <i class="fa-solid fa-users"></i>
+                  {{ user.followerCount }} {{ user.followerCount === 1 ? 'follower' : 'followers' }}
+                </p>
+              </div>
+            </div>
+            <button 
+              class="btn btn-primary" 
+              (click)="toggleFollow(user)">
+              <i class="fa-solid fa-user-plus"></i>
+              Follow
+            </button>
+          </div>
+        </div>
+        <ng-template #noSuggestions>
+          <div class="status-container">
+            <p>🎉 No more suggestions available. You're following everyone!</p>
+          </div>
+        </ng-template>
+
+        <!-- Pagination for Suggestions -->
+        <div class="pagination-controls" *ngIf="suggestionsTotalPages > 1 && suggestions.length > 0">
+          <p class="pagination-info">
+            Showing {{ suggestions.length }} of {{ suggestionsTotalElements }} users
+          </p>
+          <button 
+            class="btn btn-secondary" 
+            (click)="loadMoreSuggestions()" 
+            [disabled]="isLoadingMoreSuggestions || suggestionsCurrentPage >= suggestionsTotalPages - 1">
+            <span *ngIf="!isLoadingMoreSuggestions">Load More</span>
+            <span *ngIf="isLoadingMoreSuggestions">Loading...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOLLOWING TAB -->
+    <div *ngIf="activeTab === 'following'">
+      <div *ngIf="isFollowingLoading" class="status-container">
+        <p>Loading following...</p>
+      </div>
+      <div *ngIf="followingError" class="status-container error">
+        <p>{{ followingError }}</p>
+      </div>
+      <div *ngIf="!isFollowingLoading && !followingError">
+        <div *ngIf="following.length > 0; else noFollowing" class="users-grid">
+          <div *ngFor="let user of following" class="user-card">
+            <div class="user-info">
+              <div class="user-avatar">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="user-details">
+                <a [routerLink]="['/profile', user.username]" class="user-name">{{ user.name }}</a>
+                <p class="user-username">@{{ user.username }}</p>
+                <p class="user-stats">
+                  <i class="fa-solid fa-users"></i>
+                  {{ user.followerCount }} {{ user.followerCount === 1 ? 'follower' : 'followers' }}
+                </p>
+              </div>
+            </div>
+            <button 
+              class="btn btn-secondary" 
+              (click)="toggleFollow(user)">
+              <i class="fa-solid fa-user-minus"></i>
+              Unfollow
+            </button>
+          </div>
+        </div>
+        <ng-template #noFollowing>
+          <div class="status-container">
+            <p>You're not following anyone yet. Check out the suggestions!</p>
+          </div>
+        </ng-template>
+
+        <!-- Pagination for Following -->
+        <div class="pagination-controls" *ngIf="followingTotalPages > 1 && following.length > 0">
+          <p class="pagination-info">
+            Showing {{ following.length }} of {{ followingTotalElements }} users
+          </p>
+          <button 
+            class="btn btn-secondary" 
+            (click)="loadMoreFollowing()" 
+            [disabled]="isLoadingMoreFollowing || followingCurrentPage >= followingTotalPages - 1">
+            <span *ngIf="!isLoadingMoreFollowing">Load More</span>
+            <span *ngIf="isLoadingMoreFollowing">Loading...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

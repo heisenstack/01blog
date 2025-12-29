@@ -1,0 +1,47 @@
+<div class="form-container">
+  <!-- Show a loading/error state until the post is ready -->
+  <div *ngIf="!post && !errorMessage" class="card" style="text-align: center; padding: 4rem;">
+    <p>Loading post for editing...</p>
+  </div>
+  <div *ngIf="errorMessage" class="card" style="text-align: center; padding: 4rem;">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Main Edit Form -->
+  <div *ngIf="post" class="card">
+    <header class="card-header">
+      <h2>Edit Post</h2>
+      <p>Refine your story and save the changes.</p>
+    </header>
+
+    <form (ngSubmit)="onSubmit()" #postForm="ngForm">
+      <!-- Title Field -->
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" class="form-control"  
+               [(ngModel)]="post.title"
+               required>
+
+      </div>
+
+      <!-- Content Field -->
+      <div class="form-group">
+        <label for="content">Content</label>
+        <textarea id="content" name="content" class="form-control" rows="10"
+                  [(ngModel)]="post.content"
+                  required></textarea>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" [routerLink]="['/post', post.id]" class="btn btn-secondary">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="!postForm.valid || isSubmitting">
+          <span *ngIf="!isSubmitting">Save Changes</span>
+          <span *ngIf="isSubmitting">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

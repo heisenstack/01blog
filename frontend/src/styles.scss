@@ -1,0 +1,271 @@
+body {
+
+  color-scheme: light;
+
+
+
+  margin: 0;
+}
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Source Serif Pro', Georgia, Cambria, "Times New Roman", Times, serif;
+
+  --background: #f8f9fa;         
+  --surface: #ffffff;            
+  --primary: #6B46C1;             
+  --primary-hover: #553c9a;       
+  --primary-subtle: #f2eefc;      
+  --text-primary: #1a202c;       
+  --text-secondary: #718096;     
+  --border: #e2e8f0;              
+  --error: #E53E3E;               
+  --success: #38A169;           
+
+  /* ## SPACING SYSTEM (Based on a 4px grid) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --spacing-6: 32px;
+  --spacing-7: 48px;
+  --spacing-8: 64px;
+
+  /* ## BORDER RADIUS */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* ## SHADOWS */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/*
+ * --------------------------------------------------------------------------
+ * #SECTION 2: DARK THEME
+ * --------------------------------------------------------------------------
+*/
+body.dark-theme {
+  --background: #1a202c;
+  --surface: #2d3748;
+  --primary: #9f7aea;
+  --primary-hover: #805ad5;
+  --primary-subtle: #322a4e;
+  --text-primary: #f7fafc;
+  --text-secondary: #a0aec0;
+  --border: #4a5568;
+  --error: #FC8181;
+  --success: #68D391;
+}
+
+/*
+ * --------------------------------------------------------------------------
+ * #SECTION 3: GLOBAL RESETS & BASE STYLES
+ * --------------------------------------------------------------------------
+*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/*
+ * --------------------------------------------------------------------------
+ * #SECTION 4: BASE COMPONENT STYLES
+ * --------------------------------------------------------------------------
+*/
+
+/* ## BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  &:hover:not(:disabled) { background-color: var(--primary-hover); }
+}
+
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  &:hover:not(:disabled) { background-color: var(--background); }
+}
+
+.btn-danger {
+  background-color: var(--error);
+  color: white;
+  &:hover:not(:disabled) { background-color: #c53030; }
+}
+
+/* ## FORMS */
+.form-group {
+  margin-bottom: var(--spacing-5);
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--spacing-2);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+  }
+}
+
+.is-invalid {
+  border-color: var(--error);
+  &:focus { box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2); }
+}
+
+.error-message {
+  color: var(--error);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-2);
+}
+
+/* ## CARDS */
+.card {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+/*
+ * ===============================================
+ * 7. LAYOUT UTILITIES
+ * Reusable layout classes for the entire app.
+ * ===============================================
+*/
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-6);
+}
+
+// --- Responsive Adjustments for the Grid ---
+@media (max-width: 480px) {
+  .post-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/*
+ * --------------------------------------------------------------------------
+ * #SECTION 5: LAYOUT & UTILITIES
+ * --------------------------------------------------------------------------
+*/
+
+/* ## MAIN CONTENT CONTAINER */
+.container {
+  width: 100%;
+  max-width: 900px; 
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--spacing-6) var(--spacing-5);
+}
+
+/*
+ * ===============================================
+ * 8. MODAL UTILITIES
+ * ===============================================
+*/
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000; 
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px; 
+  z-index: 1001; 
+  
+  animation: scaleIn 0.2s ease-out;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -1,0 +1,142 @@
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid navbar-container">
+    <a class="navbar-brand" routerLink="/" (click)="closeMobileMenu()">
+      <i class="bi bi-journal-text"></i>
+      <span>01Blog</span>
+    </a>
+
+    <!-- MOBILE HAMBURGER TOGGLE -->
+    <button 
+      class="navbar-toggler" 
+      type="button" 
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="isMobileMenuOpen"
+      aria-label="Toggle navigation">
+      <i *ngIf="!isMobileMenuOpen" class="bi bi-list"></i>
+      <i *ngIf="isMobileMenuOpen" class="bi bi-x-lg"></i>
+    </button>
+
+    <!-- COLLAPSIBLE CONTENT -->
+    <div class="collapse navbar-collapse" [class.show]="isMobileMenuOpen" id="navbarContent">
+      <!-- DESKTOP NAVIGATION LINKS (Center) -->
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a 
+            routerLink="/home" 
+            routerLinkActive="active" 
+            [routerLinkActiveOptions]="{exact: true}" 
+            class="nav-link"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn$ | async">
+          <a 
+            routerLink="/feed" 
+            routerLinkActive="active" 
+            class="nav-link"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-rss-fill"></i>
+            <span>My Feed</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn$ | async">
+          <a 
+            routerLink="/discover" 
+            routerLinkActive="active" 
+            class="nav-link"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-compass-fill"></i>
+            <span>Discover</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn$ | async">
+          <a 
+            routerLink="/create-post" 
+            routerLinkActive="active" 
+            class="nav-link"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-pencil-square"></i>
+            <span>Create</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="(isLoggedIn$ | async) && (isAdmin$ | async)">
+          <a 
+            routerLink="/admin" 
+            routerLinkActive="active" 
+            class="nav-link"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-shield-fill-check"></i>
+            <span>Admin</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- USER ACTIONS  -->
+      <div class="navbar-actions d-flex align-items-center">
+        <button 
+          class="btn btn-icon theme-toggle" 
+          (click)="toggleTheme()" 
+          [title]="(currentTheme$ | async) === 'light' ? 'Switch to dark mode' : 'Switch to light mode'"
+          type="button"
+          aria-label="Toggle theme">
+          <i *ngIf="(currentTheme$ | async) === 'light'" class="bi bi-moon-fill"></i>
+          <i *ngIf="(currentTheme$ | async) === 'dark'" class="bi bi-sun-fill"></i>
+        </button>
+
+        <ng-container *ngIf="isLoggedIn$ | async; else loggedOutActions">
+          <!-- Notifications -->
+          <app-notification-bell></app-notification-bell>
+          
+          <!-- Profile Button -->
+          <a 
+            [routerLink]="['/profile', currentUsername]" 
+            class="btn btn-icon profile-btn" 
+            title="View profile"
+            aria-label="Profile"
+            (click)="closeMobileMenu()">
+            <i class="bi bi-person-fill"></i>
+          </a>
+
+          <!-- Logout Button (Desktop) -->
+          <button 
+            class="btn btn-outline-secondary btn-with-icon d-none d-lg-flex" 
+            (click)="logout()"
+            aria-label="Logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+          </button>
+
+          <!-- Mobile Logout -->
+          <button 
+            class="btn btn-outline-secondary btn-with-icon d-lg-none w-100 mt-3" 
+            (click)="logout(); closeMobileMenu()"
+            aria-label="Logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+          </button>
+        </ng-container>
+
+        <ng-template #loggedOutActions>
+          <a 
+            routerLink="/login" 
+            class="btn btn-outline-secondary btn-with-icon"
+            (click)="closeMobileMenu()"
+            aria-label="Login">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span class="d-none d-lg-inline">Login</span>
+          </a>
+          <a 
+            routerLink="/register" 
+            class="btn btn-primary btn-with-icon"
+            (click)="closeMobileMenu()"
+            aria-label="Register">
+            <i class="bi bi-person-plus-fill"></i>
+            <span class="d-none d-lg-inline">Register</span>
+          </a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,51 @@
+<div *ngIf="isOpen" class="modal-overlay" (click)="close()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      
+      <!-- MODAL HEADER -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+          <h3 class="modal-title">{{ title }}</h3>
+        </div>
+        <button 
+          type="button"
+          class="btn-close" 
+          (click)="close()"
+          aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="modal-body">
+        <div class="message-card">
+          <i class="fa-solid fa-quote-left quote-icon"></i>
+          <p class="modal-message">{{ message }}</p>
+        </div>
+      </div>
+
+      <!-- MODAL FOOTER -->
+      <div class="modal-footer">
+        <button 
+          type="button"
+          class="btn btn-secondary" 
+          (click)="close()">
+          <i class="fa-solid fa-xmark"></i>
+          <span>Cancel</span>
+        </button>
+        <button 
+          type="button"
+          class="btn" 
+          [ngClass]="confirmButtonClass" 
+          (click)="confirm()">
+          <i class="fa-solid fa-check"></i>
+          <span>{{ confirmButtonText }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

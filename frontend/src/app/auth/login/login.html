@@ -1,0 +1,98 @@
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Brand Icon -->
+      <div class="auth-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="auth-header">
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to continue to your account</p>
+      </div>
+
+      <!-- Login Form -->
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Username Field -->
+        <div class="form-group">
+          <label for="username" class="form-label">
+            <i class="fa-solid fa-user"></i>
+            <span>Username</span>
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              class="form-control" 
+              id="username" 
+              name="username" 
+              required
+              [(ngModel)]="model.username" 
+              #username="ngModel"
+              placeholder="Enter your username"
+              [class.is-invalid]="username.invalid && username.touched">
+          </div>
+          <div *ngIf="username.invalid && username.touched" class="error-message">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>Username is required</span>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <i class="fa-solid fa-lock"></i>
+            <span>Password</span>
+          </label>
+          <div class="input-wrapper password-wrapper">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              class="form-control" 
+              id="password" 
+              name="password" 
+              required
+              [(ngModel)]="model.password" 
+              #password="ngModel"
+              placeholder="Enter your password"
+              [class.is-invalid]="password.invalid && password.touched">
+            <button 
+              type="button" 
+              class="password-toggle" 
+              (click)="showPassword = !showPassword"
+              tabindex="-1">
+              <i [class]="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+            </button>
+          </div>
+          <div *ngIf="password.invalid && password.touched" class="error-message">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>Password is required</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="!loginForm.form.valid || isSubmitting">
+          <span class="btn-content">
+            <i *ngIf="!isSubmitting" class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span *ngIf="!isSubmitting">Sign In</span>
+            <span *ngIf="isSubmitting" class="spinner-sm"></span>
+            <span *ngIf="isSubmitting">Signing In...</span>
+          </span>
+          <div class="btn-shimmer"></div>
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>
+          Don't have an account? 
+          <a routerLink="/register" class="auth-link">Create one now</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

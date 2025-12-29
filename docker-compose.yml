@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     container_name: blog-db
     environment:
-      POSTGRES_DB: blog_db
+      POSTGRES_DB: zerooneblog
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test123
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     volumes:
@@ -20,9 +20,9 @@ services:
       dockerfile: Dockerfile
     container_name: blog-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/blog_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/zerooneblog
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: test123
+      SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: false
     ports:
@@ -34,7 +34,7 @@ services:
 #  # Spring Boot Backends
   frontend:
     build:
-      context: ./blog-frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: blog-frontend
     ports:

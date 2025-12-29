@@ -1,0 +1,48 @@
+<div class="profile-header">
+  <!-- Gradient Banner -->
+  <div class="profile-banner">
+    <div class="banner-gradient"></div>
+  </div>
+  
+  <!-- Profile Content -->
+  <div class="profile-content">
+    <!-- Avatar Section -->
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <div class="avatar">
+          <span *ngIf="username">{{ username.charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="avatar-ring"></div>
+      </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="profile-info">
+      <h1 class="profile-name">{{ name }}</h1>
+      <h2 class="profile-username">@{{ username }}</h2>
+      
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-number">{{ formatNumber(postCount) }}</span>
+          <span class="stat-label">Posts</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">{{ formatNumber(followerCount) }}</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">{{ formatNumber(followingCount) }}</span>
+          <span class="stat-label">Following</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="profile-actions">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

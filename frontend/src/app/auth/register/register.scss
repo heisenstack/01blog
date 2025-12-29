@@ -1,0 +1,48 @@
+
+@use '../login/login.scss';
+
+.auth-brand .brand-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+  
+  i {
+    color: white;
+  }
+}
+.auth-wrapper {
+  width: 100vh;
+  // height: 100%;
+}
+
+.auth-title {
+  background: linear-gradient(135deg, var(--text-primary) 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  
+  &:hover:not(:disabled) {
+    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.45);
+  }
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  
+  &:last-of-type {
+    margin-bottom: 2rem;
+  }
+}
+
+body.dark-theme {
+  .auth-title {
+    background: linear-gradient(135deg, var(--text-primary) 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

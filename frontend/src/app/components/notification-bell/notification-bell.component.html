@@ -1,0 +1,103 @@
+<div class="notification-wrapper">
+  <!-- Bell Icon Button -->
+  <button 
+    class="notification-bell" 
+    (click)="toggleDropdown()" 
+    type="button"
+    aria-label="Notifications"
+    [attr.aria-expanded]="isDropdownOpen">
+    <i class="fa-regular fa-bell"></i>
+    <span *ngIf="unreadCount > 0" class="notification-badge">
+      {{ unreadCount > 9 ? '9+' : unreadCount }}
+    </span>
+  </button>
+
+  <!-- Notification Dropdown Panel -->
+  <div 
+    *ngIf="isDropdownOpen" 
+    class="notification-dropdown">
+    
+    <!-- Header -->
+    <div class="notification-header">
+      <!-- Close button for mobile -->
+      <button 
+        class="btn-close-mobile" 
+        (click)="toggleDropdown()"
+        type="button"
+        aria-label="Close notifications">
+        <i class="fa-solid fa-times"></i>
+      </button>
+
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div>
+          <h3 class="header-title">Notifications</h3>
+          <p class="header-subtitle" *ngIf="notifications.length > 0">
+            You have {{ notifications.length }} new notification{{ notifications.length > 1 ? 's' : '' }}
+          </p>
+        </div>
+      </div>
+      <button 
+        *ngIf="notifications.length > 0" 
+        class="btn-mark-all" 
+        (click)="markAllAsRead()"
+        type="button">
+        <i class="fa-solid fa-check-double"></i>
+        <span>Mark all read</span>
+      </button>
+    </div>
+
+    <!-- Notification List -->
+    <div class="notification-list">
+      <!-- Empty State -->
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <h4 class="empty-title">All caught up!</h4>
+        <p class="empty-text">You have no new notifications</p>
+      </div>
+
+      <!-- Notification Items -->
+      <ng-container *ngIf="notifications.length > 0">
+        <a 
+          *ngFor="let notification of notifications; let i = index" 
+          class="notification-item"
+          (click)="markAsRead(notification, $event)"
+          [style.animation-delay]="i * 0.05 + 's'">
+          
+          <!-- Avatar with gradient background -->
+          <div class="notification-avatar">
+            <span>{{ notification.senderUsername.charAt(0).toUpperCase() }}</span>
+          </div>
+
+          <!-- Content -->
+          <div class="notification-content">
+            <p class="notification-message">
+              <strong class="username">{{ notification.senderUsername }}</strong>
+              <span class="message-text">{{ getNotificationMessage(notification.message) }}</span>
+            </p>
+            <div class="notification-meta">
+              <i class="fa-regular fa-clock"></i>
+              <span>{{ notification.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+
+          <!-- Unread indicator -->
+          <div class="unread-dot"></div>
+        </a>
+      </ng-container>
+    </div>
+
+    <!-- Footer (optional) -->
+    <div class="notification-footer">
+      <a href="/notifications" class="btn-view-all" (click)="toggleDropdown()">
+        <span>View all notifications</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+  </div>
+</div>

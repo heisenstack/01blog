@@ -1,0 +1,53 @@
+<div class="not-found-wrapper">
+  <div class="not-found-container">
+    <!-- Animated 404 -->
+    <div class="error-code">
+      <span class="digit">4</span>
+      <span class="digit middle">0</span>
+      <span class="digit">4</span>
+    </div>
+
+    <!-- Icon -->
+    <div class="error-icon">
+      <i class="fa-solid fa-compass"></i>
+    </div>
+
+    <!-- Message -->
+    <div class="error-content">
+      <h1>Page Not Found</h1>
+      <p class="error-description">
+        Oops! The page you're looking for seems to have wandered off into the digital wilderness.
+        It might have been moved, deleted, or perhaps it never existed.
+      </p>
+
+      <!-- Suggested Actions -->
+      <div class="suggestions">
+        <div class="suggestion-card">
+          <i class="fa-solid fa-lightbulb"></i>
+          <p>Check the URL for typos</p>
+        </div>
+        <div class="suggestion-card">
+          <i class="fa-solid fa-arrow-rotate-left"></i>
+          <p>Go back to the previous page</p>
+        </div>
+        <div class="suggestion-card">
+          <i class="fa-solid fa-house"></i>
+          <p>Return to the homepage</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions">
+        <button class="btn btn-primary" (click)="goHome()">
+          <i class="fa-solid fa-house"></i>
+          <span>Go to Homepage</span>
+        </button>
+        <button class="btn btn-secondary" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Go Back</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

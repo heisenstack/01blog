@@ -1,0 +1,240 @@
+<div class="notifications-page">
+  <div class="page-container">
+    
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Notifications</h1>
+          <p class="page-subtitle">Stay updated with your latest activities</p>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="header-actions" *ngIf="getTotalCount() > 0">
+        <button 
+          *ngIf="getUnreadCount() > 0"
+          class="btn-action"
+          (click)="markAllAsRead()"
+          type="button">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Mark all read</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" *ngIf="getTotalCount() > 0">
+      <div class="stat-item">
+        <i class="fa-solid fa-inbox"></i>
+        <span class="stat-value">{{ getTotalCount() }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-item unread">
+        <i class="fa-solid fa-bell"></i>
+        <span class="stat-value">{{ getUnreadCount() }}</span>
+        <span class="stat-label">Unread</span>
+      </div>
+      <div class="stat-item read">
+        <i class="fa-solid fa-check-circle"></i>
+        <span class="stat-value">{{ getReadCount() }}</span>
+        <span class="stat-label">Read</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'all'"
+          (click)="setActiveTab('all')"
+          type="button">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>All</span>
+          <span class="tab-badge">{{ getTotalCount() }}</span>
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'unread'"
+          (click)="setActiveTab('unread')"
+          type="button">
+          <i class="fa-solid fa-bell"></i>
+          <span>Unread</span>
+          <span class="tab-badge unread" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'read'"
+          (click)="setActiveTab('read')"
+          type="button">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Read</span>
+          <span class="tab-badge read" *ngIf="getReadCount() > 0">{{ getReadCount() }}</span>
+        </button>
+      </div>
+
+      <!-- Bulk Actions -->
+      <div class="bulk-actions" *ngIf="selectedNotifications.size > 0">
+        <span class="selected-count">
+          <i class="fa-solid fa-check-circle"></i>
+          {{ selectedNotifications.size }} selected
+        </span>
+        <div class="bulk-buttons">
+          <button
+            class="btn-bulk"
+            (click)="markSelectedAsRead()"
+            type="button">
+            <i class="fa-solid fa-check"></i>
+            <span>Mark read</span>
+          </button>
+          <button
+            class="btn-bulk danger"
+            (click)="deleteSelected()"
+            type="button">
+            <i class="fa-solid fa-trash"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-wrapper">
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading notifications...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && notifications.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fa-solid" 
+             [ngClass]="{
+               'fa-inbox': activeTab === 'all',
+               'fa-bell-slash': activeTab === 'unread',
+               'fa-check-circle': activeTab === 'read'
+             }"></i>
+        </div>
+        <h3 class="empty-title">
+          {{ activeTab === 'all' ? 'No notifications yet' : 
+             activeTab === 'unread' ? 'All caught up!' : 
+             'No read notifications' }}
+        </h3>
+        <p class="empty-text">
+          {{ activeTab === 'all' ? 'When you get notifications, they\'ll appear here' : 
+             activeTab === 'unread' ? 'You have no unread notifications' : 
+             'You haven\'t read any notifications yet' }}
+        </p>
+      </div>
+
+      <!-- Notifications List -->
+      <div *ngIf="!isLoading && notifications.length > 0" class="notifications-list">
+        
+        <!-- Select All Bar -->
+        <div class="select-all-bar">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="selectAllChecked"
+              (change)="toggleSelectAll()"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">Select all</span>
+          </label>
+        </div>
+
+        <!-- Notification Items -->
+        <div
+          *ngFor="let notification of notifications; let i = index"
+          class="notification-card"
+          [class.unread]="!notification.read"
+          [class.read]="notification.read"
+          [class.selected]="selectedNotifications.has(notification.id)"
+          >
+          
+          <!-- Checkbox -->
+          <label class="notification-checkbox" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="selectedNotifications.has(notification.id)"
+              (change)="toggleSelectNotification(notification.id)"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+          </label>
+
+          <!-- Avatar -->
+          <div class="notification-avatar" (click)="handleNotificationClick(notification)">
+            <span>{{ notification.senderUsername.charAt(0).toUpperCase() }}</span>
+            <div class="avatar-badge">
+              <i class="fa-solid" [ngClass]="getNotificationIcon(notification.type)"></i>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="notification-body" (click)="handleNotificationClick(notification)">
+            <div class="notification-header-line">
+              <p class="notification-message">
+                <strong class="username">{{ notification.senderUsername }}</strong>
+                <span class="message-text">{{ getNotificationMessage(notification.message) }}</span>
+              </p>
+              <div class="notification-actions">
+                <!-- Only show mark as read button for unread notifications -->
+                <button
+                  *ngIf="!notification.read"
+                  class="btn-toggle-read"
+                  (click)="toggleNotificationRead(notification, $event)"
+                  title="Mark as read"
+                  type="button">
+                  <i class="fa-solid fa-envelope-open"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="notification-meta">
+              <span class="notification-type">
+                <i class="fa-solid" [ngClass]="getNotificationIcon(notification.type)"></i>
+                {{ notification.type.replace('NEW_', '').replace('_', ' ') }}
+              </span>
+              <span class="notification-time">
+                <i class="fa-regular fa-clock"></i>
+                {{ notification.createdAt | date:'medium' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Unread Indicator -->
+          <div *ngIf="!notification.read" class="unread-indicator">
+            <div class="unread-dot"></div>
+          </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div *ngIf="hasMorePages" class="load-more-container">
+          <button 
+            class="btn-load-more"
+            (click)="loadMoreNotifications()"
+            [disabled]="isLoadingMore"
+            type="button">
+            <span *ngIf="!isLoadingMore" class="btn-content">
+              <i class="fa-solid fa-arrow-down"></i>
+              <span>Load more notifications</span>
+            </span>
+            <span *ngIf="isLoadingMore" class="btn-content">
+              <span class="spinner-sm"></span>
+              <span>Loading...</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<!-- SKELETON LOADER -->
+<div *ngIf="isLoading" class="profile-skeleton">
+  <div class="profile-header-skeleton">
+    <div class="skeleton-avatar"></div>
+    <div class="skeleton-details">
+      <div class="skeleton-bar skeleton-title"></div>
+      <div class="skeleton-bar skeleton-stats"></div>
+    </div>
+  </div>
+  <div class="post-grid">
+    <div *ngFor="let i of [1, 2, 3]" class="post-card-skeleton">
+      <div class="skeleton-media"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN PROFILE CONTENT -->
+<div *ngIf="!isLoading && userProfile" class="profile-container">
+  <app-profile-header
+    [name] = "userProfile.name"
+    [username]="userProfile.username"
+    [postCount]="userProfile.posts.totalElements"
+    [followerCount]="userProfile.followerCount"    
+    [followingCount]="userProfile.followingCount">
+
+    <!-- Profile Actions Slot -->
+    <div class="profile-actions">
+      <!-- Subscribe/Unsubscribe Button -->
+      <button *ngIf="isLoggedIn && !isOwnProfile"
+              (click)="toggleSubscription()"
+              class="action-btn subscribe-btn"
+              [class.subscribed]="userProfile.subscribed">
+        <i class="fa-solid" [class.fa-user-plus]="!userProfile.subscribed" [class.fa-user-check]="userProfile.subscribed"></i>
+        <span *ngIf="!userProfile.subscribed">Subscribe</span>
+        <span *ngIf="userProfile.subscribed">Subscribed</span>
+      </button>
+
+      <!-- "Three-dots" Actions Menu -->
+      <div *ngIf="isLoggedIn && !isOwnProfile" class="actions-menu">
+        <button class="menu-toggle" (click)="toggleActionsMenu($event)" title="More actions">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+
+        <div *ngIf="isActionsMenuOpen" class="menu-dropdown">
+          <a (click)="isReportModalOpen = true; isActionsMenuOpen = false">
+            <i class="fa-regular fa-flag"></i>
+            <span>Report User</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </app-profile-header>
+
+  <div *ngIf="userProfile && !userProfile.enabled" class="banned-notice">
+  <div class="banned-icon">
+    <i class="fa-solid fa-ban"></i>
+  </div>
+  <div class="banned-content">
+    <h3>This Account Has Been Suspended</h3>
+    <p>This user has been temporarily banned from the platform due to policy violations. Their content is still visible, but they cannot currently interact or post new content.</p>
+  </div>
+</div>
+  <!-- CONTENT TABS (Optional - for future enhancement) -->
+  <div class="profile-tabs">
+    <button class="tab-btn active">
+      <i class="fa-solid fa-grip"></i>
+      <span>Posts</span>
+    </button>
+  </div>
+
+  <!-- USER'S POSTS -->
+  <div class="profile-posts">
+    <div *ngIf="posts.length > 0; else noPosts" class="post-grid">
+      <app-post-card *ngFor="let post of posts" [post]="post"></app-post-card>
+    </div>
+
+    <!-- NO POSTS MESSAGE -->
+    <ng-template #noPosts>
+      <div class="empty-state-container">
+        <div class="empty-icon"></div>
+        <h2>Nothing to see here yet</h2>
+        <p>{{ userProfile.username }} is just getting started. Check back soon for amazing content!</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination-controls" *ngIf="posts.length > 0 && userProfile.posts && !userProfile.posts.last">
+    <button (click)="loadMorePosts()" [disabled]="isLoadingMore" class="btn btn-secondary">
+      <i class="fa-solid" [class.fa-spinner]="isLoadingMore" [class.fa-arrow-down]="!isLoadingMore"></i>
+      <span *ngIf="!isLoadingMore">Load More Posts</span>
+      <span *ngIf="isLoadingMore">Loading...</span>
+    </button>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<app-report-modal
+  [isOpen]="isReportModalOpen"
+  entityType="User"
+  [entityName]="userProfile?.username || ''"
+  (onClose)="isReportModalOpen = false"
+  (onSubmit)="handleUserReportSubmit($event)">
+</app-report-modal>

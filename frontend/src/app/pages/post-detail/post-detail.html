@@ -1,0 +1,122 @@
+<!-- SKELETON LOADER -->
+<div *ngIf="!post && !errorMessage" class="post-detail-skeleton">
+  <div class="skeleton-bar skeleton-title"></div>
+  <div class="skeleton-bar skeleton-meta"></div>
+  <div class="skeleton-media"></div>
+  <div class="skeleton-bar skeleton-line"></div>
+  <div class="skeleton-bar skeleton-line"></div>
+</div>
+
+<!-- ERROR MESSAGE -->
+<div *ngIf="errorMessage" class="status-container">
+  <h2>Post Not Found</h2>
+  <p>{{ errorMessage }}</p>
+  <a routerLink="/home" class="btn btn-primary">Go to Homepage</a>
+</div>
+
+<!-- MAIN POST CONTENT -->
+<div *ngIf="post" class="post-detail-container">
+  <article class="post-content">
+    <!-- POST HEADER -->
+    <header class="post-header">
+            <div class="post-meta">
+        <div class="author-info">
+          <div class="avatar">
+            <span>{{ post.authorUsername.charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="meta-text">
+            <a [routerLink]="['/profile', post.authorUsername]" class="author-name">
+              {{ post.authorUsername }}
+            </a>
+            <span class="post-date">{{ post.createdAt | date:'longDate' }}</span>
+          </div>
+        </div>
+      </div>
+      <h1 class="post-title">{{ post.title }}</h1>
+      
+
+    </header>
+
+    <!-- POST MEDIA CAROUSEL -->
+    <app-media-carousel 
+      *ngIf="post.mediaFiles && post.mediaFiles.length > 0"
+      [mediaFiles]="post.mediaFiles"
+    ></app-media-carousel>
+
+    <!-- POST BODY -->
+    <section class="post-body">
+  {{ post.content }}
+</section>
+
+    <!-- POST FOOTER (Likes & Actions) -->
+    <footer class="post-footer">
+      <div class="engagement">
+        <button *ngIf="isLoggedIn$ | async" (click)="toggleLike()" class="like-button" [class.liked]="post.likedByCurrentUser">
+          <i [ngClass]="post.likedByCurrentUser ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+          <span>{{ post.likeCount }}</span>
+        </button>
+        <div *ngIf="!(isLoggedIn$ | async)" class="like-button-disabled">
+          <i class="fa-regular fa-heart"></i>
+          <span>{{ post.likeCount }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="post-actions">
+        <div *ngIf="isAuthor" class="author-actions">
+          <a [routerLink]="['/edit-post', post.id]" class="action-btn edit-btn">
+            <i class="fa-solid fa-pen"></i>
+          </a>
+          <button (click)="onDeletePost()" class="action-btn delete-btn">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+
+        <div *ngIf="(isLoggedIn$ | async) && !isAuthor" class="actions-menu">
+          <button class="menu-toggle" (click)="toggleActionsMenu($event)">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+
+          <div *ngIf="isActionsMenuOpen" class="menu-dropdown">
+            <a (click)="isPostReportModalOpen = true; isActionsMenuOpen = false">
+              <i class="fa-regular fa-flag"></i> Report Post
+            </a>
+            <a (click)="isUserReportModalOpen = true; isActionsMenuOpen = false">
+              <i class="fa-regular fa-user-shield"></i> Report User
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </article>
+
+  <!-- COMMENT SECTION -->
+  <app-comment-section *ngIf="post.id" [postId]="post.id"></app-comment-section>
+</div>
+
+<!-- MODALS -->
+<app-confirmation-modal
+  [isOpen]="isDeleteModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [confirmButtonText]="confirmButtonText"
+  [confirmButtonClass]="confirmButtonClass"
+  (onConfirm)="handleDeleteConfirm()"
+  (onClose)="closeDeleteModal()">
+</app-confirmation-modal>
+
+<app-report-modal
+  [isOpen]="isPostReportModalOpen"
+  entityType="Post"
+  [entityName]="post?.title || ''"
+  (onClose)="isPostReportModalOpen = false"
+  (onSubmit)="handlePostReportSubmit($event)">
+</app-report-modal>
+
+<app-report-modal
+  [isOpen]="isUserReportModalOpen"
+  entityType="User"
+  [entityName]="post?.authorUsername || ''"
+  (onClose)="isUserReportModalOpen = false"
+  (onSubmit)="handleUserReportSubmit($event)">
+</app-report-modal>

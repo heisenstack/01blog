@@ -1,0 +1,320 @@
+.not-found-wrapper {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.not-found-container {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+// ===================================
+// 404 ERROR CODE
+// ===================================
+.error-code {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  
+  .digit {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    animation: fadeInScale 0.6s ease-out backwards;
+
+  }
+}
+
+// ===================================
+// ERROR ICON
+// ===================================
+.error-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+//   animation: float 3s ease-in-out infinite;
+  
+  i {
+    font-size: 4rem;
+    color: white;
+  }
+}
+
+// ===================================
+// ERROR CONTENT
+// ===================================
+.error-content {
+  animation: fadeInUp 0.8s ease-out;
+  animation-delay: 0.4s;
+  animation-fill-mode: backwards;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.5px;
+  }
+  
+  .error-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 auto 3rem;
+    max-width: 600px;
+  }
+}
+
+// ===================================
+// SUGGESTIONS
+// ===================================
+.suggestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.suggestion-card {
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  
+  i {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  
+  p {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    
+    i {
+      transform: scale(1.1);
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+// ===================================
+// ACTIONS
+// ===================================
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  i {
+    font-size: 1.125rem;
+  }
+  
+  &.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  &.btn-secondary {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    
+    &:hover {
+      border-color: var(--primary);
+      background: var(--background);
+    }
+  }
+}
+
+// ===================================
+// ANIMATIONS
+// ===================================
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(20px) rotate(-5deg);
+  }
+}
+
+
+// ===================================
+// RESPONSIVE
+// ===================================
+@media (max-width: 768px) {
+  .error-code {
+    gap: 0.5rem;
+    
+    .digit {
+      font-size: 5rem;
+    }
+  }
+  
+  .error-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.5rem;
+    
+    i {
+      font-size: 3rem;
+    }
+  }
+  
+  .error-content {
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .error-description {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+  }
+  
+  .suggestions {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .error-code {
+    .digit {
+      font-size: 4rem;
+    }
+  }
+  
+  .error-icon {
+    width: 80px;
+    height: 80px;
+    
+    i {
+      font-size: 2.5rem;
+    }
+  }
+  
+  .error-content {
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+// ===================================
+// DARK THEME
+// ===================================
+body.dark-theme {
+  .error-code .digit {
+    background: linear-gradient(135deg, #9f7aea 0%, #667eea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .error-icon {
+    background: linear-gradient(135deg, #9f7aea 0%, #667eea 100%);
+    box-shadow: 0 10px 40px rgba(159, 122, 234, 0.3);
+  }
+  
+  .suggestion-card {
+    &:hover {
+      box-shadow: 0 8px 20px rgba(159, 122, 234, 0.2);
+    }
+  }
+}

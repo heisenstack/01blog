@@ -1,0 +1,565 @@
+// ==========================================================================
+// REPORT MODAL - BOOTSTRAP + PREMIUM DESIGN
+// ==========================================================================
+
+// ==========================================================================
+// MODAL OVERLAY
+// ==========================================================================
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease-out;
+  overflow-y: auto;
+}
+
+// ==========================================================================
+// MODAL DIALOG
+// ==========================================================================
+
+.modal-dialog {
+  width: 100%;
+  max-width: 560px;
+  margin: auto;
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+// ==========================================================================
+// MODAL HEADER
+// ==========================================================================
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--background);
+  border-bottom: 2px solid var(--border);
+}
+
+.header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  
+  .header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+  }
+  
+  .header-text {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.modal-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+  
+  strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
+.btn-close {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--surface);
+    border-color: var(--error);
+    color: var(--error);
+    transform: rotate(90deg);
+  }
+  
+  &:active {
+    transform: rotate(90deg) scale(0.95);
+  }
+}
+
+// ==========================================================================
+// MODAL BODY
+// ==========================================================================
+
+form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.modal-body {
+  padding: 2rem;
+  flex: 1;
+}
+
+// ==========================================================================
+// FORM GROUPS
+// ==========================================================================
+
+.form-group {
+  margin-bottom: 1.75rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  
+  i {
+    font-size: 1rem;
+    color: var(--primary);
+  }
+  
+  .required {
+    color: var(--error);
+    font-weight: 700;
+    margin-left: 0.125rem;
+  }
+  
+  .optional-badge {
+    margin-left: auto;
+    padding: 0.25rem 0.625rem;
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ==========================================================================
+// FORM CONTROLS
+// ==========================================================================
+
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  
+  &::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background: white;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--background);
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 130px;
+  font-family: inherit;
+}
+
+// ==========================================================================
+// SELECT DROPDOWN
+// ==========================================================================
+
+.select-wrapper {
+  position: relative;
+  
+  .form-select {
+    appearance: none;
+    padding-right: 3rem;
+    cursor: pointer;
+    background-image: none;
+    
+    option {
+      background: var(--surface);
+      color: var(--text-primary);
+      padding: 0.75rem;
+      
+      &:disabled {
+        color: var(--text-secondary);
+      }
+    }
+  }
+  
+  .select-icon {
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  
+  &:focus-within .select-icon {
+    color: var(--primary);
+    transform: translateY(-50%) rotate(180deg);
+  }
+}
+
+// ==========================================================================
+// FORM HINT
+// ==========================================================================
+
+.form-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-left: 3px solid var(--primary);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+  
+  i {
+    color: var(--primary);
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+}
+
+// ==========================================================================
+// MODAL FOOTER
+// ==========================================================================
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.875rem;
+  padding: 1.75rem 2rem;
+  background: var(--background);
+  border-top: 2px solid var(--border);
+}
+
+// ==========================================================================
+// BUTTONS
+// ==========================================================================
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  
+  i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+  
+  &:hover:not(:disabled) {
+    background: var(--background);
+    border-color: var(--primary);
+    color: var(--text-primary);
+    
+    i {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    
+    &::before {
+      left: 100%;
+    }
+    
+    i {
+      transform: translateX(3px);
+    }
+  }
+}
+
+// ==========================================================================
+// ANIMATIONS
+// ==========================================================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ==========================================================================
+// DARK THEME
+// ==========================================================================
+
+body.dark-theme {
+  .modal-content {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    background: var(--surface);
+  }
+  
+  .select-wrapper .form-select option {
+    background: var(--surface);
+  }
+}
+
+// ==========================================================================
+// RESPONSIVE DESIGN
+// ==========================================================================
+
+@media (max-width: 576px) {
+  .modal-overlay {
+    padding: 0.75rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  
+  .modal-dialog {
+    max-width: 100%;
+  }
+  
+  .modal-content {
+    border-radius: 20px;
+  }
+  
+  .modal-header {
+    padding: 1.5rem;
+    flex-wrap: wrap;
+    
+    .header-content {
+      gap: 0.875rem;
+      
+      .header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+      }
+    }
+    
+    .modal-title {
+      font-size: 1.25rem;
+    }
+    
+    .modal-subtitle {
+      font-size: 0.875rem;
+    }
+    
+    .btn-close {
+      width: 32px;
+      height: 32px;
+      font-size: 1rem;
+    }
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    font-size: 0.875rem;
+    
+    i {
+      font-size: 0.9375rem;
+    }
+  }
+  
+  .form-control,
+  .form-select {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  textarea.form-control {
+    min-height: 110px;
+  }
+  
+  .form-hint {
+    font-size: 0.75rem;
+    padding: 0.625rem 0.875rem;
+  }
+  
+  .modal-footer {
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+    flex-direction: column-reverse;
+    
+    .btn {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .modal-header {
+    padding: 1.25rem;
+    
+    .header-content {
+      flex-direction: column;
+      
+      .header-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.125rem;
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 1.25rem;
+  }
+  
+  .form-control,
+  .form-select {
+    padding: 0.75rem 0.875rem;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.25rem;
+  }
+}

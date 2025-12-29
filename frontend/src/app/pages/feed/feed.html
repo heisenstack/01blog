@@ -1,0 +1,63 @@
+<!-- PAGE HEADER: Reusing the same structure as the home page for consistency. -->
+<div class="page-header">
+  <div class="header-content">
+    <h1>Your Feed</h1>
+    <p>Posts from the authors and creators you follow.</p>
+  </div>
+</div>
+
+<!-- SKELETON LOADER: Using the exact same skeleton from the home page. -->
+<div *ngIf="isLoading" class="post-grid">
+  <div *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="post-card-skeleton">
+    <div class="skeleton-media"></div>
+    <div class="skeleton-content">
+      <div class="skeleton-header">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-author-info">
+          <div class="skeleton-bar" style="width: 60%;"></div>
+          <div class="skeleton-bar" style="width: 40%; height: 12px;"></div>
+        </div>
+      </div>
+      <div class="skeleton-body">
+        <div class="skeleton-bar" style="height: 24px; margin-bottom: 8px;"></div>
+        <div class="skeleton-bar"></div>
+        <div class="skeleton-bar" style="width: 80%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ERROR MESSAGE -->
+<div *ngIf="error" class="error-container">
+  <h2>Something went wrong</h2>
+  <p>{{ error }}</p>
+  <button (click)="loadFeed()" class="btn btn-secondary">Try Again</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div *ngIf="!isLoading && !error">
+  <div *ngIf="posts.length > 0; else emptyFeed" class="post-grid">
+    <app-post-card 
+      *ngFor="let post of posts" 
+      [post]="post"
+      (postUpdated)="onPostUpdated($event)">
+    </app-post-card>
+  </div>
+
+  <!-- EMPTY FEED MESSAGE -->
+  <ng-template #emptyFeed>
+    <div class="empty-feed-container">
+      <h2>It's quiet in here...</h2>
+      <p>Your feed is empty because you aren't following anyone yet. Explore the latest posts to find authors you like!</p>
+      <a routerLink="/home" class="btn btn-primary">Explore Latest Posts</a>
+    </div>
+  </ng-template>
+</div>
+
+<!-- PAGINATION CONTROLS -->
+<div class="pagination-controls" *ngIf="!isLoading && !error && posts.length > 0 && currentPage < totalPages - 1">
+  <button (click)="loadMorePosts()" [disabled]="isLoadingMore" class="btn btn-secondary">
+    <span *ngIf="!isLoadingMore">Load More Posts</span>
+    <span *ngIf="isLoadingMore">Loading...</span>
+  </button>
+</div>
