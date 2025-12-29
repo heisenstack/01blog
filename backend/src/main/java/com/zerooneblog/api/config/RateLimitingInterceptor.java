@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -17,64 +16,43 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RateLimitingInterceptor implements HandlerInterceptor {
 
-    
     private static final int ACTION_LIMIT = 100;
-    
     private final Map<String, SimpleRateLimiter> limiters = new ConcurrentHashMap<>();
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
+        // Skip rate limiting for read-only or pre-flight requests
         String method = request.getMethod();
         if ("GET".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
-            return true; 
+            return true;
         }
-        
+
         String identifier = getIdentifier(request);
-        
-        SimpleRateLimiter limiter = limiters.computeIfAbsent(
-            identifier, 
-            k -> new SimpleRateLimiter(ACTION_LIMIT)
-        );
+        SimpleRateLimiter limiter = limiters.computeIfAbsent(identifier, k -> new SimpleRateLimiter(ACTION_LIMIT));
 
         if (limiter.isAllowed()) {
             return true;
-        } else {
-           
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(
-                "{\"error\": \"Too Many Requests\", " +
-                "\"message\": \"You are performing actions too quickly. Please wait a moment and try again.\"}"
-            );
-            return false;
         }
+
+        response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+            "{\"error\": \"Too Many Requests\", \"message\": \"Slow down! Please wait a minute.\"}"
+        );
+        return false;
     }
 
     private String getIdentifier(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
+        // Use username if logged in, otherwise use direct IP address
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             return auth.getName();
         }
         
-        return getClientIpAddress(request);
-    }
-
-    private String getClientIpAddress(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
-        }
-        
         return request.getRemoteAddr();
     }
-
 
     private static class SimpleRateLimiter {
         private final int limit;
@@ -90,9 +68,7 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
 
         public synchronized boolean isAllowed() {
             long currentTime = System.currentTimeMillis();
-            long elapsedTime = currentTime - windowStartTime;
-
-            if (elapsedTime > WINDOW_SIZE_MS) {
+            if (currentTime - windowStartTime > WINDOW_SIZE_MS) {
                 windowStartTime = currentTime;
                 counter = 0;
             }
@@ -101,7 +77,6 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
                 counter++;
                 return true;
             }
-
             return false;
         }
     }
