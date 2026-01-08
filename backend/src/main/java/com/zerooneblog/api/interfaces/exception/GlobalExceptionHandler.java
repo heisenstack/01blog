@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.validation.FieldError;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +79,23 @@ public class GlobalExceptionHandler {
 
         MessageResponse errorResponse = new MessageResponse("FAILURE", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<MessageResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String requiredType = (ex.getRequiredType() != null)
+                ? ex.getRequiredType().getSimpleName()
+                : "required type";
+
+        String detailMessage = String.format(
+                "The parameter '%s' should be of type %s. Received value: '%s'",
+                ex.getName(),
+                requiredType,
+                ex.getValue());
+
+        MessageResponse errorResponse = new MessageResponse("FAILURE", detailMessage);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({

@@ -1,9 +1,5 @@
 body {
-
   color-scheme: light;
-
-
-
   margin: 0;
 }
 
@@ -45,7 +41,7 @@ body {
 
 /*
  * --------------------------------------------------------------------------
- * #SECTION 2: DARK THEME
+ *DARK THEME
  * --------------------------------------------------------------------------
 */
 body.dark-theme {
@@ -63,7 +59,7 @@ body.dark-theme {
 
 /*
  * --------------------------------------------------------------------------
- * #SECTION 3: GLOBAL RESETS & BASE STYLES
+ * GLOBAL RESETS & BASE STYLES
  * --------------------------------------------------------------------------
 */
 *, *::before, *::after {
@@ -82,7 +78,7 @@ body {
 
 /*
  * --------------------------------------------------------------------------
- * #SECTION 4: BASE COMPONENT STYLES
+ BASE COMPONENT STYLES
  * --------------------------------------------------------------------------
 */
 
@@ -185,7 +181,6 @@ textarea {
 /*
  * ===============================================
  * 7. LAYOUT UTILITIES
- * Reusable layout classes for the entire app.
  * ===============================================
 */
 
@@ -195,7 +190,6 @@ textarea {
   gap: var(--spacing-6);
 }
 
-// --- Responsive Adjustments for the Grid ---
 @media (max-width: 480px) {
   .post-grid {
     grid-template-columns: 1fr;

@@ -4,7 +4,6 @@
     <h2>Comments ({{ isLoading ? '...' : totalComments }})</h2>
   </header>
 
-  <!-- Use a single ng-container to safely get the current user -->
   <ng-container *ngIf="currentUser as user; else loginPrompt">
     <!-- "ADD COMMENT" FORM -->
     <div class="comment-form">
@@ -13,13 +12,21 @@
       </div>
       <form (ngSubmit)="onCommentSubmit()" class="form-content">
         <div class="form-group">
-          <textarea id="commentContent" name="commentContent" rows="3"
+          <textarea
+            id="commentContent"
+            name="commentContent"
+            rows="3"
             placeholder="Add to the discussion..."
             [(ngModel)]="newCommentContent"
-            required></textarea>
+            required
+          ></textarea>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="!newCommentContent.trim() || isSubmitting">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!newCommentContent.trim() || isSubmitting"
+          >
             <span *ngIf="!isSubmitting">Submit</span>
             <span *ngIf="isSubmitting">Submitting...</span>
           </button>
@@ -31,21 +38,24 @@
   <!-- LOGIN PROMPT -->
   <ng-template #loginPrompt>
     <div class="login-prompt-container">
-      <p><a routerLink="/login">Log in</a> or <a routerLink="/register">sign up</a> to join the discussion.</p>
+      <p>
+        <a routerLink="/login">Log in</a> or <a routerLink="/register">sign up</a> to join the
+        discussion.
+      </p>
     </div>
   </ng-template>
 
   <!-- DIVIDER -->
-  <hr class="divider">
+  <hr class="divider" />
 
   <!-- SKELETON LOADER -->
   <div *ngIf="isLoading" class="comment-list">
     <div *ngFor="let i of [1, 2, 3]" class="comment-skeleton">
       <div class="skeleton-avatar"></div>
       <div class="skeleton-content">
-        <div class="skeleton-bar" style="width: 30%;"></div>
-        <div class="skeleton-bar" style="width: 100%;"></div>
-        <div class="skeleton-bar" style="width: 70%;"></div>
+        <div class="skeleton-bar" style="width: 30%"></div>
+        <div class="skeleton-bar" style="width: 100%"></div>
+        <div class="skeleton-bar" style="width: 70%"></div>
       </div>
     </div>
   </div>
@@ -59,35 +69,55 @@
         </div>
         <div class="comment-content">
           <div class="comment-header">
-            <a [routerLink]="['/profile', comment.username]" class="author-name">{{ comment.username }}</a>
-            <span class="comment-date">{{ comment.createdAt | date:'mediumDate' }}</span>
+            <a [routerLink]="['/profile', comment.username]" class="author-name">{{
+              comment.username
+            }}</a>
+            <span class="comment-date">{{ comment.createdAt | date : 'mediumDate' }}</span>
           </div>
-          
+
           <div class="comment-body">
             <ng-container *ngIf="editingCommentId !== comment.id; else editForm">
               <p>{{ comment.content }}</p>
             </ng-container>
             <ng-template #editForm>
               <form (ngSubmit)="onSaveEdit(comment.id)" class="edit-form">
-                <textarea name="editingContent" [(ngModel)]="editingCommentContent" rows="3" required></textarea>
+                <textarea
+                  name="editingContent"
+                  [(ngModel)]="editingCommentContent"
+                  rows="3"
+                  required
+                ></textarea>
                 <div class="form-actions">
-                  <button type="button" (click)="onCancelEdit()" class="btn btn-secondary">Cancel</button>
-                  <button type="submit" class="btn btn-primary" [disabled]="!editingCommentContent.trim()">Save</button>
+                  <button type="button" (click)="onCancelEdit()" class="btn btn-secondary">
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="!editingCommentContent.trim()"
+                  >
+                    Save
+                  </button>
                 </div>
               </form>
             </ng-template>
           </div>
 
           <!-- Comment Actions -->
-          <div *ngIf="currentUser?.id === comment.authorId && editingCommentId !== comment.id" class="comment-actions">
+          <div
+            *ngIf="currentUser?.id === comment.authorId && editingCommentId !== comment.id"
+            class="comment-actions"
+          >
             <button (click)="onEditComment(comment)" class="btn-link">Edit</button>
-            <button (click)="onDeleteComment(comment.id)" class="btn-link btn-danger">Delete</button>
+            <button (click)="onDeleteComment(comment.id)" class="btn-link btn-danger">
+              Delete
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- "NO COMMENTS" MESSAGE -->
+    <!-- EMPTY STATE -->
     <ng-template #noComments>
       <div class="empty-state-container">
         <h3>No Comments Yet</h3>
@@ -97,10 +127,25 @@
   </div>
 
   <!-- PAGINATION CONTROLS -->
-  <div class="pagination-controls" *ngIf="!isLoading && comments.length > 0 && currentPage < totalPages - 1">
+  <div
+    class="pagination-controls"
+    *ngIf="!isLoading && comments.length > 0 && currentPage < totalPages - 1"
+  >
     <button (click)="loadMoreComments()" [disabled]="isLoadingMore" class="btn btn-secondary">
       <span *ngIf="!isLoadingMore">Load More Comments</span>
       <span *ngIf="isLoadingMore">Loading...</span>
     </button>
   </div>
 </section>
+
+<!-- CONFIRMATION MODAL-->
+<app-confirmation-modal
+  [isOpen]="isDeleteModalOpen"
+  title="Delete Comment"
+  message="Are you sure you want to delete this comment? This action cannot be undone."
+  confirmButtonText="Yes, Delete"
+  confirmButtonClass="btn-danger"
+  (onConfirm)="handleDeleteConfirm()"
+  (onClose)="closeDeleteModal()"
+>
+</app-confirmation-modal>

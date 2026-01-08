@@ -21,7 +21,6 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
-        // Skip rate limiting for read-only or pre-flight requests
         String method = request.getMethod();
         if ("GET".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
             return true;
@@ -46,7 +45,6 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
     private String getIdentifier(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
-        // Use username if logged in, otherwise use direct IP address
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             return auth.getName();
         }

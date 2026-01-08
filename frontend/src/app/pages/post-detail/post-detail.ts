@@ -60,17 +60,26 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const postId = Number(this.route.snapshot.paramMap.get('id'));
+    const postIdParam = this.route.snapshot.paramMap.get('id');
+    const postId = Number(postIdParam);
+    if (isNaN(postId) || postId <= 0) {
+      this.errorMessage = 'Invalid post ID format.';
+      return;
+    }
     if (postId) {
       this.postService.getPost(postId).subscribe({
         next: (data: Post) => {
           console.log(data);
-          
+
           this.post = data;
         },
         error: (err) => {
           this.handleError(err, 'loading post');
-          this.errorMessage = 'Post not found, hidden or an error occurred.';
+          if (err.status === 400 || err.status === 404) {
+            this.errorMessage = err.error?.message || 'Invalid post ID or post not found.';
+          } else {
+            this.errorMessage = 'Post not found, hidden or an error occurred.';
+          }
         },
       });
     }
@@ -130,7 +139,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.postService.deletePost(this.post.id).subscribe({
       next: (response) => {
         console.log(response);
-        
+
         this.toastr.success('The post has been permanently deleted.', 'Post Deleted');
         this.router.navigate(['/']);
       },
@@ -200,7 +209,18 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
   private handleError(error: any, context: string): void {
     if (error.status === 429) {
-      return; 
+      return;
+    }
+    if (error.status === 400) {
+      const message = error.error?.message || 'Invalid request format.';
+      this.toastr.error(message, 'Invalid Request');
+      return;
+    }
+
+    if (error.status === 400) {
+      const message = error.error?.message || 'Invalid request format.';
+      this.toastr.error(message, 'Invalid Request');
+      return;
     }
 
     if (error.status === 404) {

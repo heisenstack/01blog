@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AdminService } from '../admin.service';
 import { PostService } from '../services/post.service';
-
 import { DashboardStats } from '../models/dashboard-stats.model';
 import { Report } from '../models/report.model';
 import { UserAdminView } from '../models/user-admin-view.model';
@@ -337,11 +336,9 @@ isLoadingMoreBannedUsers = false;
       next: () => {
         this.toastr.success('Post has been unhidden.', 'Success');
         
-        // Remove from hidden posts array
         this.hiddenPosts = this.hiddenPosts.filter(p => p.id !== postId);
         this.hiddenPostsTotalElements--;
         
-        // Update the post in the main posts array if it exists
         const post = this.posts.find(p => p.id === postId);
         if (post) {
           post.hidden = false;
@@ -372,11 +369,9 @@ isLoadingMoreBannedUsers = false;
         this.isHidingPost = false;
         this.isHidePostModalOpen = false;
 
-        // Remove from reports
         this.reports = this.reports.filter(r => r.reportedPostId !== postId);
         this.reportsTotalElements--;
         
-        // Update the post in posts array instead of removing it
         const post = this.posts.find(p => p.id === postId);
         if (post) {
           post.hidden = true;

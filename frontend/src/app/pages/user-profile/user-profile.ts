@@ -9,19 +9,14 @@ import { PostCardComponent } from '../../components/post-card/post-card';
 import { Post } from '../../models/post.model';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
-import { ReportModalComponent, ReportPayload } from '../../components/report-modal/report-modal'; 
+import { ReportModalComponent, ReportPayload } from '../../components/report-modal/report-modal';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.html',
   styleUrls: ['./user-profile.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    ProfileHeaderComponent,
-    PostCardComponent,
-    ReportModalComponent 
-  ]
+  imports: [CommonModule, ProfileHeaderComponent, PostCardComponent, ReportModalComponent],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   userProfile: UserProfile | null = null;
@@ -31,12 +26,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   isLoading: boolean = true;
   isActionsMenuOpen = false;
-  isReportModalOpen = false; 
+  isReportModalOpen = false;
 
   currentPage = 0;
   pageSize = 10;
   isLoadingMore = false;
   posts: Post[] = [];
+  isSubscribing = false;
 
   private routeSub: Subscription | undefined;
 
@@ -47,12 +43,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private toastr: ToastrService,
     private elementRef: ElementRef
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isAuthenticated();
 
-    this.routeSub = this.route.params.subscribe(params => {
+    this.routeSub = this.route.params.subscribe((params) => {
       this.username = params['username'];
       this.resetState();
       this.loadUserProfile();
@@ -77,19 +73,19 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   loadUserProfile(): void {
     this.isLoading = true;
     this.userService.getUserProfile(this.username, this.currentPage, this.pageSize).subscribe({
-      next: profile => {
+      next: (profile) => {
         console.log(profile);
 
         this.userProfile = profile;
         this.posts = profile.posts?.content || [];
         this.isLoading = false;
       },
-      error: err => {
+      error: (err) => {
         // console.error('Error loading user profile', err);
         this.isLoading = false;
         this.toastr.error('Could not load user profile.', 'Error');
         this.router.navigate(['/']);
-      }
+      },
     });
   }
 
@@ -100,17 +96,17 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isLoadingMore = true;
     this.currentPage++;
     this.userService.getUserProfile(this.username, this.currentPage, this.pageSize).subscribe({
-      next: profile => {
-        console.log("Profile: " , profile);
-        
+      next: (profile) => {
+        console.log('Profile: ', profile);
+
         this.posts.push(...profile.posts.content);
         this.userProfile!.posts = profile.posts;
         this.isLoadingMore = false;
       },
-      error: err => {
+      error: (err) => {
         // console.error('Error loading more posts', err);
         this.isLoadingMore = false;
-      }
+      },
     });
   }
 
@@ -120,6 +116,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   toggleSubscription(): void {
+    if (!this.userProfile || this.isSubscribing) return;
+    this.isSubscribing = true;
     if (!this.userProfile) return;
     const isSubscribed = this.userProfile.subscribed;
     const action = isSubscribed
@@ -128,16 +126,21 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     action.subscribe({
       next: () => {
         if (this.userProfile) {
-        this.toastr.success(`You have successfully subscribed to ${this.userProfile.username}`, 'Subscription');
+          const message = isSubscribed
+            ? `You have successfully unsubscribed from ${this.userProfile.username}`
+            : `You have successfully subscribed to ${this.userProfile.username}`;
+          this.toastr.success(message, 'Subscription');
 
           this.userProfile.subscribed = !isSubscribed;
           isSubscribed ? this.userProfile.followerCount-- : this.userProfile.followerCount++;
         }
+        this.isSubscribing = false;
       },
       error: (err) => {
         this.toastr.error('Something went wrong. Please try again.', 'Error');
+        this.isSubscribing = false;
         // console.error('Subscription error:', err);
-      }
+      },
     });
   }
 
@@ -153,27 +156,29 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isActionsMenuOpen = !this.isActionsMenuOpen;
   }
 
-
   handleUserReportSubmit(payload: ReportPayload): void {
     if (!this.userProfile) return;
 
     const reportData: UserReportRequest = {
       reason: payload.reason,
-      details: payload.details
+      details: payload.details,
     };
 
     this.userService.reportUser(this.userProfile.username, reportData).subscribe({
       next: (response) => {
         console.log(response);
-        
-        this.toastr.success('User has been reported. Our moderation team will review it.', 'Report Submitted');
-        this.isReportModalOpen = false; 
+
+        this.toastr.success(
+          'User has been reported. Our moderation team will review it.',
+          'Report Submitted'
+        );
+        this.isReportModalOpen = false;
       },
       error: (err) => {
         console.log('Failed to report user:', err);
         const errorMessage = err.error?.message || 'An unknown error occurred. Please try again.';
         this.toastr.error(errorMessage, 'Error');
-      }
+      },
     });
   }
 }
