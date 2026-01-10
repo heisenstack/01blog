@@ -22,6 +22,7 @@ public class DataInitializer {
     public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        
     }
 
     @Bean

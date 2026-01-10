@@ -60,12 +60,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                         @Param("excludedIds") java.util.List<Long> excludedIds,
                         Pageable pageable);
 
-        @Query("SELECT u FROM User u LEFT JOIN FETCH u.following WHERE u.username = :username")
-        Optional<User> findByUsernameWithFollowing(@Param("username") String username);
-
-        @Query("SELECT u FROM User u LEFT JOIN FETCH u.following WHERE u.id = :id")
-        Optional<User> findByIdWithFollowing(@Param("id") Long id);
-
         @Query("SELECT f FROM User u JOIN u.following f WHERE u.id = :userId " +
                         "ORDER BY f.username ASC")
         Page<User> findFollowingByUserId(@Param("userId") Long userId, Pageable pageable);

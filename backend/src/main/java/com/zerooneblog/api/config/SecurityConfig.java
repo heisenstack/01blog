@@ -101,10 +101,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
-                        // .requestMatchers("/api/users/**").permitAll()
 
-                        // .requestMatchers(HttpMethod.POST, "/api/users/*/follow").authenticated()
-                        // .requestMatchers(HttpMethod.POST, "/api/users/*/unfollow").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 

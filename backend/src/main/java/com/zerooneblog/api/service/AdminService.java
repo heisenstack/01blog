@@ -120,7 +120,7 @@ public class AdminService {
 
         post.setHidden(false);
         Post hiddenPost = postRepository.save(post);
-        reportRepository.deleteAllByPostId(postId);
+        // reportRepository.deleteAllByPostId(postId);
         return postMapper.toDto(hiddenPost, null);
     }
 

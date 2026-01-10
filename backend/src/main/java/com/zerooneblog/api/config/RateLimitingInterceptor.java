@@ -43,6 +43,7 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
     }
 
     private String getIdentifier(HttpServletRequest request) {
+        // System.err.println("Requuest: " + request.getRemoteAddr());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
