@@ -137,7 +137,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         this.isSubscribing = false;
       },
       error: (err) => {
-        this.toastr.error('Something went wrong. Please try again.', 'Error');
+        this.toastr.error(err.error.message, 'Error');
+        console.log("Errrrros: ", err);
+        
         this.isSubscribing = false;
         // console.error('Subscription error:', err);
       },

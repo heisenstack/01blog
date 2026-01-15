@@ -40,7 +40,9 @@ export class FeedComponent implements OnInit {
     this.isLoading = true;
     this.postService.getFeed(this.currentPage, this.pageSize).subscribe({
       next: (data: Page<Post>) => {
+        
         this.posts = data.content;
+        // console.log("Pooooost:", this.posts.length);
         this.totalPages = data.totalPages;
         this.isLoading = false;
       },

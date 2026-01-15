@@ -41,6 +41,17 @@ public class PostService {
 
     @Transactional
     public PostResponse createPost(PostDTO request, String username) {
+        String title = request.getTitle();
+        String content = request.getContent();
+
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty or contain only whitespace");
+        }
+
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Content cannot be empty or contain only whitespace");
+        }
+
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
@@ -107,7 +118,7 @@ public class PostService {
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
 
         List<Long> followedUserIds = userRepository.findFollowingIds(currentUser.getId());
-        followedUserIds.add(currentUser.getId());
+        // followedUserIds.add(currentUser.getId());
 
         if (followedUserIds.isEmpty()) {
             return new PostsResponseDto();
@@ -123,6 +134,7 @@ public class PostService {
     }
 
     public PostResponse getPostById(Long postId, Authentication authentication) {
+        validatePostAccess(postId, authentication);
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
@@ -131,7 +143,17 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse updatePost(Long postId, String title, String content, Authentication authentication) {
+    public PostResponse updatePost(Long postId, String title, String content, MultipartFile[] mediaFiles,
+            Authentication authentication) {
+        validatePostAccess(postId, authentication);
+
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty or contain only whitespace");
+        }
+
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Content cannot be empty or contain only whitespace");
+        }
 
         User currentUser = userService.getCurrentUserFromAuthentication(authentication);
         Post post = postRepository.findById(postId)
@@ -140,13 +162,41 @@ public class PostService {
             throw new UnauthorizedActionException(
                     "User " + currentUser.getUsername() + " is not authorized to update post " + postId);
         }
+
         post.setTitle(title);
         post.setContent(content);
+
+        // Handle media files if provided
+        if (mediaFiles != null && mediaFiles.length > 0) {
+            int fileCount = mediaFiles.length;
+            if (fileCount > MAX_MEDIA_FILES) {
+                throw new IllegalArgumentException("Cannot upload more than " + MAX_MEDIA_FILES + " media files.");
+            }
+
+            // Delete old media files
+            List<PostMedia> oldMedia = post.getMediaFoLES();
+            for (PostMedia media : oldMedia) {
+                fileStorageService.deleteFile(media.getMediaUrl());
+            }
+            postMediaRepository.deleteAll(oldMedia);
+            post.getMediaFoLES().clear();
+
+            int order = 0;
+            for (MultipartFile mediaFile : mediaFiles) {
+                PostMedia postMedia = processAndSaveMedia(mediaFile, post, order);
+                if (postMedia != null) {
+                    order++;
+                }
+            }
+        }
+
         Post savedPost = postRepository.save(post);
         return postMapper.toDto(savedPost, currentUser);
     }
 
-    public String deletePost(Long id, String username) {
+    public String deletePost(Long id, Authentication authentication) {
+        validatePostAccess(id, authentication);
+        String username = authentication.getName();
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
@@ -189,6 +239,21 @@ public class PostService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Post> hiddenPosts = postRepository.findAllHiddenPosts(pageable);
         return hiddenPosts.map(post -> postMapper.toDto(post, null));
+    }
+
+    @Transactional(readOnly = true)
+    public void validatePostAccess(Long postId, Authentication authentication) {
+        User currentUser = userService.getCurrentUserFromAuthentication(authentication);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+
+        if (post.isHidden()) {
+            boolean isAdmin = currentUser != null &&
+                    currentUser.getRoles().contains(Role.ADMIN);
+            if (!isAdmin) {
+                throw new ResourceNotFoundException("Post", "id", postId);
+            }
+        }
     }
 
 }

@@ -64,7 +64,7 @@ export class CommentSectionComponent implements OnInit {
 
     this.commentService.getComments(this.postId, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log("Commmmmment: ", response);
 
         this.comments = response.content || [];
         this.totalPages = response.totalPages || 0;

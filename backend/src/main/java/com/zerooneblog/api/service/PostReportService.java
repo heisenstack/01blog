@@ -17,15 +17,19 @@ public class PostReportService {
     private final ReportRepository reportRepository;
     private final PostRepository postRepository;
     private final UserService userService;
+    private final PostService postService;
 
-    public PostReportService(ReportRepository reportRepository, PostRepository postRepository, UserService userService) {
+    public PostReportService(ReportRepository reportRepository, PostRepository postRepository, UserService userService, PostService postService) {
         this.reportRepository = reportRepository;
         this.postRepository = postRepository;
         this.userService = userService;
+        this.postService = postService;
     }
 
     @Transactional
     public String reportPost(Long postId, ReportRequestDto reportRequestDto, Authentication authentication) {
+        postService.validatePostAccess(postId, authentication);
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("post", "id", postId));
 

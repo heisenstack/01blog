@@ -4,8 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.CommentService;
@@ -22,8 +21,8 @@ public class CommentController {
     @PostMapping("/posts/{postId}/comments")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        CommentDTO newComment = commentService.createComment(postId, payload.get("content"), userDetails.getUsername());
+            Authentication authentication) {
+        CommentDTO newComment = commentService.createComment(postId, payload.get("content"), authentication);
         return ResponseEntity.ok(newComment);
     }
 
@@ -38,17 +37,17 @@ public class CommentController {
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId,
             @RequestBody Map<String, String> payload,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            Authentication authentication) {
         CommentDTO updatedComment = commentService.updateComment(commentId, payload.get("content"),
-                userDetails.getUsername());
+                authentication);
         return ResponseEntity.ok(updatedComment);
     }
 
     @DeleteMapping("/comments/{commentId}")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> deleteComment(@PathVariable Long commentId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        String message = commentService.deleteComment(commentId, userDetails.getUsername());
+            Authentication authentication) {
+        String message = commentService.deleteComment(commentId, authentication);
         MessageResponse response = new MessageResponse("SUCCESS", message);
         return ResponseEntity.ok(response);
     }

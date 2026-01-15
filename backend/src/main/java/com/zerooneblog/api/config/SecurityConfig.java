@@ -1,8 +1,8 @@
 package com.zerooneblog.api.config;
 
 import com.zerooneblog.api.domain.User;
-import com.zerooneblog.api.domain.Role;
 import com.zerooneblog.api.infrastructure.persistence.UserRepository;
+import com.zerooneblog.api.infrastructure.security.CustomUserDetails;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.zerooneblog.api.infrastructure.security.JwtAuthenticationFilter;
 import com.zerooneblog.api.infrastructure.security.UserStatusFilter;
@@ -16,8 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,9 +29,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableMethodSecurity
@@ -43,7 +39,8 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final UserStatusFilter userStatusFilter;
 
-    public SecurityConfig(UserRepository userRepository, JwtAuthenticationEntryPoint authenticationEntryPoint, UserStatusFilter userStatusFilter) {
+    public SecurityConfig(UserRepository userRepository, JwtAuthenticationEntryPoint authenticationEntryPoint,
+            UserStatusFilter userStatusFilter) {
         this.userRepository = userRepository;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.userStatusFilter = userStatusFilter;
@@ -55,24 +52,7 @@ public class SecurityConfig {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-            Set<Role> userRoles = user.getRoles();
-
-            List<GrantedAuthority> authorities = userRoles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                    .collect(Collectors.toList());
-
-            if (authorities.isEmpty()) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-            }
-
-            return new org.springframework.security.core.userdetails.User(
-                    user.getUsername(),
-                    user.getPassword(),
-                    user.isEnabled(),
-                    true,
-                    true,
-                    true,
-                    authorities);
+            return new CustomUserDetails(user);
         };
     }
 
@@ -101,7 +81,6 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
-
 
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 

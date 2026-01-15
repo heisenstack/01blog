@@ -1,5 +1,4 @@
 <div class="form-container">
-  <!-- Show a loading/error state until the post is ready -->
   <div *ngIf="!post && !errorMessage" class="card" style="text-align: center; padding: 4rem;">
     <p>Loading post for editing...</p>
   </div>
@@ -7,7 +6,6 @@
     <p>{{ errorMessage }}</p>
   </div>
 
-  <!-- Main Edit Form -->
   <div *ngIf="post" class="card">
     <header class="card-header">
       <h2>Edit Post</h2>
@@ -15,24 +13,61 @@
     </header>
 
     <form (ngSubmit)="onSubmit()" #postForm="ngForm">
-      <!-- Title Field -->
       <div class="form-group">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" class="form-control"  
-               [(ngModel)]="post.title"
-               required>
-
+               [(ngModel)]="post.title" required>
       </div>
 
-      <!-- Content Field -->
       <div class="form-group">
         <label for="content">Content</label>
         <textarea id="content" name="content" class="form-control" rows="10"
-                  [(ngModel)]="post.content"
-                  required></textarea>
+                  [(ngModel)]="post.content" required></textarea>
       </div>
 
-      <!-- Form Actions -->
+      <!-- Media Section -->
+      <div class="form-group">
+        <label>Update Media (Optional)</label>
+        
+        <!-- Current Media Preview -->
+        <div *ngIf="post.mediaFiles && post.mediaFiles.length > 0" class="current-media">
+          <p class="media-label">Current Media:</p>
+          <div class="media-grid">
+            <div *ngFor="let media of post.mediaFiles" class="media-item">
+              <img *ngIf="media.mediaType === 'IMAGE'" [src]="media.mediaUrl" alt="Current media">
+              <video *ngIf="media.mediaType === 'VIDEO'" [src]="media.mediaUrl" controls></video>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload -->
+        <div class="upload-zone" (click)="fileInput.click()">
+          <input type="file" #fileInput (change)="onFileSelected($event)" 
+                 accept="image/*,video/*" multiple hidden>
+          
+          <div *ngIf="selectedFiles.length === 0" class="upload-empty">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Click to upload new media</p>
+            <span>Images & Videos</span>
+          </div>
+
+          <!-- New Files Preview -->
+          <div *ngIf="selectedFiles.length > 0" class="files-preview">
+            <p class="media-label">New Media ({{ selectedFiles.length }} files):</p>
+            <div class="media-grid">
+              <div *ngFor="let file of selectedFiles; let i = index" class="media-item">
+                <img *ngIf="file.type === 'image'" [src]="file.preview" alt="Preview">
+                <video *ngIf="file.type === 'video'" [src]="file.preview" controls></video>
+                <button type="button" (click)="removeFile(i); $event.stopPropagation()" 
+                        class="btn-remove">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-actions">
         <button type="button" [routerLink]="['/post', post.id]" class="btn btn-secondary">
           Cancel

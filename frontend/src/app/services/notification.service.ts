@@ -72,6 +72,8 @@ export class NotificationService {
         },
         error: (error) => {
           observer.error(error);
+          console.log("erroor: ", error);
+          
         }
       });
     });

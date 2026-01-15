@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './post-card.html',
-  styleUrls: ['./post-card.scss']
+  styleUrls: ['./post-card.scss'],
 })
 export class PostCardComponent {
   @Input() post!: Post;
@@ -46,13 +46,14 @@ export class PostCardComponent {
         const updatedPost: Post = {
           ...currentPost,
           likeCount: response.likeCount,
-          likedByCurrentUser: response.likedByCurrentUser
+          likedByCurrentUser: response.likedByCurrentUser,
         };
         this.post = updatedPost;
-        // this.postUpdated.emit(updatedPost);
       },
-      error: (err) => {
-        this.handleError(err);
+      error: (error) => {
+        console.log("Post card view ",error);
+        
+        this.toastr.error("Error liking post");
       }
     });
   }
@@ -60,7 +61,7 @@ export class PostCardComponent {
   private handleError(error: any): void {
     // Handle rate limiting (429)
     if (error.status === 429) {
-      return; // Rate limit interceptor already handled this
+      return; // in Rate limit intercepto
     }
 
     // Handle not found errors (404) - post was deleted

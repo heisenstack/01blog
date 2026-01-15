@@ -45,7 +45,7 @@ public class JwtTokenProvider {
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        
+
         return Jwts.builder()
                 .subject(username)
                 .claim("userId", user.getId())
@@ -63,6 +63,22 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
         return claims.getSubject();
+    }
+
+    public Long getUserIdFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        Object userIdObj = claims.get("userId");
+        if (userIdObj instanceof Integer) {
+            return ((Integer) userIdObj).longValue();
+        } else if (userIdObj instanceof Long) {
+            return (Long) userIdObj;
+        }
+        return null;
     }
 
     public boolean validateToken(String token) {

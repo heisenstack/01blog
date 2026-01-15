@@ -125,9 +125,12 @@
                     [src]="filePreview.preview"
                     alt="Preview"
                   />
-                  <div *ngIf="filePreview.type === 'video'" class="video-preview">
-                    <i class="fa-solid fa-play"></i>
-                  </div>
+                  <video 
+                    *ngIf="filePreview.type === 'video' && filePreview.preview" 
+                    [src]="filePreview.preview" 
+                    controls 
+                    class="video-thumbnail">
+                  </video>
 
                   <!-- Order Badge -->
                   <span class="file-number">{{ i + 1 }}</span>

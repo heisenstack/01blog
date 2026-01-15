@@ -2,6 +2,9 @@ package com.zerooneblog.api.interfaces.controller;
 
 import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.PostService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -46,7 +49,7 @@ public class PostController {
     }
 
     @GetMapping("/feed")
-    @PreAuthorize("isAuthenticated()") 
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostsResponseDto> getFeedForCurrentUser(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -64,20 +67,21 @@ public class PostController {
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> updatePost(
+        @Valid
             @PathVariable Long id,
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,
             Authentication authentication) {
-        PostResponse updatedPost = postService.updatePost(id, title, content, authentication);
+        PostResponse updatedPost = postService.updatePost(id, title, content, mediaFiles, authentication);
         return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()") 
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> deletePost(@PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        String message = postService.deletePost(id, userDetails.getUsername());
+            Authentication authentication) {
+        String message = postService.deletePost(id, authentication);
         MessageResponse messageResponse = new MessageResponse("SUCCESS", message);
         return ResponseEntity.ok(messageResponse);
     }

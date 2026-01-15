@@ -6,7 +6,7 @@ export interface PostMedia {
   createdAt: string;
 }
 
-export interface Post {
+export interface  Post {
   id: number;
   title: string;
   content: string;

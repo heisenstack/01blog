@@ -13,14 +13,68 @@ import { FeedComponent } from './pages/feed/feed';
 import { UserSuggestionsComponent } from './pages/user-suggestions/user-suggestions.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
+import { map } from 'rxjs/operators';
 
 export const routes: Routes = [
-  // --- PUBLIC ROUTES ---
+  // --- ROOT REDIRECT ---
+  { 
+    path: '', 
+    canActivate: [() => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      
+      return authService.isLoggedIn$.pipe(
+        map(isLoggedIn => {
+          if (isLoggedIn) {
+            return router.createUrlTree(['/home']);
+          } else {
+            return router.createUrlTree(['/login']);
+          }
+        })
+      );
+    }],
+    children: []
+  },
 
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  // --- PUBLIC ROUTES ---
   { path: 'home', component: Home },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  { 
+    path: 'login', 
+    component: Login,
+    canActivate: [() => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      
+      return authService.isLoggedIn$.pipe(
+        map(isLoggedIn => {
+          if (isLoggedIn) {
+            return router.createUrlTree(['/home']);
+          }
+          return true;
+        })
+      );
+    }]
+  },
+  { 
+    path: 'register', 
+    component: Register,
+    canActivate: [() => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      
+      return authService.isLoggedIn$.pipe(
+        map(isLoggedIn => {
+          if (isLoggedIn) {
+            return router.createUrlTree(['/home']);
+          }
+          return true;
+        })
+      );
+    }]
+  },
   { path: 'post/:id', component: PostDetailComponent },
   { path: 'profile/:username', component: UserProfileComponent },
 
@@ -30,8 +84,11 @@ export const routes: Routes = [
     component: AdminDashboardComponent,
     canActivate: [AdminGuard],
   },
-  { path: 'discover', component: UserSuggestionsComponent, canActivate: [AuthGuard] },
-
+  { 
+    path: 'discover', 
+    component: UserSuggestionsComponent, 
+    canActivate: [AuthGuard] 
+  },
   {
     path: 'feed',
     component: FeedComponent,
@@ -52,5 +109,7 @@ export const routes: Routes = [
     component: NotificationsComponent,
     canActivate: [AuthGuard],
   },
+  
+  // --- 404 CATCH-ALL ---
   { path: '**', component: NotFoundComponent },
 ];

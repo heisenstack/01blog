@@ -1,9 +1,10 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { provideHttpClient, withInterceptorsFromDi, withFetch } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthTokenInterceptor } from './auth/auth-token.interceptor';
+import { AuthErrorInterceptor } from './auth-error.interceptor';
 import { RateLimitInterceptor } from './rate-limit.interceptor';
 
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -16,6 +17,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthTokenInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthErrorInterceptor,
       multi: true
     },
     {

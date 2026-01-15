@@ -142,8 +142,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             this.notifications = this.notifications.filter(n => n.id !== notification.id);
           }
         },
-        error: () => {
-          this.toastr.error('Failed to update notification');
+        error: (error) => {
+          this.toastr.error(error.error.message);
         }
       });
     }

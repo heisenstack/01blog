@@ -127,7 +127,9 @@ export class Home implements OnInit {
         user.subscribed = !user.subscribed;
         user.subscribed ? user.followerCount++ : user.followerCount--;
       },
-      error: () => {
+      error: (error) => {
+        console.log("Home comp view: ", error);
+        
         this.toastr.error('Something went wrong. Please try again.');
       }
     });

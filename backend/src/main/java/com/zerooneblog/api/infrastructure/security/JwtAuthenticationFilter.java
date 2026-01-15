@@ -14,13 +14,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
-
 import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
 
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
@@ -37,24 +34,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String username = tokenProvider.getUsernameFromJWT(jwt);
-
+            if (StringUtils.hasText(jwt)) {
+                boolean isValid = false;
                 try {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    isValid = tokenProvider.validateToken(jwt);
+                } catch (Exception ex) {
+                    logger.debug("Invalid or malformed JWT token: " + ex.getMessage());
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                if (isValid) {
+                    String username = tokenProvider.getUsernameFromJWT(jwt);
+                    Long userIdFromToken = tokenProvider.getUserIdFromJWT(jwt);
 
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    try {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        
+                        if (userDetails instanceof CustomUserDetails) {
+                            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+                            Long currentUserId = customUserDetails.getUserId();
+                            
+                            if (!currentUserId.equals(userIdFromToken)) {
+                                logger.warn("User ID mismatch in token. Token userId: " + userIdFromToken + 
+                                          ", Actual userId: " + currentUserId);
+                                filterChain.doFilter(request, response);
+                                return;
+                            }
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } catch (UsernameNotFoundException ex) {
-                    throw new ResourceNotFoundException("username", username, username);
+                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+
+                            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        } else {
+                            logger.error("UserDetails is not an instance of CustomUserDetails");
+                        }
+                        
+                    } catch (UsernameNotFoundException ex) {
+                        logger.debug("User not found: " + username);
+                    }
                 }
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            logger.error("Unexpected error in JWT authentication filter", ex);
         }
 
         filterChain.doFilter(request, response);

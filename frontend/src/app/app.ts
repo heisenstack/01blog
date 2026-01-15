@@ -21,11 +21,13 @@ export class App implements OnInit {
     private authService: AuthService
   ) {
     this.themeService.initTheme();
+    // Initialize auth after services are ready
+    this.authService.initializeAuth();
   }
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
-      console.log('User is logged in... ');
+      console.log('User is logged in');
     }
   }
 }

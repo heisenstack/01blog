@@ -815,8 +815,9 @@
   [isOpen]="isModalOpen"
   [title]="modalTitle"
   [message]="modalMessage"
-  confirmButtonText="Yes, Delete"
-  confirmButtonClass="btn-danger"
+  [confirmButtonText]="modalConfirmText"
+  [cancelButtonText]="modalCancelText"
+  [confirmButtonClass]="modalConfirmClass"
   (onConfirm)="handleConfirm()"
   (onClose)="closeModal()"
 >

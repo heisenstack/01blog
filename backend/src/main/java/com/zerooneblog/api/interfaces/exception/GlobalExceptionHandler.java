@@ -43,6 +43,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<MessageResponse> handleIllegalArgument(
+            IllegalArgumentException ex,
+            WebRequest request) {
+
+        MessageResponse errorResponse = new MessageResponse("FAILURE", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<MessageResponse> handleNotificationNotFound(
+            NotificationNotFoundException ex,
+            WebRequest request) {
+
+        MessageResponse errorResponse = new MessageResponse("FAILURE", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<MessageResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
         MessageResponse errorResponse = new MessageResponse(
@@ -54,7 +72,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<MessageResponse> handleAuthenticationException(AuthenticationException ex) {
 
-        System.err.println("Authentication Failed: " + ex.getMessage());
+        // System.err.println("Authentication Failed: " + ex.getMessage());
 
         MessageResponse errorResponse = new MessageResponse(
                 "FAILURE",

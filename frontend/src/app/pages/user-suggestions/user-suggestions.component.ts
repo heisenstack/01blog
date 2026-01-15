@@ -165,16 +165,16 @@ export class UserSuggestionsComponent implements OnInit {
         
         // Remove from current list based on tab
         if (this.activeTab === 'suggestions' && user.subscribed) {
-          // User was followed from suggestions tab - remove from suggestions
           this.suggestions = this.suggestions.filter(u => u.id !== user.id);
           this.suggestionsTotalElements--;
         } else if (this.activeTab === 'following' && !user.subscribed) {
-          // User was unfollowed from following tab - remove from following
           this.following = this.following.filter(u => u.id !== user.id);
           this.followingTotalElements--;
         }
       },
-      error: () => {
+      error: (error) => {
+        console.log("suggs comp view: ", error);
+
         this.toastr.error('Something went wrong. Please try again.');
       }
     });

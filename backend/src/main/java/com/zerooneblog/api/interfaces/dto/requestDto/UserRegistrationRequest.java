@@ -2,6 +2,7 @@ package com.zerooneblog.api.interfaces.dto.requestDto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -14,6 +15,8 @@ public class UserRegistrationRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", 
+             message = "Email must be a valid email address with a proper domain")
     private String email;
 
     @NotBlank(message = "Password is required")

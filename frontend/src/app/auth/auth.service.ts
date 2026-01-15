@@ -107,4 +107,8 @@
     unsubscribe(username: string): Observable<void> {
       return this.http.delete<void>(`${this.usersApiUrl}/${username}/unsubscribe`);
     }
+    clearAuthState(): void {
+    localStorage.removeItem('authToken');
+    this.currentUserSubject.next(null);
+  }
   }

@@ -3,46 +3,57 @@ services:
     image: postgres:17-alpine
     container_name: blog-db
     environment:
-      POSTGRES_DB: zerooneblog
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB:-zerooneblog}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - blog-network
+    restart: unless-stopped
 
-#  # Spring Boot Backends
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: blog-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/zerooneblog
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: false
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-zerooneblog}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+      JWT_SECRET: ${JWT_SECRET:-a-very-long-and-secure-secret-key-for-01blog-project-that-is-at-least-256-bits}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-8640000}
+      UPLOAD_DIR: ${UPLOAD_DIR:-./uploads}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-100MB}
+      MAX_REQUEST_SIZE: ${MAX_REQUEST_SIZE:-100MB}
+      SERVER_PORT: ${SERVER_PORT:-8080}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - db
     networks:
       - blog-network
-    restart: on-failure
+    restart: unless-stopped
 
-#  # Spring Boot Backends
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: blog-frontend
+    environment:
+      API_URL: ${API_URL:-http://localhost:8080}
     ports:
-      - "4200:4200"
+      - "${FRONTEND_PORT:-4200}:4200"
     depends_on:
       - backend
     networks:
       - blog-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:

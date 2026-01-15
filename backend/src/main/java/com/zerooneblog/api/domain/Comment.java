@@ -1,6 +1,7 @@
 package com.zerooneblog.api.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class Comment {
     private Long id;
 
     @Lob
+    @NotBlank(message = "Comment content is required")
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
