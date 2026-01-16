@@ -25,7 +25,7 @@ export class CreatePostComponent {
   selectedFiles: FilePreview[] = [];
   isDragging = false;
   isSubmitting = false;
-  maxFiles = 10;
+  maxFiles = 5;
 
     
   constructor(private postService: PostService, private router: Router, private toastr: ToastrService) {}

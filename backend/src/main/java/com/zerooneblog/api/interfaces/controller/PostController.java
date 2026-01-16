@@ -4,16 +4,19 @@ import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.PostService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@Validated
 @RequestMapping("/api/posts")
 public class PostController {
 
@@ -26,8 +29,8 @@ public class PostController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> createPost(
-            @RequestParam("title") String title,
-            @RequestParam("content") String content,
+            @RequestParam("title") @Size(max = 255, message = "Title must not exceed 255 characters") String title,
+            @RequestParam("content") @Size(max = 1500, message = "Content must not exceed 1500 characters") String content,
             @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,
             @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
@@ -67,8 +70,7 @@ public class PostController {
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> updatePost(
-        @Valid
-            @PathVariable Long id,
+            @Valid @PathVariable Long id,
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,

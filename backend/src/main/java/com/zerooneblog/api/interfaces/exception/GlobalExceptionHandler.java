@@ -1,6 +1,8 @@
 package com.zerooneblog.api.interfaces.exception;
 
 import com.zerooneblog.api.interfaces.dto.MessageResponse;
+
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -12,7 +14,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.validation.FieldError;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,12 +37,12 @@ public class GlobalExceptionHandler {
         });
 
         String detailedMessage = errors.entrySet().stream()
-                .map(e -> String.format("[%s: %s]", e.getKey(), e.getValue()))
+                .map(e -> String.format("%s: %s", e.getKey(), e.getValue()))
                 .collect(Collectors.joining("; "));
 
         MessageResponse errorResponse = new MessageResponse(
                 "FAILURE",
-                "Validation failed: " + detailedMessage);
+                detailedMessage);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -68,6 +72,16 @@ public class GlobalExceptionHandler {
                 "You don't have permission to access this resource.");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<MessageResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        MessageResponse errorResponse = new MessageResponse(
+                "FAILURE",
+                "The file or content size is too large.");
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+    
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<MessageResponse> handleAuthenticationException(AuthenticationException ex) {
@@ -138,6 +152,24 @@ public class GlobalExceptionHandler {
 
         MessageResponse errorResponse = new MessageResponse("FAILURE", detailMessage);
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<MessageResponse> handleMethodValidation(HandlerMethodValidationException ex) {
+        String errorMessage = ex.getAllErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        return new ResponseEntity<>(new MessageResponse("FAILURE", errorMessage), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MessageResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(violation -> violation.getMessage())
+                .collect(Collectors.joining("; "));
+
+        return new ResponseEntity<>(new MessageResponse("FAILURE", errorMessage), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

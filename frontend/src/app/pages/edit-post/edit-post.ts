@@ -6,7 +6,6 @@ import { PostService } from '../../services/post.service';
 import { Post } from '../../models/post.model';
 import { ToastrService } from 'ngx-toastr';
 
-
 interface FilePreview {
   file: File;
   preview: string;
@@ -26,6 +25,8 @@ export class EditPostComponent implements OnInit {
   errorMessage: string = '';
   isSubmitting: boolean = false;
   selectedFiles: FilePreview[] = [];
+  isDragging: boolean = false;
+  maxFiles: number = 5;
 
   constructor(
     private route: ActivatedRoute,
@@ -45,10 +46,28 @@ export class EditPostComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    const files: FileList = event.target.files;
-    if (!files) return;
+    this.addFiles(event.target.files);
+  }
 
-    for (let i = 0; i < files.length; i++) {
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+    if (event.dataTransfer?.files) {
+      this.addFiles(event.dataTransfer.files);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    this.isDragging = false;
+  }
+
+  addFiles(files: FileList): void {
+    for (let i = 0; i < files.length && this.selectedFiles.length < this.maxFiles; i++) {
       const file = files[i];
       const reader = new FileReader();
       
@@ -69,12 +88,18 @@ export class EditPostComponent implements OnInit {
     this.selectedFiles.splice(index, 1);
   }
 
-  isImage(url: string): boolean {
-    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  clearAllFiles(): void {
+    this.selectedFiles = [];
   }
 
-  isVideo(url: string): boolean {
-    return /\.(mp4|webm|ogg|mov)$/i.test(url);
+  handleUploadClick(): void {
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  openFilePicker(): void {
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fileInput?.click();
   }
 
   onSubmit(): void {
@@ -92,9 +117,7 @@ export class EditPostComponent implements OnInit {
     this.postService.updatePost(this.post.id, formData).subscribe({
       next: () => this.router.navigate(['/post', this.post!.id]),
       error: (err: any) => {
-        this.toastr.error(err.error.message, "Failed to create post");
-
-        // this.errorMessage = 'Failed to update post.';
+        this.toastr.error(err.error.message, "Failed to update post");
         this.isSubmitting = false;
       }
     });

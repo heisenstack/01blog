@@ -9,13 +9,9 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule
-  ],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './register.html',
-  styleUrl: './register.scss'
+  styleUrl: './register.scss',
 })
 export class Register {
   model: any = {};
@@ -31,40 +27,44 @@ export class Register {
   onSubmit() {
     if (this.isSubmitting) return;
     this.isSubmitting = true;
-    
+
     this.authService.register(this.model).subscribe({
       next: (response) => {
         console.log(response);
-        
-        this.toastr.success('You can now log in with your new account.', 'Registration Successful!');
+
+        this.toastr.success(
+          'You can now log in with your new account.',
+          'Registration Successful!'
+        );
         this.router.navigate(['/login']);
       },
       error: (error) => {
         console.log(error);
-        
+
         this.isSubmitting = false;
         this.handleRegistrationError(error);
-      }
+      },
     });
   }
 
   private handleRegistrationError(error: any): void {
-    if (error.status === 400 && error.error?.fieldErrors) {
-      const fieldErrors = error.error.fieldErrors;
-      
-      const firstError = Object.values(fieldErrors)[0] as string;
-      this.toastr.error(firstError, 'Validation Error');
+    if (error.status === 400 && error.error?.message) {
+      const message = error.error.message;
+      console.log('Registration Failed error: ', error.error.message);
+      this.toastr.error(message, 'Validation Error');
       return;
     }
 
     if (error.status === 409) {
       const message = error.error?.message || 'Username or email already exists.';
+
       this.toastr.error(message, 'Registration Failed');
       return;
     }
 
     if (error.status === 403) {
       const message = error.error?.message || 'Registration is not allowed at this time.';
+
       this.toastr.error(message, 'Registration Failed');
       return;
     }
@@ -75,7 +75,10 @@ export class Register {
     }
 
     if (error.status === 0) {
-      this.toastr.error('Cannot connect to server. Please check your connection.', 'Connection Error');
+      this.toastr.error(
+        'Cannot connect to server. Please check your connection.',
+        'Connection Error'
+      );
       return;
     }
 

@@ -41,14 +41,9 @@ export class AuthErrorInterceptor implements HttpInterceptor {
           const errorMessage = error.error?.message || '';
 
           if (errorStatus === 'USER_BANNED' || 
-              errorStatus === 'USER_DELETED' ||
-              errorMessage.includes('account has been deleted') ||
-              errorMessage.includes('account has been banned') ||
-              errorMessage.includes('Account disabled')) {
+              errorStatus === 'USER_DELETED') {
             
-            const isBanned = errorStatus === 'USER_BANNED' || 
-                           errorMessage.includes('banned') || 
-                           errorMessage.includes('Account disabled');
+            const isBanned = errorStatus === 'USER_BANNED';
             
             this.handleLogout(
               isBanned 

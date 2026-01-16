@@ -25,7 +25,7 @@ public class Post {
     private Long id;
 
     @NotBlank(message = "Title is required")
-    @Size(max = 150, message = "Title must not exceed 150 characters")
+    @Size(max = 255, message = "Title must not exceed 255 characters")
     @Column(nullable = false)
     private String title;
 

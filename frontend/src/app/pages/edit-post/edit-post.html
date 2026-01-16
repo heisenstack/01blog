@@ -1,82 +1,269 @@
-<div class="form-container">
-  <div *ngIf="!post && !errorMessage" class="card" style="text-align: center; padding: 4rem;">
-    <p>Loading post for editing...</p>
-  </div>
-  <div *ngIf="errorMessage" class="card" style="text-align: center; padding: 4rem;">
-    <p>{{ errorMessage }}</p>
-  </div>
+<div class="create-post-wrapper">
+  <div class="form-container">
+    <!-- Loading State -->
+    <div *ngIf="!post && !errorMessage" class="loading-state">
+      <div class="spinner-border spinner-lg"></div>
+      <p>Loading post for editing...</p>
+    </div>
 
-  <div *ngIf="post" class="card">
-    <header class="card-header">
-      <h2>Edit Post</h2>
-      <p>Refine your story and save the changes.</p>
-    </header>
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-state">
+      <div class="error-icon">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="btn-secondary" [routerLink]="['/']">
+        Go Back Home
+      </button>
+    </div>
 
-    <form (ngSubmit)="onSubmit()" #postForm="ngForm">
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" class="form-control"  
-               [(ngModel)]="post.title" required>
+    <!-- Edit Form -->
+    <div *ngIf="post">
+      <!-- Header -->
+      <div class="header-section">
+        <div class="header-icon">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+        <h1 class="page-title">Edit Post</h1>
+        <p class="page-subtitle">Refine your story and save the changes</p>
       </div>
 
-      <div class="form-group">
-        <label for="content">Content</label>
-        <textarea id="content" name="content" class="form-control" rows="10"
-                  [(ngModel)]="post.content" required></textarea>
-      </div>
-
-      <!-- Media Section -->
-      <div class="form-group">
-        <label>Update Media (Optional)</label>
-        
-        <!-- Current Media Preview -->
-        <div *ngIf="post.mediaFiles && post.mediaFiles.length > 0" class="current-media">
-          <p class="media-label">Current Media:</p>
-          <div class="media-grid">
-            <div *ngFor="let media of post.mediaFiles" class="media-item">
-              <img *ngIf="media.mediaType === 'IMAGE'" [src]="media.mediaUrl" alt="Current media">
-              <video *ngIf="media.mediaType === 'VIDEO'" [src]="media.mediaUrl" controls></video>
-            </div>
+      <!-- Main Form -->
+      <form (ngSubmit)="onSubmit()" #postForm="ngForm" class="form-card">
+        <!-- Title Field -->
+        <div class="form-group">
+          <label for="title" class="form-label">
+            <i class="fa-solid fa-heading"></i>
+            <span>Title</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="title"
+              [(ngModel)]="post.title"
+              name="title"
+              class="form-control"
+              maxlength="255"
+              placeholder="What's your post about?"
+              required
+            />
+            <span class="char-count" [class.warning]="post.title.length > 240">
+              {{ post.title.length }}/255
+            </span>
           </div>
         </div>
 
-        <!-- File Upload -->
-        <div class="upload-zone" (click)="fileInput.click()">
-          <input type="file" #fileInput (change)="onFileSelected($event)" 
-                 accept="image/*,video/*" multiple hidden>
-          
-          <div *ngIf="selectedFiles.length === 0" class="upload-empty">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <p>Click to upload new media</p>
-            <span>Images & Videos</span>
+        <!-- Content Field -->
+        <div class="form-group">
+          <label for="content" class="form-label">
+            <i class="fa-solid fa-align-left"></i>
+            <span>Content</span>
+          </label>
+          <textarea
+            id="content"
+            name="content"
+            class="form-control textarea"
+            rows="12"
+            [(ngModel)]="post.content"
+            placeholder="Write your story..."
+            required
+          ></textarea>
+        </div>
+
+        <!-- Media Section -->
+        <div class="media-section">
+          <div class="media-header">
+            <div class="media-title">
+              <i class="fa-solid fa-images"></i>
+              <span>Update Media</span>
+            </div>
+            <span class="media-badge">Optional</span>
           </div>
 
-          <!-- New Files Preview -->
-          <div *ngIf="selectedFiles.length > 0" class="files-preview">
-            <p class="media-label">New Media ({{ selectedFiles.length }} files):</p>
-            <div class="media-grid">
-              <div *ngFor="let file of selectedFiles; let i = index" class="media-item">
-                <img *ngIf="file.type === 'image'" [src]="file.preview" alt="Preview">
-                <video *ngIf="file.type === 'video'" [src]="file.preview" controls></video>
-                <button type="button" (click)="removeFile(i); $event.stopPropagation()" 
-                        class="btn-remove">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
+          <!-- Current Media -->
+          <div *ngIf="post.mediaFiles && post.mediaFiles.length > 0" class="current-media-section">
+            <div class="current-media-header">
+              <div class="current-media-title">
+                <i class="fa-solid fa-photo-film"></i>
+                <span>Current Media ({{ post.mediaFiles.length }})</span>
+              </div>
+              <span class="info-badge">These will remain unless you add new ones</span>
+            </div>
+            
+            <div class="files-grid">
+              <div *ngFor="let media of post.mediaFiles; let i = index" class="file-item">
+                <div class="file-thumbnail">
+                  <img
+                    *ngIf="media.mediaType === 'IMAGE'"
+                    [src]="media.mediaUrl"
+                    alt="Current media"
+                  />
+                  <video
+                    *ngIf="media.mediaType === 'VIDEO'"
+                    [src]="media.mediaUrl"
+                    controls
+                    class="video-thumbnail"
+                  ></video>
+                  <span class="file-number">{{ i + 1 }}</span>
+                </div>
+                <div class="file-info">
+                  <p class="file-name">Current {{ media.mediaType.toLowerCase() }}</p>
+                  <span class="file-type">{{ media.mediaType }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="form-actions">
-        <button type="button" [routerLink]="['/post', post.id]" class="btn btn-secondary">
-          Cancel
-        </button>
-        <button type="submit" class="btn btn-primary" [disabled]="!postForm.valid || isSubmitting">
-          <span *ngIf="!isSubmitting">Save Changes</span>
-          <span *ngIf="isSubmitting">Saving...</span>
-        </button>
-      </div>
-    </form>
+          <!-- Upload Zone -->
+          <div
+            class="upload-zone"
+            [class.dragging]="isDragging"
+            [class.has-files]="selectedFiles.length > 0"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="handleUploadClick()"
+          >
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept="image/*,video/*"
+              multiple
+              hidden
+            />
+
+            <!-- Empty State -->
+            <div *ngIf="selectedFiles.length === 0" class="upload-empty">
+              <div class="upload-icon">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <p class="upload-text">Add new media files</p>
+              <span class="upload-hint">Drag & drop or click to browse</span>
+              <div class="upload-formats">
+                <span class="format-badge">
+                  <i class="fa-regular fa-image"></i>
+                  Images
+                </span>
+                <span class="format-badge">
+                  <i class="fa-solid fa-video"></i>
+                  Videos
+                </span>
+              </div>
+            </div>
+
+            <!-- Files State -->
+            <div *ngIf="selectedFiles.length > 0" class="upload-files">
+              <div class="files-header">
+                <div class="files-info">
+                  <i class="fa-solid fa-check-circle"></i>
+                  <span>{{ selectedFiles.length }} new file{{ selectedFiles.length > 1 ? 's' : '' }} selected</span>
+                </div>
+                <button
+                  type="button"
+                  (click)="clearAllFiles(); $event.stopPropagation()"
+                  class="btn-clear-files"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Clear all</span>
+                </button>
+              </div>
+
+              <div class="files-grid">
+                <div *ngFor="let filePreview of selectedFiles; let i = index" class="file-item">
+                  <!-- Thumbnail -->
+                  <div class="file-thumbnail">
+                    <img
+                      *ngIf="filePreview.type === 'image' && filePreview.preview"
+                      [src]="filePreview.preview"
+                      alt="Preview"
+                    />
+                    <video
+                      *ngIf="filePreview.type === 'video' && filePreview.preview"
+                      [src]="filePreview.preview"
+                      controls
+                      class="video-thumbnail"
+                    ></video>
+
+                    <!-- Order Badge -->
+                    <span class="file-number">{{ i + 1 }}</span>
+
+                    <!-- Remove Button -->
+                    <button
+                      type="button"
+                      (click)="removeFile(i); $event.stopPropagation()"
+                      class="btn-remove"
+                      title="Remove file"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- File Info -->
+                  <div class="file-info">
+                    <p class="file-name" [title]="filePreview.name">{{ filePreview.name }}</p>
+                    <span class="file-type">{{ filePreview.type }}</span>
+                  </div>
+                </div>
+
+                <!-- Add More Button -->
+                <div
+                  *ngIf="selectedFiles.length < maxFiles"
+                  (click)="openFilePicker(); $event.stopPropagation()"
+                  class="add-more-btn"
+                >
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Add more</span>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="files-progress">
+                <div class="progress-info">
+                  <span class="progress-label">Upload progress</span>
+                  <span class="progress-value">{{ selectedFiles.length }}/{{ maxFiles }}</span>
+                </div>
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    [style.width.%]="(selectedFiles.length / maxFiles) * 100"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="selectedFiles.length > 0" class="upload-note">
+            <i class="fa-solid fa-info-circle"></i>
+            <span>New media will replace all current media</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button
+            type="button"
+            [routerLink]="['/post', post.id]"
+            class="btn-cancel"
+          >
+            <i class="fa-solid fa-xmark"></i>
+            <span>Cancel</span>
+          </button>
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="!postForm.valid || isSubmitting"
+          >
+            <span class="btn-content">
+              <i *ngIf="!isSubmitting" class="fa-solid fa-floppy-disk"></i>
+              <span *ngIf="!isSubmitting">Save Changes</span>
+              <span *ngIf="isSubmitting" class="spinner-border spinner-sm"></span>
+              <span *ngIf="isSubmitting">Saving...</span>
+            </span>
+            <div class="btn-shimmer"></div>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

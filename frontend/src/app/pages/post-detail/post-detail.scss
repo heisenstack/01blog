@@ -29,6 +29,7 @@
   background: var(--background);
   border-bottom: 2px solid var(--border);
   border-radius: 24px;
+  overflow: auto;
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
@@ -136,6 +137,7 @@
   line-height: 1.8;
   color: var(--text-primary);
   font-family: var(--font-sans);
+  overflow: auto;
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;

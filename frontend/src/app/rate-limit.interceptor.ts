@@ -17,10 +17,10 @@ export class RateLimitInterceptor implements HttpInterceptor {
   constructor(private toastr: ToastrService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    console.log("Reeeeeeeeeeeeeeq is: " , req);
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         
-        // console.log("Reeeeeeeeeeeeeeq is: " , error);
         if (error.status === 429) {
           this.handleRateLimitError(error);
         }
