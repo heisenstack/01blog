@@ -106,11 +106,14 @@ public class AdminService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
+        if (post.isHidden()) {
+            throw new IllegalStateException("Post is already hidden.");
+        }
+
         post.setHidden(true);
         Post hiddenPost = postRepository.save(post);
         reportRepository.deleteAllByPostId(postId);
         return postMapper.toDto(hiddenPost, null);
-
     }
 
     @Transactional
@@ -118,10 +121,13 @@ public class AdminService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
+        if (!post.isHidden()) {
+            throw new IllegalStateException("Post is not hidden.");
+        }
+
         post.setHidden(false);
-        Post hiddenPost = postRepository.save(post);
-        // reportRepository.deleteAllByPostId(postId);
-        return postMapper.toDto(hiddenPost, null);
+        Post unhiddenPost = postRepository.save(post);
+        return postMapper.toDto(unhiddenPost, null);
     }
 
     @Transactional
@@ -221,17 +227,17 @@ public class AdminService {
     }
 
     @Transactional
-public void deleteUser(Long userId) {
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-    if (user.getRoles().contains(Role.ADMIN)) {
-        throw new IllegalStateException("Admin users cannot be deleted.");
+        if (user.getRoles().contains(Role.ADMIN)) {
+            throw new IllegalStateException("Admin users cannot be deleted.");
+        }
+
+        userRepository.deleteUserRelationships(userId);
+
+        userRepository.deleteById(userId);
     }
-
-    userRepository.deleteUserRelationships(userId);
-    
-    userRepository.deleteById(userId);
-}
 
 }

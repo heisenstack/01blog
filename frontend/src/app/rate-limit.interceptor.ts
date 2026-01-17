@@ -7,7 +7,7 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
@@ -17,8 +17,13 @@ export class RateLimitInterceptor implements HttpInterceptor {
   constructor(private toastr: ToastrService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log("Reeeeeeeeeeeeeeq is: " , req);
+    console.log("RateLimitInterceptor");
+
     return next.handle(req).pipe(
+      tap(event => {
+        console.log('RateLimitInterceptor response: ', event);
+        
+      }),
       catchError((error: HttpErrorResponse) => {
         
         if (error.status === 429) {

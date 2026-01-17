@@ -20,13 +20,19 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
     private final Map<String, SimpleRateLimiter> limiters = new ConcurrentHashMap<>();
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull Object handler) throws Exception {
+        System.out.println("RateLimitingInterceptor");
+
         String method = request.getMethod();
         if ("GET".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
             return true;
         }
 
         String identifier = getIdentifier(request);
+        if (identifier == null) {
+            return true;
+        }
         SimpleRateLimiter limiter = limiters.computeIfAbsent(identifier, k -> new SimpleRateLimiter(ACTION_LIMIT));
 
         if (limiter.isAllowed()) {
@@ -37,20 +43,18 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(
-            "{\"error\": \"Too Many Requests\", \"message\": \"Slow down! Please wait a minute.\"}"
-        );
+                "{\"error\": \"Too Many Requests\", \"message\": \"Slow down! Please wait a minute.\"}");
         return false;
     }
 
     private String getIdentifier(HttpServletRequest request) {
-        // System.err.println("Requuest: " + request.getRemoteAddr());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        
+
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             return auth.getName();
         }
-        
-        return request.getRemoteAddr();
+
+        return null;
     }
 
     private static class SimpleRateLimiter {

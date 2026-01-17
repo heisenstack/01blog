@@ -25,7 +25,8 @@ public class UserService {
     private final PostMapper postMapper;
     private final NotificationService notificationService;
 
-    public UserService(UserRepository userRepository, PostRepository postRepository, PostMapper postMapper, NotificationService notificationService) {
+    public UserService(UserRepository userRepository, PostRepository postRepository, PostMapper postMapper,
+            NotificationService notificationService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
@@ -100,7 +101,8 @@ public class UserService {
         userRepository.insertFollowRelationship(currentUser.getId(), userToFollow.getId());
         String message = currentUser.getUsername() + " started following you.";
 
-        notificationService.createNotification(userToFollow, currentUser, Notification.NotificationType.NEW_FOLLOWER, message, null);
+        notificationService.createNotification(userToFollow, currentUser, Notification.NotificationType.NEW_FOLLOWER,
+                message, null);
 
         return "You've followed " + userToFollow.getUsername() + " successfully!";
     }
@@ -109,7 +111,7 @@ public class UserService {
     public String unfollowUser(String username, Authentication authentication) {
         User currentUser = getCurrentUserFromAuthentication(authentication);
         if (currentUser == null) {
-            throw new UnauthorizedActionException("You must be logged in to follow a user.");
+            throw new UnauthorizedActionException("You must be logged in to unfollow a user.");
         }
 
         User userToUnfollow = findByUsername(username);
@@ -118,13 +120,12 @@ public class UserService {
             throw new UnauthorizedActionException("You cannot unfollow yourself.");
         }
 
-        boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(),
+        boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(
+                currentUser.getId(),
                 userToUnfollow.getId()) > 0;
+
         if (!isCurrentlyFollowing) {
-            throw new ResourceNotFoundException(
-                    "Follow Relationship",
-                    "follower/following",
-                    currentUser.getUsername() + "/" + userToUnfollow.getUsername());
+            throw new IllegalStateException("You are not following " + userToUnfollow.getUsername() + ".");
         }
 
         userRepository.deleteFollowRelationship(currentUser.getId(), userToUnfollow.getId());
@@ -179,35 +180,33 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-public UserSuggestionResponse getFollowingUsers(int page, int size) {
-    User currentUser = getCurrentUser();
-    
-    Pageable pageable = PageRequest.of(page, size);
-    Page<User> followingPage = userRepository.findFollowingByUserId(currentUser.getId(), pageable);
-    
-    List<UserSuggestionDto> following = followingPage.getContent().stream()
-        .map(user -> toUserSuggestionDto(user, true))
-        .collect(Collectors.toList());
-    
-    return new UserSuggestionResponse(
-        following,
-        followingPage.getNumber(),
-        followingPage.getSize(),
-        followingPage.getTotalElements(),
-        followingPage.getTotalPages(),
-        followingPage.isLast()
-    );
-}
+    public UserSuggestionResponse getFollowingUsers(int page, int size) {
+        User currentUser = getCurrentUser();
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> followingPage = userRepository.findFollowingByUserId(currentUser.getId(), pageable);
+
+        List<UserSuggestionDto> following = followingPage.getContent().stream()
+                .map(user -> toUserSuggestionDto(user, true))
+                .collect(Collectors.toList());
+
+        return new UserSuggestionResponse(
+                following,
+                followingPage.getNumber(),
+                followingPage.getSize(),
+                followingPage.getTotalElements(),
+                followingPage.getTotalPages(),
+                followingPage.isLast());
+    }
 
     private UserSuggestionDto toUserSuggestionDto(User user, boolean subscribed) {
         long followerCount = userRepository.countFollowers(user.getId());
         return new UserSuggestionDto(
-            user.getId(),
-            user.getUsername(),
-            user.getName(),
-            followerCount,
-            subscribed
-        );
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                followerCount,
+                subscribed);
     }
 
     private User getCurrentUser() {
