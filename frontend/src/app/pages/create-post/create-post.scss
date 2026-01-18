@@ -208,7 +208,7 @@
   transition: all 0.3s ease;
   background: var(--background);
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   
   &::before {
     content: '';
@@ -239,6 +239,7 @@
   &.has-files {
     border-style: solid;
     cursor: default;
+    overflow: auto;
     
     &:hover {
       transform: none;

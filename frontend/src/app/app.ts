@@ -13,7 +13,7 @@ import { AuthService } from './services/auth.service';
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
-  title = 'frontend';
+  // title = 'frontend';
 
   constructor(
     private themeService: ThemeService,
@@ -21,7 +21,6 @@ export class App implements OnInit {
     private authService: AuthService
   ) {
     this.themeService.initTheme();
-    // Initialize auth after services are ready
     this.authService.initializeAuth();
   }
 

@@ -28,7 +28,7 @@
             placeholder="What's your post about?"
             required
           />
-          <span class="char-count" [class.warning]="model.title.length > 240">
+          <span class="char-count" [class.warning]="model.title.length > 255">
             {{ model.title.length }}/255
           </span>
         </div>

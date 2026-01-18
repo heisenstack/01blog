@@ -32,9 +32,7 @@ export class AuthService {
   public isLoggedIn$ = this.loggedIn.asObservable();
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
-
-  }
+  constructor(private http: HttpClient, private router: Router) {}
 
 
   initializeAuth(): void {
@@ -56,12 +54,12 @@ export class AuthService {
       const expirationTime = decodedToken.exp * 1000;
       
       if (expirationTime < currentTime) {
-        console.log('Token expired');
+        // console.log('Token expired');
         this.clearAuthState();
         return;
       }
 
-      console.log('Token valid, setting user as authenticated');
+      // console.log('Token valid');
       this.loggedIn.next(true);
       this.currentUserSubject.next({ 
         id: decodedToken.userId, 
@@ -81,7 +79,7 @@ export class AuthService {
   private verifyTokenInBackground(): void {
     this.http.get(`${this.authApiUrl}/verify`).pipe(
       catchError(error => {
-        console.log('error :', error.status);
+        // console.log('error :', error.status);
 
         if (error.status === 401) {
           console.log('Token is invalid, logging out');
@@ -118,7 +116,7 @@ export class AuthService {
         }
       }),
       catchError(error => {
-        console.error('Login error:', error);
+        // console.error('Login error:', error);
         throw error;
       })
     );
@@ -150,6 +148,8 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
+    // console.log("loggedIn.value: ", this.loggedIn);
+    
     return this.loggedIn.value;
   }
 
