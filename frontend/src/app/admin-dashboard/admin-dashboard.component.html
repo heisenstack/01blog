@@ -269,14 +269,14 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="reportsTotalPages > 1" class="pagination">
+            <div *ngIf="!isReportsLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ reports.length }} of {{ reportsTotalElements }} reports
               </p>
               <button
                 class="btn btn-load-more"
                 (click)="loadMoreReports()"
-                [disabled]="isLoadingMoreReports || reportsCurrentPage >= reportsTotalPages - 1"
+                [disabled]="isLoadingMoreReports || isReportsLastPage"
               >
                 <span *ngIf="isLoadingMoreReports" class="spinner-sm"></span>
                 <span>{{ isLoadingMoreReports ? 'Loading...' : 'Load More' }}</span>
@@ -379,7 +379,7 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="reportedUsersTotalPages > 1" class="pagination">
+            <div *ngIf="!isReportedUsersLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ reportedUsers.length }} of {{ reportedUsersTotalElements }} reported
                 users
@@ -387,10 +387,7 @@
               <button
                 class="btn btn-load-more"
                 (click)="loadMoreReportedUsers()"
-                [disabled]="
-                  isLoadingMoreReportedUsers ||
-                  reportedUsersCurrentPage >= reportedUsersTotalPages - 1
-                "
+                [disabled]="isLoadingMoreReportedUsers || isReportedUsersLastPage"
               >
                 <span *ngIf="isLoadingMoreReportedUsers" class="spinner-sm"></span>
                 <span>{{ isLoadingMoreReportedUsers ? 'Loading...' : 'Load More' }}</span>
@@ -468,16 +465,14 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="bannedUsersTotalPages > 1" class="pagination">
+            <div *ngIf="!isBannedUsersLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ bannedUsers.length }} of {{ bannedUsersTotalElements }} banned users
               </p>
               <button
                 class="btn btn-load-more"
                 (click)="loadMoreBannedUsers()"
-                [disabled]="
-                  isLoadingMoreBannedUsers || bannedUsersCurrentPage >= bannedUsersTotalPages - 1
-                "
+                [disabled]="isLoadingMoreBannedUsers || isBannedUsersLastPage"
               >
                 <span *ngIf="isLoadingMoreBannedUsers" class="spinner-sm"></span>
                 <span>{{ isLoadingMoreBannedUsers ? 'Loading...' : 'Load More' }}</span>
@@ -566,14 +561,14 @@
               </div>
             </div>
 
-            <div *ngIf="usersTotalPages > 1" class="pagination">
+            <div *ngIf="!isUsersLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ users.length }} of {{ usersTotalElements }} users
               </p>
               <button
                 class="btn btn-load-more"
                 (click)="loadMoreUsers()"
-                [disabled]="isLoadingMoreUsers || usersCurrentPage >= usersTotalPages - 1"
+                [disabled]="isLoadingMoreUsers || isUsersLastPage"
               >
                 <span *ngIf="isLoadingMoreUsers" class="spinner-sm"></span>
                 <span>{{ isLoadingMoreUsers ? 'Loading...' : 'Load More' }}</span>
@@ -679,14 +674,14 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="postsTotalPages > 1" class="pagination">
+            <div *ngIf="!isPostsLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ posts.length }} of {{ postsTotalElements }} posts
               </p>
               <button
                 class="btn btn-load-more"
                 (click)="loadMorePosts()"
-                [disabled]="isLoadingMorePosts || postsCurrentPage >= postsTotalPages - 1"
+                [disabled]="isLoadingMorePosts || isPostsLastPage"
               >
                 <span *ngIf="isLoadingMorePosts" class="spinner-sm"></span>
                 <span>{{ isLoadingMorePosts ? 'Loading...' : 'Load More' }}</span>
@@ -771,7 +766,7 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="hiddenPostsTotalPages > 1" class="pagination">
+            <div *ngIf="!isHiddenPostsLastPage" class="pagination">
               <p class="pagination-info">
                 Showing {{ hiddenPosts.length }} of {{ hiddenPostsTotalElements }} hidden posts
               </p>
@@ -779,7 +774,7 @@
                 class="btn btn-load-more"
                 (click)="loadMoreHiddenPosts()"
                 [disabled]="
-                  isLoadingMoreHiddenPosts || hiddenPostsCurrentPage >= hiddenPostsTotalPages - 1
+                  isLoadingMoreHiddenPosts || isHiddenPostsLastPage
                 "
               >
                 <span *ngIf="isLoadingMoreHiddenPosts" class="spinner-sm"></span>

@@ -129,7 +129,7 @@
   <!-- PAGINATION CONTROLS -->
   <div
     class="pagination-controls"
-    *ngIf="!isLoading && comments.length > 0 && currentPage < totalPages - 1"
+    *ngIf="!isLoading && comments.length > 0 && !isLastPage"
   >
     <button (click)="loadMoreComments()" [disabled]="isLoadingMore" class="btn btn-secondary">
       <span *ngIf="!isLoadingMore">Load More Comments</span>

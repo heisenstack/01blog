@@ -24,6 +24,7 @@ export class CommentSectionComponent implements OnInit {
 
   isLoading = true;
   isSubmitting = false;
+  isLastPage = false;
 
   currentPage = 0;
   pageSize = 10;
@@ -64,12 +65,12 @@ export class CommentSectionComponent implements OnInit {
 
     this.commentService.getComments(this.postId, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        // console.log("Commmmmment: ", response);
+        console.log("Commmmmment: ", response);
 
         this.comments = response.content || [];
         this.totalPages = response.totalPages || 0;
         this.totalComments = response.totalElements || 0;
-
+        this.isLastPage = response.last || false;
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -92,6 +93,7 @@ export class CommentSectionComponent implements OnInit {
     this.commentService.getComments(this.postId, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
         this.comments = [...this.comments, ...(response.content || [])];
+        this.isLastPage = response.last || false;
         this.isLoadingMore = false;
       },
       error: (err: any) => {
@@ -107,7 +109,7 @@ export class CommentSectionComponent implements OnInit {
 
     this.commentService.addComment(this.postId, this.newCommentContent).subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log(response);
         this.toastr.success('Your comment has been posted.', 'Comment Added');
         this.newCommentContent = '';
         this.isSubmitting = false;
@@ -165,8 +167,9 @@ handleDeleteConfirm(): void {
     next: (resp) => {
       console.log(resp.message);
       this.toastr.success('Your comment has been deleted.', 'Comment Deleted');
-      this.comments = this.comments.filter(c => c.id !== this.commentToDelete);
-      this.totalComments--;
+      // this.comments = this.comments.filter(c => c.id !== this.commentToDelete);
+      // this.totalComments--;
+      this.loadComments();
       this.closeDeleteModal();
     },
     error: (err: any) => {

@@ -18,11 +18,11 @@ export class AuthErrorInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private toastr: ToastrService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-   console.log('AuthErrorInterceptor'); 
+  //  console.log('AuthErrorInterceptor'); 
 
     return next.handle(req).pipe(
       tap((event) => {
-        console.log('AuthErrorInterceptor: ', event);
+        // console.log('AuthErrorInterceptor: ', event);
       }),
 
       catchError((error: HttpErrorResponse) => {

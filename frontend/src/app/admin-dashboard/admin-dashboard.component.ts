@@ -42,6 +42,8 @@ export class AdminDashboardComponent implements OnInit {
   bannedUsersTotalPages = 0;
   bannedUsersTotalElements = 0;
   isLoadingMoreBannedUsers = false;
+  isBannedUsersLastPage = false;
+
   
   // Reports pagination
   reports: Report[] = [];
@@ -51,6 +53,8 @@ export class AdminDashboardComponent implements OnInit {
   reportsPageSize = 10;
   reportsTotalPages = 0;
   reportsTotalElements = 0;
+  isReportsLastPage = false;
+
   isLoadingMoreReports = false;
 
   // Posts pagination
@@ -61,6 +65,8 @@ export class AdminDashboardComponent implements OnInit {
   postsPageSize = 10;
   postsTotalPages = 0;
   postsTotalElements = 0;
+  isPostsLastPage = false;
+
   isLoadingMorePosts = false;
 
   // Reported Users pagination
@@ -72,6 +78,8 @@ export class AdminDashboardComponent implements OnInit {
   reportedUsersTotalPages = 0;
   reportedUsersTotalElements = 0;
   isLoadingMoreReportedUsers = false;
+  isReportedUsersLastPage = false;
+
 
   // Users pagination
   users: UserAdminView[] = [];
@@ -82,6 +90,8 @@ export class AdminDashboardComponent implements OnInit {
   usersTotalPages = 0;
   usersTotalElements = 0;
   isLoadingMoreUsers = false;
+  isUsersLastPage = false;
+
 
   // Hidden Posts pagination
   hiddenPosts: HiddenPost[] = [];
@@ -92,6 +102,8 @@ export class AdminDashboardComponent implements OnInit {
   hiddenPostsTotalPages = 0;
   hiddenPostsTotalElements = 0;
   isLoadingMoreHiddenPosts = false;
+  isHiddenPostsLastPage = false;
+
 
   // Hide Post Modal
   isHidePostModalOpen = false;
@@ -163,12 +175,14 @@ export class AdminDashboardComponent implements OnInit {
     this.postsError = null;
     this.postService.getPostsforAdmin(this.postsCurrentPage, this.postsPageSize).subscribe({
       next: (response) => {
-        console.log([response]);
+        console.log("Posssssst: ", response);
+
 
         this.posts = response.content || [];
         // console.log([this.posts]);
         this.postsTotalPages = response.totalPages || 0;
         this.postsTotalElements = response.totalElements || 0;
+        this.isPostsLastPage = response.last || false; 
         this.isPostsLoading = false;
       },
       error: () => {
@@ -180,22 +194,23 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadMorePosts(): void {
-    if (this.isLoadingMorePosts || this.postsCurrentPage >= this.postsTotalPages - 1) {
-      return;
-    }
-    this.isLoadingMorePosts = true;
-    this.postsCurrentPage++;
-    this.postService.getPosts(this.postsCurrentPage, this.postsPageSize).subscribe({
-      next: (response) => {
-        this.posts = [...this.posts, ...(response.content || [])];
-        this.isLoadingMorePosts = false;
-      },
-      error: () => {
-        this.toastr.error('Failed to load more posts.');
-        this.isLoadingMorePosts = false;
-      },
-    });
+  if (this.isLoadingMorePosts || this.postsCurrentPage >= this.postsTotalPages - 1) {
+    return;
   }
+  this.isLoadingMorePosts = true;
+  this.postsCurrentPage++;
+  this.postService.getPostsforAdmin(this.postsCurrentPage, this.postsPageSize).subscribe({  
+    next: (response) => {
+      this.posts = [...this.posts, ...(response.content || [])];
+      this.isPostsLastPage = response.last || false;
+      this.isLoadingMorePosts = false;
+    },
+    error: () => {
+      this.toastr.error('Failed to load more posts.');
+      this.isLoadingMorePosts = false;
+    },
+  });
+}
 
   // ===== REPORTS =====
   loadReports(): void {
@@ -203,11 +218,12 @@ export class AdminDashboardComponent implements OnInit {
     this.reportsError = null;
     this.adminService.getReportedPosts(this.reportsCurrentPage, this.reportsPageSize).subscribe({
       next: (response) => {
-        console.log('Reported Posts: ', response);
+        // console.log('Reported Posts: ', response);
 
         this.reports = response.content || [];
         this.reportsTotalPages = response.totalPages || 0;
         this.reportsTotalElements = response.totalElements || 0;
+        this.isReportsLastPage = response.last || false;
         this.isReportsLoading = false;
       },
       error: () => {
@@ -227,6 +243,7 @@ export class AdminDashboardComponent implements OnInit {
     this.adminService.getReportedPosts(this.reportsCurrentPage, this.reportsPageSize).subscribe({
       next: (response) => {
         this.reports = [...this.reports, ...(response.content || [])];
+        this.isReportsLastPage = response.last || false;
         this.isLoadingMoreReports = false;
       },
       error: () => {
@@ -244,11 +261,12 @@ export class AdminDashboardComponent implements OnInit {
       .getReportedUsers(this.reportedUsersCurrentPage, this.reportedUsersPageSize)
       .subscribe({
         next: (response) => {
-          console.log('Reported Users: ', response);
+          // console.log('Reported Users: ', response);
 
           this.reportedUsers = response.content || [];
           this.reportedUsersTotalPages = response.totalPages || 0;
           this.reportedUsersTotalElements = response.totalElements || 0;
+          this.isReportedUsersLastPage = response.last || false;
           this.isReportedUsersLoading = false;
         },
         error: () => {
@@ -273,6 +291,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.reportedUsers = [...this.reportedUsers, ...(response.content || [])];
+          this.isReportedUsersLastPage = response.last || false;
           this.isLoadingMoreReportedUsers = false;
         },
         error: () => {
@@ -288,13 +307,14 @@ export class AdminDashboardComponent implements OnInit {
     this.usersError = null;
     this.adminService.getAllUsers(this.usersCurrentPage, this.usersPageSize).subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log(response);
 
         this.users = response.content || [];
         this.usersTotalPages = response.totalPages || 0;
         this.usersTotalElements = response.totalElements || 0;
+        this.isUsersLastPage = response.last || false;
         this.isUsersLoading = false;
-        console.log(this.users);
+        // console.log(this.users);
       },
       error: () => {
         this.usersError = 'Failed to load users.';
@@ -313,6 +333,7 @@ export class AdminDashboardComponent implements OnInit {
     this.adminService.getAllUsers(this.usersCurrentPage, this.usersPageSize).subscribe({
       next: (response) => {
         this.users = [...this.users, ...(response.content || [])];
+        this.isUsersLastPage = response.last || false;
         this.isLoadingMoreUsers = false;
       },
       error: () => {
@@ -333,6 +354,7 @@ export class AdminDashboardComponent implements OnInit {
           this.hiddenPosts = response.content || [];
           this.hiddenPostsTotalPages = response.totalPages || 0;
           this.hiddenPostsTotalElements = response.totalElements || 0;
+          this.isHiddenPostsLastPage = response.last || false;
           this.isHiddenPostsLoading = false;
         },
         error: () => {
@@ -357,6 +379,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.hiddenPosts = [...this.hiddenPosts, ...(response.content || [])];
+          this.isHiddenPostsLastPage = response.last || false; 
           this.isLoadingMoreHiddenPosts = false;
         },
         error: () => {
@@ -458,24 +481,41 @@ export class AdminDashboardComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  private executeDeletePost(postId: number): void {
-    this.adminService.deletePost(postId).subscribe({
-      next: () => {
-        this.toastr.success('Post deleted successfully.');
-        this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
-        this.posts = this.posts.filter((p) => p.id !== postId);
-        this.hiddenPosts = this.hiddenPosts.filter((p) => p.id !== postId);
-        this.reportsTotalElements--;
-        this.postsTotalElements--;
-        this.hiddenPostsTotalElements--;
-        this.loadDashboardStats();
-      },
-      error: (e) => {
-        console.log(e);
-        this.toastr.error(e.error.message, 'Failed to delete post.');
-      },
-    });
-  }
+private executeDeletePost(postId: number): void {
+  this.adminService.deletePost(postId).subscribe({
+    next: () => {
+      this.toastr.success('Post deleted successfully.');
+      
+      this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
+      this.posts = this.posts.filter((p) => p.id !== postId);
+      this.hiddenPosts = this.hiddenPosts.filter((p) => p.id !== postId);
+      
+      this.reportsTotalElements--;
+      this.postsTotalElements--;
+      this.hiddenPostsTotalElements--;
+      
+      if (this.posts.length === 0 && !this.isPostsLastPage) {
+        this.postsCurrentPage = 0;
+        this.loadPosts();
+      }
+      
+      if (this.reports.length === 0 && !this.isReportsLastPage) {
+        this.reportsCurrentPage = 0;
+        this.loadReports();
+      }
+      
+      if (this.hiddenPosts.length === 0 && !this.isHiddenPostsLastPage) {
+        this.hiddenPostsCurrentPage = 0;
+        this.loadHiddenPosts();
+      }
+      
+      this.loadDashboardStats();
+    },
+    error: (e) => {
+      this.toastr.error(e.error.message, 'Failed to delete post.');
+    },
+  });
+}
 
   onDeleteUser(userId: number, username: string): void {
     this.modalTitle = 'Confirm User Deletion';
@@ -484,18 +524,39 @@ export class AdminDashboardComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  private executeDeleteUser(userId: number): void {
-    this.adminService.deleteUser(userId).subscribe({
-      next: () => {
-        this.toastr.success('User deleted successfully.');
-        this.users = this.users.filter((u) => u.id !== userId);
-        this.usersTotalElements--;
-      },
-      error: (e) => {
-        this.toastr.error(e.error.message, 'Failed to delete user.');
-      },
-    });
-  }
+private executeDeleteUser(userId: number): void {
+  this.adminService.deleteUser(userId).subscribe({
+    next: () => {
+      this.toastr.success('User deleted successfully.');
+      
+      this.users = this.users.filter((u) => u.id !== userId);
+      this.bannedUsers = this.bannedUsers.filter((u) => u.id !== userId);
+      this.reportedUsers = this.reportedUsers.filter((r) => r.reportedUserId !== userId);
+      
+      this.usersTotalElements--;
+      this.bannedUsersTotalElements--;
+      this.reportedUsersTotalElements--;
+      
+      if (this.users.length === 0 && !this.isUsersLastPage) {
+        this.usersCurrentPage = 0;
+        this.loadUsers();
+      }
+      
+      if (this.bannedUsers.length === 0 && !this.isBannedUsersLastPage) {
+        this.bannedUsersCurrentPage = 0;
+        this.loadBannedUsers();
+      }
+      
+      if (this.reportedUsers.length === 0 && !this.isReportedUsersLastPage) {
+        this.reportedUsersCurrentPage = 0;
+        this.loadReportedUsers();
+      }
+    },
+    error: (e) => {
+      this.toastr.error(e.error.message, 'Failed to delete user.');
+    },
+  });
+}
 
   loadBannedUsers(): void {
     this.isBannedUsersLoading = true;
@@ -504,11 +565,12 @@ export class AdminDashboardComponent implements OnInit {
       .getBannedUsers(this.bannedUsersCurrentPage, this.bannedUsersPageSize)
       .subscribe({
         next: (response) => {
-          console.log(response);
+          // console.log(response);
 
           this.bannedUsers = response.content || [];
           this.bannedUsersTotalPages = response.totalPages || 0;
           this.bannedUsersTotalElements = response.totalElements || 0;
+          this.isBannedUsersLastPage = response.last || false; 
           this.isBannedUsersLoading = false;
         },
         error: () => {
@@ -533,6 +595,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.bannedUsers = [...this.bannedUsers, ...(response.content || [])];
+          this.isBannedUsersLastPage = response.last || false; 
           this.isLoadingMoreBannedUsers = false;
         },
         error: () => {
@@ -590,17 +653,14 @@ export class AdminDashboardComponent implements OnInit {
       next: () => {
         this.toastr.success('User has been unbanned successfully.');
 
-        // Remove from banned users array
         this.bannedUsers = this.bannedUsers.filter((u) => u.id !== userId);
         this.bannedUsersTotalElements--;
 
-        // Update in main users array if exists
         const user = this.users.find((u) => u.id === userId);
         if (user) {
           user.enabled = true;
         }
 
-        // Update in reported users array
         const reportedUser = this.reportedUsers.find((r) => r.reportedUserId === userId);
         if (reportedUser) {
           reportedUser.enabled = true;
