@@ -10,6 +10,7 @@ import com.zerooneblog.api.infrastructure.persistence.*;
 import com.zerooneblog.api.interfaces.dto.PostLikeResponseDto;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 
+// Service for managing post likes
 @Service
 public class PostLikeService {
         private final PostLikeRepository postLikeRepository;
@@ -28,6 +29,7 @@ public class PostLikeService {
                 this.postService = postService;
         }
 
+        // Add a like to a post (user cannot like the same post twice)
         @Transactional
         public PostLikeResponseDto likePost(Long postId, Authentication authentication) {
                 postService.validatePostAccess(postId, authentication);
@@ -39,16 +41,19 @@ public class PostLikeService {
                 Post post = postRepository.findById(postId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
+                // Check if post is already liked by user
                 if (postLikeRepository.existsByUserIdAndPostId(user.getId(), post.getId())) {
                         throw new IllegalStateException("Post is already liked.");
                 }
 
                 try {
+                        // Create and save new like
                         PostLike newLike = new PostLike();
                         newLike.setUser(user);
                         newLike.setPost(post);
                         postLikeRepository.save(newLike);
 
+                        // Notify post author about the like
                         User postAuthor = post.getAuthor();
                         String message = user.getUsername() + " liked your post: \"" + post.getTitle() + "\"";
                         notificationService.createNotification(
@@ -62,10 +67,12 @@ public class PostLikeService {
                         throw new IllegalStateException("Post is already liked.");
                 }
 
+                // Return updated like count
                 long updatedLikeCount = postLikeRepository.countByPostId(postId);
                 return new PostLikeResponseDto(updatedLikeCount, true);
         }
 
+        // Remove a like from a post
         @Transactional
         public PostLikeResponseDto unlikePost(Long postId, Authentication authentication) {
                 postService.validatePostAccess(postId, authentication);
@@ -77,13 +84,16 @@ public class PostLikeService {
                 Post post = postRepository.findById(postId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
 
+                // Check if post is actually liked by user
                 if (!postLikeRepository.existsByUserIdAndPostId(user.getId(), post.getId())) {
                         throw new IllegalStateException("Post is not liked.");
                 }
 
+                // Find and delete the like
                 postLikeRepository.findByUserIdAndPostId(user.getId(), post.getId())
                                 .ifPresent(like -> postLikeRepository.delete(like));
 
+                // Return updated like count
                 long updatedLikeCount = postLikeRepository.countByPostId(postId);
                 return new PostLikeResponseDto(updatedLikeCount, false);
         }       

@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+// Service for user authentication and registration
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -30,6 +31,7 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    // Authenticate user and generate JWT token
     public String authenticateUser(UserLoginRequest userLoginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -39,10 +41,13 @@ public class AuthService {
         return jwtTokenProvider.generateToken(authentication);
     }
 
+    // Register new user with validation for duplicate username/email
     public User registerUser(UserRegistrationRequest registrationRequest) {
+        // Check if username already exists
         if (userRepository.existsByUsername(registrationRequest.getUsername())) {
             throw new DuplicateResourceException("User", "username", registrationRequest.getUsername());
         }
+        // Check if email already exists
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new DuplicateResourceException("User", "email", registrationRequest.getEmail());
         }
@@ -51,7 +56,9 @@ public class AuthService {
         user.setUsername(registrationRequest.getUsername());
         user.setEmail(registrationRequest.getEmail());
         user.setName(registrationRequest.getName());
+        // Encode password using BCrypt
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        // Assign USER role by default
         user.setRoles(Set.of(Role.USER));
 
         return userRepository.save(user);

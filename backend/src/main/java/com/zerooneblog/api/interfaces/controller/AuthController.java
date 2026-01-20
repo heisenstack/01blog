@@ -18,6 +18,7 @@ import com.zerooneblog.api.interfaces.dto.MessageResponse;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserLoginRequest;
 import com.zerooneblog.api.interfaces.dto.requestDto.UserRegistrationRequest;
 
+// Authentication endpoints for user login and registration
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -27,14 +28,14 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // Authenticate user and return JWT token
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> LoginUser(@Valid @RequestBody UserLoginRequest signupRequest) {
-        // String token = authService.authenticateUser(loginRequest);
         String token = authService.authenticateUser(signupRequest);
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
-        // return token;
     }
 
+    // Register new user
     @PostMapping("/signup")
     public ResponseEntity<MessageResponse> RegisterUser(@Valid @RequestBody UserRegistrationRequest signinRequest) {
         User savedUser = authService.registerUser(signinRequest);
@@ -42,9 +43,9 @@ public class AuthController {
                 new MessageResponse("SUCCESS", "User: " + savedUser.getName() + " has been registered successfully."));
     }
 
+    // Verify if JWT token is valid
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken() {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated()) {

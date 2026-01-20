@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.UserService;
 
+// Endpoints for managing user profiles and relationships
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -16,6 +17,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    // Get user profile with their posts
     @GetMapping("/{username}")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String username,
             @RequestParam(defaultValue = "0") int page,
@@ -24,6 +26,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(username, page, size, authentication));
     }
 
+    // Follow a user
     @PostMapping("/{username}/follow")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> followUser(@PathVariable String username, Authentication authentication) {
@@ -32,6 +35,7 @@ public class UserController {
         return ResponseEntity.ok(message);
     }
 
+    // Unfollow a user
     @DeleteMapping("/{username}/unfollow")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> unfollowUser(@PathVariable String username, Authentication authentication) {
@@ -40,6 +44,7 @@ public class UserController {
         return ResponseEntity.ok(message);
     }
 
+    // Get suggested users to follow
     @GetMapping("/suggestions")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserSuggestionResponse> getSuggestedUsers(
@@ -49,6 +54,7 @@ public class UserController {
         return ResponseEntity.ok(suggestions);
     }
 
+    // Get list of users current user is following
     @GetMapping("/following")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<UserSuggestionResponse> getFollowingUsers(

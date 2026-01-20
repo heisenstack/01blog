@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+// Admin endpoints for managing users, posts, and reports
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -21,6 +22,7 @@ public class AdminController {
         this.postService = postService;
     }
 
+    // Get dashboard statistics
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DashboardStatsDto> getDashboardStats() {
@@ -28,6 +30,7 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
+    // Get all posts for admin review
     @GetMapping("/posts")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostsResponseDto> getAllPostsForAdmin(
@@ -35,10 +38,10 @@ public class AdminController {
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
         PostsResponseDto posts = postService.getAllPostsForAdmin(page, size, authentication);
-
         return ResponseEntity.ok(posts);
     }
 
+    // Get all users with pagination
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserAdminViewResponse> getAllUsers(
@@ -48,6 +51,7 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
+    // Delete a post
     @DeleteMapping("/posts/{postId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
@@ -55,6 +59,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    // Get all reports (post and user) with pagination
     @GetMapping("/reports")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ReportResponse> getAllReports(
@@ -64,27 +69,27 @@ public class AdminController {
         return ResponseEntity.ok(reports);
     }
 
+    // Hide a post from public view
     @PutMapping("/posts/{postId}/hide")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> hidePost(@PathVariable Long postId) {
         try {
             PostResponse result = adminService.hidePost(postId);
-
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
+    // Unhide a previously hidden post
     @PutMapping("/posts/{postId}/unhide")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> unhidePost(@PathVariable Long postId) {
-
         PostResponse result = adminService.unhidePost(postId);
         return ResponseEntity.ok(result);
-
     }
 
+    // Get all hidden posts
     @GetMapping("/posts/hidden")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HiddenPostsResponse> getHiddenPosts(
@@ -103,35 +108,33 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
+    // Ban a user account
     @PutMapping("/users/{userId}/ban")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> banUser(@PathVariable Long userId) {
-
         adminService.banUser(userId);
         return ResponseEntity.noContent().build();
-
     }
 
+    // Unban a previously banned user
     @PutMapping("/users/{userId}/unban")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> unbanUser(@PathVariable Long userId) {
-
         adminService.unbanUser(userId);
         return ResponseEntity.noContent().build();
-
     }
 
+    // Get all banned users with pagination
     @GetMapping("/users/banned")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserAdminViewResponse> getBannedUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
         UserAdminViewResponse bannedUsers = adminService.getBannedUsers(page, size);
-
         return ResponseEntity.ok(bannedUsers);
     }
 
+    // Get all reported users with pagination
     @GetMapping("/reports/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserReportResponse> getReportedUsers(
@@ -141,6 +144,7 @@ public class AdminController {
         return ResponseEntity.ok(reportedUsers);
     }
 
+    // Dismiss a post report
     @DeleteMapping("/reports/{reportId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> dismissReport(@PathVariable Long reportId) {
@@ -148,17 +152,19 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    // Dismiss a user report
     @DeleteMapping("/reports/users/{reportId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> dismissUserReport(@PathVariable Long reportId) {
         adminService.dismissUserReport(reportId);
         return ResponseEntity.noContent().build();
     }
-        @DeleteMapping("/users/{userId}")
+
+    // Delete a user account
+    @DeleteMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         adminService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
-
 }

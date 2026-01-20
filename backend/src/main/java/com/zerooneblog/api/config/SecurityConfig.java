@@ -28,6 +28,7 @@ import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
 
+// Security configuration for JWT authentication and role-based access control
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity
@@ -44,6 +45,7 @@ public class SecurityConfig {
         this.userStatusFilter = userStatusFilter;
     }
 
+    // Load user details from database for authentication
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -54,27 +56,34 @@ public class SecurityConfig {
         };
     }
 
+    // Use BCrypt for password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Provide authentication manager for login
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
+    // Main security filter chain configuration
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
             throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
 
+                // Handle authentication errors
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint))
+                
+                // Use stateless session (JWT tokens)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                // Define public and protected endpoints
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
@@ -85,12 +94,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
+        // Add JWT filter before authentication
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+        // Add user status validation filter after JWT filter
         http.addFilterAfter(userStatusFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // CORS configuration for frontend requests
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

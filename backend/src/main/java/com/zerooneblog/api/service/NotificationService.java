@@ -19,6 +19,7 @@ import com.zerooneblog.api.interfaces.exception.NotificationNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedOperationException;
 
+// Service for managing user notifications
 @Service
 public class NotificationService {
     private final UserRepository userRepository;
@@ -29,12 +30,13 @@ public class NotificationService {
             UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
-
     }
 
+    // Create a single notification for a user
     @Transactional
     public void createNotification(User recipient, User sender, Notification.NotificationType type, String message,
             Post post) {
+        // Prevent self-notifications
         if (recipient.getId().equals(sender.getId())) {
             return;
         }
@@ -48,10 +50,9 @@ public class NotificationService {
         notification.setRead(false);
 
         notificationRepository.save(notification);
-
-        // NotificationDto notificationDto = mapToDto(savedNotification);
     }
 
+    // Get notifications by read status with pagination
     @Transactional(readOnly = true)
     public Page<NotificationDto> getNotificationsByReadStatus(String username, boolean isRead, int page, int size) {
         User user = userRepository.findByUsername(username)
@@ -66,6 +67,7 @@ public class NotificationService {
         return notifications.map(this::mapToDto);
     }
 
+    // Get all notifications for user with pagination
     @Transactional(readOnly = true)
     public Page<NotificationDto> getAllNotificationsPaginated(String username, int page, int size) {
         User user = userRepository.findByUsername(username)
@@ -77,6 +79,7 @@ public class NotificationService {
         return notifications.map(this::mapToDto);
     }
 
+    // Convert Notification entity to DTO
     private NotificationDto mapToDto(Notification notification) {
         return new NotificationDto(
                 notification.getId(),
@@ -88,12 +91,14 @@ public class NotificationService {
                 notification.getCreatedAt());
     }
 
+    // Mark single notification as read
     @Transactional
     public void markNotificationAsRead(Long notificationId, String username) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(
                         () -> new NotificationNotFoundException("Notification not found with id: " + notificationId));
 
+        // Verify user is notification recipient
         if (!notification.getRecipient().getUsername().equals(username)) {
             throw new UnauthorizedActionException("You are not authorized to access this notification.");
         }
@@ -102,11 +107,13 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    // Mark all notifications as read for user
     @Transactional
     public void markAllAsRead(Long userId) {
         notificationRepository.markAllAsReadForUser(userId);
     }
 
+    // Get notification counts (total, read, unread)
     @Transactional(readOnly = true)
     public NotificationCountDto getNotificationCounts(String username) {
         User user = userRepository.findByUsername(username)
@@ -119,12 +126,14 @@ public class NotificationService {
         return new NotificationCountDto(totalCount, unreadCount, readCount);
     }
 
+    // Delete a single notification
     @Transactional
     public void deleteNotification(Long notificationId, String username) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(
                         () -> new NotificationNotFoundException("Notification not found with id: " + notificationId));
 
+        // Verify user is notification recipient
         if (!notification.getRecipient().getUsername().equals(username)) {
             throw new UnauthorizedOperationException("You are not authorized to delete this notification.");
         }
@@ -132,6 +141,7 @@ public class NotificationService {
         notificationRepository.delete(notification);
     }
 
+    // Delete multiple notifications at once
     @Transactional
     public void deleteNotifications(List<Long> notificationIds, String username) {
         User user = userRepository.findByUsername(username)
@@ -139,6 +149,7 @@ public class NotificationService {
 
         List<Notification> notifications = notificationRepository.findAllById(notificationIds);
 
+        // Verify user owns all notifications
         notifications.forEach(notification -> {
             if (!notification.getRecipient().getId().equals(user.getId())) {
                 throw new UnauthorizedOperationException("You are not authorized to delete these notifications.");
@@ -148,6 +159,7 @@ public class NotificationService {
         notificationRepository.deleteAll(notifications);
     }
 
+    // Get unread notifications (limited to 10 most recent)
     @Transactional(readOnly = true)
     public List<NotificationDto> getUnreadNotifications(String username) {
         User user = userRepository.findByUsername(username)
@@ -161,9 +173,12 @@ public class NotificationService {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
+    // Create notifications for all followers when user posts
     @Transactional
     public void createNotificationsForFollowers(List<User> followers, User sender, Notification.NotificationType type, String message, Post post) {
         List<Notification> notifications = followers.stream()
+                // Prevent self-notifications
                 .filter(follower -> !follower.getId().equals(sender.getId())) 
                 .map(follower -> {
                     Notification notification = new Notification();

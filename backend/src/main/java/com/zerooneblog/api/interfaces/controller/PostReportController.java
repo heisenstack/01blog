@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zerooneblog.api.interfaces.dto.requestDto.ReportRequestDto;
 import com.zerooneblog.api.service.PostReportService;
 
+// Endpoints for reporting posts
 @RestController
 @RequestMapping("/api/posts")
 public class PostReportController {
@@ -16,6 +17,7 @@ public class PostReportController {
         this.reportService = reportService;
     }
 
+    // Report a post for inappropriate content
     @PostMapping("/{postId}/report")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<String> reportPost(@PathVariable Long postId, @RequestBody ReportRequestDto reportRequest,

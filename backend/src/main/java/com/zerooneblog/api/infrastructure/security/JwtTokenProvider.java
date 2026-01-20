@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// JWT token generation and validation for authentication
 @Component
 public class JwtTokenProvider {
 
@@ -30,10 +31,12 @@ public class JwtTokenProvider {
         this.userRepository = userRepository;
     }
 
+    // Generate cryptographic key from secret
     private SecretKey key() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    // Create JWT token with user info and roles
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
@@ -42,6 +45,7 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
+        // Extract user roles from authentication
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
@@ -56,6 +60,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // Extract username from JWT token
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key())
@@ -65,6 +70,7 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
+    // Extract user ID from JWT token claims
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key())
@@ -81,6 +87,7 @@ public class JwtTokenProvider {
         return null;
     }
 
+    // Validate token signature and expiration
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

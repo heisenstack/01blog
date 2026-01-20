@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zerooneblog.api.interfaces.exception.ResourceNotFoundException;
 
+// Service for admin operations: managing users, posts, and reports
 @Service
 public class AdminService {
     private final UserRepository userRepository;
@@ -35,6 +36,7 @@ public class AdminService {
         this.postMapper = postMapper;
     }
 
+    // Get dashboard statistics (total users, posts, reports, banned users, etc.)
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats() {
         DashboardStatsDto stats = new DashboardStatsDto();
@@ -54,6 +56,7 @@ public class AdminService {
         return stats;
     }
 
+    // Get all users with pagination, excluding admin users
     @Transactional(readOnly = true)
     public UserAdminViewResponse getAllUsersPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -74,6 +77,7 @@ public class AdminService {
 
     }
 
+    // Get all post reports with pagination
     @Transactional(readOnly = true)
     public ReportResponse getAllReportsPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -92,6 +96,7 @@ public class AdminService {
                 reportPage.isLast());
     }
 
+    // Delete a post and all its associated reports
     @Transactional
     public void deletePost(Long postId) {
         if (!postRepository.existsById(postId)) {
@@ -101,6 +106,7 @@ public class AdminService {
         postRepository.deleteById(postId);
     }
 
+    // Hide a post from public view
     @Transactional
     public PostResponse hidePost(Long postId) {
         Post post = postRepository.findById(postId)
@@ -116,6 +122,7 @@ public class AdminService {
         return postMapper.toDto(hiddenPost, null);
     }
 
+    // Unhide a previously hidden post
     @Transactional
     public PostResponse unhidePost(Long postId) {
         Post post = postRepository.findById(postId)
@@ -130,6 +137,7 @@ public class AdminService {
         return postMapper.toDto(unhiddenPost, null);
     }
 
+    // Ban a user account (prevent login and access)
     @Transactional
     public void banUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -146,6 +154,7 @@ public class AdminService {
         userRepository.save(user);
     }
 
+    // Unban a previously banned user
     @Transactional
     public void unbanUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -159,6 +168,7 @@ public class AdminService {
         userRepository.save(user);
     }
 
+    // Get all banned users with pagination
     @Transactional(readOnly = true)
     public UserAdminViewResponse getBannedUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -178,6 +188,7 @@ public class AdminService {
                 bannedUsersPage.isLast());
     }
 
+    // Get all user reports with pagination
     @Transactional(readOnly = true)
     public UserReportResponse getAllUserReportsPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -196,6 +207,7 @@ public class AdminService {
                 userReportPage.isLast());
     }
 
+    // Convert UserReport entity to DTO
     private UserReportDto toUserReportDto(UserReport userReport) {
         UserReportDto dto = new UserReportDto();
         dto.setId(userReport.getId());
@@ -210,6 +222,7 @@ public class AdminService {
         return dto;
     }
 
+    // Dismiss a post report (delete it)
     @Transactional
     public void dismissReport(Long reportId) {
         if (!reportRepository.existsById(reportId)) {
@@ -218,6 +231,7 @@ public class AdminService {
         reportRepository.deleteById(reportId);
     }
 
+    // Dismiss a user report (delete it)
     @Transactional
     public void dismissUserReport(Long userReportId) {
         if (!userReportRepository.existsById(userReportId)) {
@@ -226,6 +240,7 @@ public class AdminService {
         userReportRepository.deleteById(userReportId);
     }
 
+    // Delete a user account and all related data
     @Transactional
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)

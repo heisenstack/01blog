@@ -7,6 +7,7 @@ import com.zerooneblog.api.interfaces.dto.PostLikeResponseDto;
 import com.zerooneblog.api.service.PostLikeService;
 import org.springframework.http.ResponseEntity;
 
+// Endpoints for managing post likes
 @RestController
 @RequestMapping("/api/posts/{postId}")
 public class PostLikeController {
@@ -16,6 +17,7 @@ public class PostLikeController {
         this.postLikeService = postLikeService;
     }
     
+    // Like a post
     @PostMapping("/like")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<PostLikeResponseDto> likePost(@PathVariable Long postId,
@@ -24,6 +26,7 @@ public class PostLikeController {
         return ResponseEntity.ok(response);
     }
 
+    // Unlike a post
     @PostMapping("/unlike")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<PostLikeResponseDto> unlikePost(@PathVariable Long postId,

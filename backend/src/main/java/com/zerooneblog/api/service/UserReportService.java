@@ -11,6 +11,7 @@ import com.zerooneblog.api.interfaces.dto.requestDto.UserReportRequest;
 // import com.zerooneblog.api.interfaces.exception.DuplicateResourceException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 
+// Service for managing user reports and flagging inappropriate user behavior
 @Service
 public class UserReportService {
     private final UserReportRepository userReportRepository;
@@ -21,24 +22,26 @@ public class UserReportService {
         this.userService = userService;
     }
 
+    // Report a user for inappropriate behavior or harassment
     @Transactional
     public void reportUser(String userToReport, UserReportRequest userReportRequest, String username ) {
         User toBeReportedUser = userService.findByUsername(userToReport);
         User currentUser = userService.findByUsername(username);
 
+        // Prevent users from reporting themselves
         if (toBeReportedUser.getId().equals(currentUser.getId())) {
             throw new UnauthorizedActionException("You cannot report yourself.");
         }
-    //     if (userReportRepository.existsByReportedIdAndReporterId(toBeReportedUser.getId(), currentUser.getId())) {
-    //     throw new DuplicateResourceException("UserReport", "reportedUserId", toBeReportedUser.getId());
-    // }
 
+        // Create and save new user report with reason and details
         UserReport userReport = new UserReport();
         userReport.setReported(toBeReportedUser);
         userReport.setReporter(currentUser);
         userReport.setDetails(userReportRequest.getDetails());
         userReport.setReason(userReportRequest.getReason());
         userReportRepository.save(userReport);
+        
+        // Increment report counts for both users
         toBeReportedUser.setReportedCount(toBeReportedUser.getReportedCount() + 1L);
         currentUser.setReportingCount(toBeReportedUser.getReportingCount() + 1L);
     }

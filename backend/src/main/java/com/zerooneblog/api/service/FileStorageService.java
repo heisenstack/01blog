@@ -16,19 +16,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+// Service for secure file upload and storage with validation
 @Service
 public class FileStorageService {
     
 
-    // Whitelist
+    // Whitelist of allowed image extensions
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = new HashSet<>(
         Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp")
     );
     
+    // Whitelist of allowed video extensions
     private static final Set<String> ALLOWED_VIDEO_EXTENSIONS = new HashSet<>(
         Arrays.asList(".mp4", ".webm", ".mov", ".avi")
     );
     
+    // Whitelist of allowed image MIME types
     private static final Set<String> ALLOWED_IMAGE_MIME_TYPES = new HashSet<>(
         Arrays.asList(
             "image/jpeg", 
@@ -38,6 +41,7 @@ public class FileStorageService {
         )
     );
     
+    // Whitelist of allowed video MIME types
     private static final Set<String> ALLOWED_VIDEO_MIME_TYPES = new HashSet<>(
         Arrays.asList(
             "video/mp4", 
@@ -47,6 +51,7 @@ public class FileStorageService {
         )
     );
     
+    // Maximum file size limits
     private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final long MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
     
@@ -61,6 +66,7 @@ public class FileStorageService {
         }
     }
 
+    // Store file securely with validation
     public String storeFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Cannot store empty file");
@@ -71,6 +77,7 @@ public class FileStorageService {
             throw new IllegalArgumentException("File must have a valid name");
         }
         
+        // Prevent directory traversal attacks
         String cleaned = StringUtils.cleanPath(originalFileName);
         
         if (cleaned.contains("..") || cleaned.contains("/") || cleaned.contains("\\")) {
@@ -83,6 +90,7 @@ public class FileStorageService {
         }
         
         String contentType = file.getContentType();
+        // Validate file type, size, and MIME type
         validateFileType(fileExtension, contentType, file.getSize());
         
         try {
@@ -90,10 +98,12 @@ public class FileStorageService {
             
             Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
             
+            // Prevent path traversal in target location
             if (!targetLocation.normalize().startsWith(this.fileStorageLocation)) {
                 throw new RuntimeException("Cannot store file outside designated directory");
             }
             
+            // Copy file to storage location
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -105,7 +115,7 @@ public class FileStorageService {
         }
     }
 
-
+    // Validate file type, MIME type, and size
     private void validateFileType(String extension, String mimeType, long fileSize) {
         String lowerExtension = extension.toLowerCase();
         
@@ -146,7 +156,7 @@ public class FileStorageService {
         );
     }
 
-
+    // Extract file extension from filename
     private String extractFileExtension(String filename) {
         if (filename == null || filename.isEmpty()) {
             return "";
@@ -160,17 +170,18 @@ public class FileStorageService {
         return filename.substring(lastDotIndex).toLowerCase();
     }
 
-
+    // Generate unique filename using UUID to prevent name collisions
     private String generateUniqueFileName(String extension) {
         return UUID.randomUUID().toString() + extension.toLowerCase();
     }
 
-
+    // Delete file from storage
     public void deleteFile(String fileName) {
         if (fileName == null || fileName.isBlank()) {
             return;
         }
         
+        // Prevent directory traversal attacks
         if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
             System.err.println("Attempted to delete file with invalid name: " + fileName);
             return;
@@ -179,6 +190,7 @@ public class FileStorageService {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             
+            // Ensure file is within storage directory
             if (!filePath.startsWith(this.fileStorageLocation)) {
                 System.err.println("Attempted to delete file outside storage directory: " + fileName);
                 return;
@@ -190,11 +202,10 @@ public class FileStorageService {
         }
     }
     
-
+    // Check if file extension is allowed
     public boolean isAllowedFileType(String extension) {
         String lowerExt = extension.toLowerCase();
         return ALLOWED_IMAGE_EXTENSIONS.contains(lowerExt) || 
                ALLOWED_VIDEO_EXTENSIONS.contains(lowerExt);
     }
 }
-

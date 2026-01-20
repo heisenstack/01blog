@@ -16,47 +16,33 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// Filter to check if authenticated user is banned before processing request
 @Component
 public class UserStatusFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public UserStatusFilter(UserRepository userRepository) {
+    public UserStatusFilter(UserRepository userRepository, ObjectMapper objectMapper) {
         this.userRepository = userRepository;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-                // System.out.println("UserStatusFilter");
         
+        // Get current authentication from security context
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             String username = auth.getName();
             
+            // Load user from database
             User user = userRepository.findByUsername(username).orElse(null);
             
-            // deleted user
-            // if (user == null) {
-            //     SecurityContextHolder.clearContext();
-                
-            //     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            //     response.setContentType("application/json");
-                
-            //     MessageResponse errorResponse = new MessageResponse(
-            //         "USER_DELETED",
-            //         "Your account has been deleted. Please contact support if you believe this is an error."
-            //     );
-                
-            //     objectMapper.writeValue(response.getOutputStream(), errorResponse);
-            //     return;
-            // }
-            
-            // banned user
-            if (!user.isEnabled()) {
+            // Block access if user is banned
+            if (user != null && !user.isEnabled()) {
                 SecurityContextHolder.clearContext();
                 
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -72,6 +58,7 @@ public class UserStatusFilter extends OncePerRequestFilter {
             }
         }
         
+        // Continue filter chain for non-banned users
         filterChain.doFilter(request, response);
     }
 }

@@ -18,6 +18,7 @@ import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.interfaces.exception.*;
 import com.zerooneblog.api.service.mapper.PostMapper;
 
+// Service for managing user profiles, follows, and suggestions
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -33,16 +34,19 @@ public class UserService {
         this.notificationService = notificationService;
     }
 
+    // Find user by username
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
+    // Find user by ID
     public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 
+    // Get user profile with paginated posts and follower information
     @Transactional(readOnly = true)
     public UserProfileDto getUserProfile(String username, int page, int size, Authentication authentication) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -50,8 +54,10 @@ public class UserService {
         User user = findByUsername(username);
         User currentUser = getCurrentUserFromAuthentication(authentication);
 
+        // Check if current user is following this user
         boolean isSubscribed = this.isUserSubscribedToProfile(currentUser, user);
 
+        // Get paginated posts from user
         Page<Post> postsPage = postRepository.findByUserId(user.getId(), pageable);
 
         List<PostResponse> postDtos = postsPage.getContent().stream()
@@ -66,6 +72,7 @@ public class UserService {
                 postsPage.getTotalPages(),
                 postsPage.isLast());
 
+        // Get follower and following counts
         long followerCount = userRepository.countFollowers(user.getId());
         long followingCount = userRepository.countFollowing(user.getId());
 
@@ -82,15 +89,18 @@ public class UserService {
                 user.getReportingCount());
     }
 
+    // Follow a user (create follow relationship)
     @Transactional
     public String followUser(String username, Authentication authentication) {
         User currentUser = getCurrentUserFromAuthentication(authentication);
         User userToFollow = findByUsername(username);
 
+        // Prevent self-follow
         if (currentUser.getId().equals(userToFollow.getId())) {
             throw new UnauthorizedActionException("You cannot follow yourself.");
         }
 
+        // Check if already following
         boolean alreadyFollowing = userRepository.countByFollowerIdAndFollowingId(currentUser.getId(),
                 userToFollow.getId()) > 0;
 
@@ -98,15 +108,18 @@ public class UserService {
             throw new DuplicateResourceException("You are already following " + userToFollow.getUsername() + ".");
         }
 
+        // Create follow relationship
         userRepository.insertFollowRelationship(currentUser.getId(), userToFollow.getId());
+        
+        // Notify followed user
         String message = currentUser.getUsername() + " started following you.";
-
         notificationService.createNotification(userToFollow, currentUser, Notification.NotificationType.NEW_FOLLOWER,
                 message, null);
 
         return "You've followed " + userToFollow.getUsername() + " successfully!";
     }
 
+    // Unfollow a user (delete follow relationship)
     @Transactional
     public String unfollowUser(String username, Authentication authentication) {
         User currentUser = getCurrentUserFromAuthentication(authentication);
@@ -116,10 +129,12 @@ public class UserService {
 
         User userToUnfollow = findByUsername(username);
 
+        // Prevent self-unfollow
         if (currentUser.getId().equals(userToUnfollow.getId())) {
             throw new UnauthorizedActionException("You cannot unfollow yourself.");
         }
 
+        // Check if currently following
         boolean isCurrentlyFollowing = userRepository.countByFollowerIdAndFollowingId(
                 currentUser.getId(),
                 userToUnfollow.getId()) > 0;
@@ -128,11 +143,13 @@ public class UserService {
             throw new IllegalStateException("You are not following " + userToUnfollow.getUsername() + ".");
         }
 
+        // Delete follow relationship
         userRepository.deleteFollowRelationship(currentUser.getId(), userToUnfollow.getId());
 
         return "You've unfollowed " + userToUnfollow.getUsername() + " successfully!";
     }
 
+    // Check if viewer is following profile user
     @Transactional(readOnly = true)
     private boolean isUserSubscribedToProfile(User viewer, User profileUser) {
         if (viewer == null || viewer.getId().equals(profileUser.getId())) {
@@ -141,6 +158,7 @@ public class UserService {
         return userRepository.isFollowing(viewer.getId(), profileUser.getId());
     }
 
+    // Extract authenticated user from Authentication object
     public User getCurrentUserFromAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getName())) {
@@ -150,10 +168,12 @@ public class UserService {
         return userRepository.findByUsername(username).orElse(null);
     }
 
+    // Get suggested users to follow (excluding already followed users)
     @Transactional(readOnly = true)
     public UserSuggestionResponse getSuggestedUsers(int page, int size) {
         User currentUser = getCurrentUser();
 
+        // Get list of users current user already follows
         List<Long> followingIds = userRepository.findFollowingIds(currentUser.getId());
 
         if (followingIds.isEmpty()) {
@@ -161,6 +181,7 @@ public class UserService {
         }
 
         Pageable pageable = PageRequest.of(page, size);
+        // Get suggested users excluding self and already followed users
         Page<User> suggestedUsersPage = userRepository.findSuggestedUsers(
                 currentUser.getId(),
                 followingIds,
@@ -179,6 +200,7 @@ public class UserService {
                 suggestedUsersPage.isLast());
     }
 
+    // Get list of users current user is following
     @Transactional(readOnly = true)
     public UserSuggestionResponse getFollowingUsers(int page, int size) {
         User currentUser = getCurrentUser();
@@ -199,6 +221,7 @@ public class UserService {
                 followingPage.isLast());
     }
 
+    // Convert User entity to UserSuggestionDto
     private UserSuggestionDto toUserSuggestionDto(User user, boolean subscribed) {
         long followerCount = userRepository.countFollowers(user.getId());
         return new UserSuggestionDto(
@@ -209,6 +232,7 @@ public class UserService {
                 subscribed);
     }
 
+    // Get current authenticated user from security context
     private User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return findByUsername(username);

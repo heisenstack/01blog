@@ -24,10 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// Global exception handler for unified error responses across the API
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Validation failed
+    // Handle validation errors from request body validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<MessageResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
 
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Wrong Arguments
+    // Handle illegal argument exceptions
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<MessageResponse> handleIllegalArgument(
             IllegalArgumentException ex,
@@ -60,6 +61,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Handle notification not found exceptions
     @ExceptionHandler(NotificationNotFoundException.class)
     public ResponseEntity<MessageResponse> handleNotificationNotFound(
             NotificationNotFoundException ex,
@@ -69,6 +71,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    // Handle authorization denied exceptions
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<MessageResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
         MessageResponse errorResponse = new MessageResponse(
@@ -77,6 +80,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
+    // Handle file upload size exceeded exceptions
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<MessageResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
         MessageResponse errorResponse = new MessageResponse(
@@ -86,10 +90,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
+    // Handle authentication exceptions (invalid username/password)
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<MessageResponse> handleAuthenticationException(AuthenticationException ex) {
-
-        // System.err.println("Authentication Failed: " + ex.getMessage());
 
         MessageResponse errorResponse = new MessageResponse(
                 "FAILURE",
@@ -98,6 +101,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    // Handle unauthorized action exceptions
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<MessageResponse> handleUnauthorizedAction(
             UnauthorizedActionException ex,
@@ -107,6 +111,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
+    // Handle resource not found exceptions
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<MessageResponse> handleResourceNotFound(
             ResourceNotFoundException ex,
@@ -116,6 +121,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    // Handle type mismatch in request parameters
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<MessageResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         String requiredType = (ex.getRequiredType() != null)
@@ -133,6 +139,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Handle optimistic locking conflicts
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<MessageResponse> handleOptimisticLockingFailure(
             ObjectOptimisticLockingFailureException ex,
@@ -145,6 +152,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    // Handle 404 not found exceptions
     @ExceptionHandler({
             NoHandlerFoundException.class,
             NoResourceFoundException.class
@@ -169,6 +177,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    // Handle method validation exceptions
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<MessageResponse> handleMethodValidation(HandlerMethodValidationException ex) {
         String errorMessage = ex.getAllErrors().stream()
@@ -178,6 +187,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new MessageResponse("FAILURE", errorMessage), HttpStatus.BAD_REQUEST);
     }
 
+    // Handle constraint violation exceptions from validation annotations
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<MessageResponse> handleConstraintViolation(ConstraintViolationException ex) {
         String errorMessage = ex.getConstraintViolations().stream()
@@ -187,6 +197,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new MessageResponse("FAILURE", errorMessage), HttpStatus.BAD_REQUEST);
     }
 
+    // Handle unsupported HTTP method exceptions
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<MessageResponse> handleMethodNotSupported(
             HttpRequestMethodNotSupportedException ex,
@@ -202,6 +213,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
+    // Handle duplicate resource exceptions
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<MessageResponse> handleDuplicateResource(
             DuplicateResourceException ex,
@@ -211,6 +223,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    // Handle illegal state exceptions
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<MessageResponse> handleIllegalState(
             IllegalStateException ex,
@@ -221,6 +234,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Catch-all handler for unexpected exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<MessageResponse> handleGlobalException(
             Exception ex,

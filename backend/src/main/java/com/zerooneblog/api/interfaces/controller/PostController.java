@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+// Endpoints for managing posts
 @RestController
 @Validated
 @RequestMapping("/api/posts")
@@ -26,6 +27,7 @@ public class PostController {
         this.postService = postService;
     }
 
+    // Create a new post with optional media files
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> createPost(
@@ -41,6 +43,7 @@ public class PostController {
         return ResponseEntity.ok(createdPost);
     }
 
+    // Get all public posts with pagination
     @GetMapping
     public ResponseEntity<PostsResponseDto> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -51,6 +54,7 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    // Get personalized feed for authenticated user (from subscriptions)
     @GetMapping("/feed")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostsResponseDto> getFeedForCurrentUser(
@@ -61,12 +65,14 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    // Get a single post by ID
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id, Authentication authentication) {
         PostResponse post = postService.getPostById(id, authentication);
         return ResponseEntity.ok(post);
     }
 
+    // Update a post (only by author)
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> updatePost(
@@ -79,6 +85,7 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
+    // Delete a post (only by author or admin)
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> deletePost(@PathVariable Long id,

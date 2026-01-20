@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
+// Endpoints for reporting users
 @RestController
 @RequestMapping("/api/users")
 public class UserReportController {
@@ -19,6 +20,7 @@ public class UserReportController {
         this.userReportService = userReportService;
     }
 
+    // Report a user for inappropriate behavior or content
     @PostMapping("/{username}/report")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> reportUser(@PathVariable String username,

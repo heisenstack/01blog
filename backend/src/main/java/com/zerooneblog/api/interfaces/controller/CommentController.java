@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zerooneblog.api.interfaces.dto.*;
 import com.zerooneblog.api.service.CommentService;
 
+// Endpoints for managing post comments
 @RestController
 @RequestMapping("/api")
 public class CommentController {
@@ -18,6 +19,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
+    // Create a new comment on a post
     @PostMapping("/posts/{postId}/comments")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> createComment(@PathVariable Long postId, @RequestBody Map<String, String> payload,
@@ -26,6 +28,7 @@ public class CommentController {
         return ResponseEntity.ok(newComment);
     }
 
+    // Get all comments for a post with pagination
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<CommentResponseDto> getCommentsByPostId(@PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
@@ -33,6 +36,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentsByPostId(postId, page, size));
     }
 
+    // Update a comment (only by author)
     @PutMapping("/comments/{commentId}")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId,
@@ -43,6 +47,7 @@ public class CommentController {
         return ResponseEntity.ok(updatedComment);
     }
 
+    // Delete a comment (only by author or admin)
     @DeleteMapping("/comments/{commentId}")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<MessageResponse> deleteComment(@PathVariable Long commentId,

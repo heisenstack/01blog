@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+// Endpoints for managing user notifications
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
@@ -30,6 +31,7 @@ public class NotificationController {
         this.userService = userService;
     }
 
+    // Get paginated notifications with filtering (all, read, unread)
     @GetMapping("/paginated")
     public ResponseEntity<Page<NotificationDto>> getNotificationsPaginated(
             @RequestParam(defaultValue = "all") String filter,
@@ -56,6 +58,7 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
+    // Mark a single notification as read
     @PostMapping("/{id}/read")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> markNotificationAsRead(
@@ -64,9 +67,9 @@ public class NotificationController {
         notificationService.markNotificationAsRead(id, userDetails.getUsername());
         NotificationCountDto counts = notificationService.getNotificationCounts(userDetails.getUsername());
         return ResponseEntity.ok(counts);
-
     }
 
+    // Get notification counts (read and unread)
     @GetMapping("/counts")
     public ResponseEntity<NotificationCountDto> getNotificationCounts(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -74,6 +77,7 @@ public class NotificationController {
         return ResponseEntity.ok(counts);
     }
 
+    // Mark all notifications as read for current user
     @PostMapping("/read-all")
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> markAllNotificationsAsRead(
@@ -84,6 +88,7 @@ public class NotificationController {
         return ResponseEntity.ok(counts);
     }
 
+    // Delete multiple notifications
     @DeleteMapping
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<NotificationCountDto> deleteNotifications(
@@ -98,6 +103,7 @@ public class NotificationController {
         }
     }
     
+    // Get all unread notifications for current user
     @GetMapping
     public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
