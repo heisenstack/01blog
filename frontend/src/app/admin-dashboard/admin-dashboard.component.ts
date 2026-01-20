@@ -9,7 +9,6 @@ import { UserAdminView } from '../models/user-admin-view.model';
 import { UserReport } from '../models/user-report.model';
 import { HiddenPost } from '../models/HiddenPost.model';
 import { ConfirmationModalComponent } from '../components/confirmation-modal/confirmation-modal.component';
-import { HidePostModalComponent } from '../components/hide-post-modal/hide-post-modal.component';
 import { ToastrService } from 'ngx-toastr';
 import { Post } from '../models/post.model';
 
@@ -18,7 +17,7 @@ import { Post } from '../models/post.model';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmationModalComponent, HidePostModalComponent],
+  imports: [CommonModule, RouterModule, ConfirmationModalComponent],
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab:
@@ -103,13 +102,6 @@ export class AdminDashboardComponent implements OnInit {
   hiddenPostsTotalElements = 0;
   isLoadingMoreHiddenPosts = false;
   isHiddenPostsLastPage = false;
-
-
-  // Hide Post Modal
-  isHidePostModalOpen = false;
-  isHidingPost = false;
-  hidePostTitle = '';
-  private postIdToHide: number | null = null;
 
   // Confirmation Modal
   isModalOpen = false;
@@ -218,8 +210,6 @@ export class AdminDashboardComponent implements OnInit {
     this.reportsError = null;
     this.adminService.getReportedPosts(this.reportsCurrentPage, this.reportsPageSize).subscribe({
       next: (response) => {
-        // console.log('Reported Posts: ', response);
-
         this.reports = response.content || [];
         this.reportsTotalPages = response.totalPages || 0;
         this.reportsTotalElements = response.totalElements || 0;
@@ -261,8 +251,6 @@ export class AdminDashboardComponent implements OnInit {
       .getReportedUsers(this.reportedUsersCurrentPage, this.reportedUsersPageSize)
       .subscribe({
         next: (response) => {
-          // console.log('Reported Users: ', response);
-
           this.reportedUsers = response.content || [];
           this.reportedUsersTotalPages = response.totalPages || 0;
           this.reportedUsersTotalElements = response.totalElements || 0;
@@ -307,14 +295,11 @@ export class AdminDashboardComponent implements OnInit {
     this.usersError = null;
     this.adminService.getAllUsers(this.usersCurrentPage, this.usersPageSize).subscribe({
       next: (response) => {
-        // console.log(response);
-
         this.users = response.content || [];
         this.usersTotalPages = response.totalPages || 0;
         this.usersTotalElements = response.totalElements || 0;
         this.isUsersLastPage = response.last || false;
         this.isUsersLoading = false;
-        // console.log(this.users);
       },
       error: () => {
         this.usersError = 'Failed to load users.';
@@ -409,46 +394,36 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // ===== HIDE POST MODAL =====
-  onHidePost(postId: number, postTitle: string): void {
-    this.postIdToHide = postId;
-    this.hidePostTitle = postTitle;
-    this.isHidePostModalOpen = true;
-  }
+onHidePost(postId: number, postTitle: string): void {
+  this.modalTitle = 'Confirm Hide Post';
+  this.modalMessage = `Are you sure you want to hide "${postTitle}"? The post will no longer be visible to regular users but can be restored later from the Hidden Posts tab.`;
+  this.modalConfirmText = 'Hide Post';
+  this.modalCancelText = 'Cancel';
+  this.modalConfirmClass = 'btn-warning';
+  this.confirmAction = () => this.executeHidePost(postId);
+  this.isModalOpen = true;
+}
 
-  onHidePostConfirm(): void {
-    if (!this.postIdToHide) return;
+  private executeHidePost(postId: number): void {
+  this.adminService.hidePost(postId).subscribe({
+    next: () => {
+      this.toastr.success('Post has been hidden successfully.', 'Success');
 
-    this.isHidingPost = true;
-    const postId = this.postIdToHide;
+      this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
+      this.reportsTotalElements--;
 
-    this.adminService.hidePost(postId).subscribe({
-      next: () => {
-        this.toastr.success('Post has been hidden successfully.', 'Success');
-        this.isHidingPost = false;
-        this.isHidePostModalOpen = false;
+      const post = this.posts.find((p) => p.id === postId);
+      if (post) {
+        post.hidden = true;
+      }
 
-        this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
-        this.reportsTotalElements--;
-
-        const post = this.posts.find((p) => p.id === postId);
-        if (post) {
-          post.hidden = true;
-        }
-
-        this.loadDashboardStats();
-      },
-      error: (e) => {
-        this.toastr.error(e.error.message, 'Failed to hide post.');
-        this.isHidingPost = false;
-      },
-    });
-  }
-
-  onHidePostCancel(): void {
-    this.isHidePostModalOpen = false;
-    this.postIdToHide = null;
-    this.hidePostTitle = '';
-  }
+      this.loadDashboardStats();
+    },
+    error: (e) => {
+      this.toastr.error(e.error.message, 'Failed to hide post.');
+    },
+  });
+}
 
   // ===== REPORT ACTIONS =====
   onDismissReport(reportId: number): void {
@@ -473,13 +448,14 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  onDeletePost(postId: number): void {
-    this.modalTitle = 'Confirm Post Deletion';
-    this.modalMessage =
-      'Are you sure you want to permanently delete this post? This action cannot be undone.';
-    this.confirmAction = () => this.executeDeletePost(postId);
-    this.isModalOpen = true;
-  }
+onDeletePost(postId: number): void {
+  this.modalTitle = 'Confirm Post Deletion';
+  this.modalMessage = 'Are you sure you want to permanently delete this post? This action cannot be undone.';
+  this.modalConfirmText = 'Delete Post'; 
+  this.modalConfirmClass = 'btn-danger'; 
+  this.confirmAction = () => this.executeDeletePost(postId);
+  this.isModalOpen = true;
+}
 
 private executeDeletePost(postId: number): void {
   this.adminService.deletePost(postId).subscribe({
@@ -517,12 +493,14 @@ private executeDeletePost(postId: number): void {
   });
 }
 
-  onDeleteUser(userId: number, username: string): void {
-    this.modalTitle = 'Confirm User Deletion';
-    this.modalMessage = `Are you sure you want to delete the user "${username}"? All their data will be permanently removed.`;
-    this.confirmAction = () => this.executeDeleteUser(userId);
-    this.isModalOpen = true;
-  }
+onDeleteUser(userId: number, username: string): void {
+  this.modalTitle = 'Confirm User Deletion';
+  this.modalMessage = `Are you sure you want to delete the user "${username}"? All their data will be permanently removed.`;
+  this.modalConfirmText = 'Delete User'; 
+  this.modalConfirmClass = 'btn-danger'; 
+  this.confirmAction = () => this.executeDeleteUser(userId);
+  this.isModalOpen = true;
+}
 
 private executeDeleteUser(userId: number): void {
   this.adminService.deleteUser(userId).subscribe({
@@ -565,8 +543,6 @@ private executeDeleteUser(userId: number): void {
       .getBannedUsers(this.bannedUsersCurrentPage, this.bannedUsersPageSize)
       .subscribe({
         next: (response) => {
-          // console.log(response);
-
           this.bannedUsers = response.content || [];
           this.bannedUsersTotalPages = response.totalPages || 0;
           this.bannedUsersTotalElements = response.totalElements || 0;
@@ -609,25 +585,25 @@ private executeDeleteUser(userId: number): void {
     this.onBanUserAction(userId, username);
   }
 
-  onBanUserAction(userId: number, username: string): void {
-    this.modalTitle = 'Confirm User Ban';
-    this.modalMessage = `Are you sure you want to ban "${username}"? They will not be able to login or interact until unbanned.`;
-    this.confirmAction = () => this.executeBanUser(userId);
-    this.isModalOpen = true;
-  }
+onBanUserAction(userId: number, username: string): void {
+  this.modalTitle = 'Confirm User Ban';
+  this.modalMessage = `Are you sure you want to ban "${username}"? They will not be able to login or interact until unbanned.`;
+  this.modalConfirmText = 'Ban User'; 
+  this.modalConfirmClass = 'btn-danger'; 
+  this.confirmAction = () => this.executeBanUser(userId);
+  this.isModalOpen = true;
+}
 
   private executeBanUser(userId: number): void {
     this.adminService.banUser(userId).subscribe({
       next: () => {
         this.toastr.success('User has been banned successfully.');
 
-        // Update user in the main users array
         const user = this.users.find((u) => u.id === userId);
         if (user) {
           user.enabled = false;
         }
 
-        // Update in reported users array
         const reportedUser = this.reportedUsers.find((r) => r.reportedUserId === userId);
         if (reportedUser) {
           reportedUser.enabled = false;
@@ -641,12 +617,14 @@ private executeDeleteUser(userId: number): void {
     });
   }
 
-  onUnbanUser(userId: number, username: string): void {
-    this.modalTitle = 'Confirm User Unban';
-    this.modalMessage = `Are you sure you want to unban "${username}"? They will be able to login and interact again.`;
-    this.confirmAction = () => this.executeUnbanUser(userId);
-    this.isModalOpen = true;
-  }
+onUnbanUser(userId: number, username: string): void {
+  this.modalTitle = 'Confirm User Unban';
+  this.modalMessage = `Are you sure you want to unban "${username}"? They will be able to login and interact again.`;
+  this.modalConfirmText = 'Unban User'; 
+  this.modalConfirmClass = 'btn-success'; 
+  this.confirmAction = () => this.executeUnbanUser(userId);
+  this.isModalOpen = true;
+}
 
   private executeUnbanUser(userId: number): void {
     this.adminService.unbanUser(userId).subscribe({

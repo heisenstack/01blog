@@ -773,9 +773,7 @@
               <button
                 class="btn btn-load-more"
                 (click)="loadMoreHiddenPosts()"
-                [disabled]="
-                  isLoadingMoreHiddenPosts || isHiddenPostsLastPage
-                "
+                [disabled]="isLoadingMoreHiddenPosts || isHiddenPostsLastPage"
               >
                 <span *ngIf="isLoadingMoreHiddenPosts" class="spinner-sm"></span>
                 <span>{{ isLoadingMoreHiddenPosts ? 'Loading...' : 'Load More' }}</span>
@@ -797,15 +795,6 @@
 </div>
 
 <!-- Modals -->
-<app-hide-post-modal
-  [isOpen]="isHidePostModalOpen"
-  [postTitle]="hidePostTitle"
-  [isSubmitting]="isHidingPost"
-  (onConfirm)="onHidePostConfirm()"
-  (onCancel)="onHidePostCancel()"
->
-</app-hide-post-modal>
-
 <app-confirmation-modal
   [isOpen]="isModalOpen"
   [title]="modalTitle"

@@ -52,7 +52,7 @@
       </div>
 
       <!-- Media Section -->
-      <div class="media-section"> 
+      <div class="media-section">
         <div class="media-header">
           <div class="media-title">
             <i class="fa-solid fa-images"></i>
@@ -104,7 +104,12 @@
             <div class="files-header">
               <div class="files-info">
                 <i class="fa-solid fa-check-circle"></i>
-                <span>{{ selectedFiles.length }} file{{ selectedFiles.length > 1 ? 's' : '' }} selected</span>
+                <span
+                  >{{ selectedFiles.length }} file{{
+                    selectedFiles.length > 1 ? 's' : ''
+                  }}
+                  selected</span
+                >
               </div>
               <button
                 type="button"
@@ -125,12 +130,12 @@
                     [src]="filePreview.preview"
                     alt="Preview"
                   />
-                  <video 
-                    *ngIf="filePreview.type === 'video' && filePreview.preview" 
-                    [src]="filePreview.preview" 
-                    controls 
-                    class="video-thumbnail">
-                  </video>
+                  <video
+                    *ngIf="filePreview.type === 'video' && filePreview.preview"
+                    [src]="filePreview.preview"
+                    controls
+                    class="video-thumbnail"
+                  ></video>
 
                   <!-- Order Badge -->
                   <span class="file-number">{{ i + 1 }}</span>
@@ -149,7 +154,10 @@
                 <!-- File Info -->
                 <div class="file-info">
                   <p class="file-name" [title]="filePreview.name">{{ filePreview.name }}</p>
-                  <span class="file-type">{{ filePreview.type }}</span>
+                  <div class="file-meta">
+                    <span class="file-type">{{ filePreview.type }}</span>
+                    <span class="file-size">{{ filePreview.size }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -183,11 +191,7 @@
 
       <!-- Submit Button -->
       <div class="form-actions">
-        <button
-          type="submit"
-          class="btn-submit"
-          [disabled]="!postForm.valid || isSubmitting"
-        >
+        <button type="submit" class="btn-submit" [disabled]="!postForm.valid || isSubmitting">
           <span class="btn-content">
             <i *ngIf="!isSubmitting" class="fa-solid fa-paper-plane"></i>
             <span *ngIf="!isSubmitting">Publish Post</span>

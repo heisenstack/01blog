@@ -1,7 +1,5 @@
 <div *ngIf="mediaFiles && mediaFiles.length > 0" class="media-carousel">
-  <!-- Main Media Display -->
   <div class="carousel-main">
-    <!-- Image Display -->
     <img 
       *ngIf="currentMedia.mediaType === 'IMAGE'" 
       [src]="currentMedia.mediaUrl" 
@@ -9,7 +7,6 @@
       class="carousel-media"
     />
     
-    <!-- Video Display -->
     <video 
       *ngIf="currentMedia.mediaType === 'VIDEO'" 
       [src]="currentMedia.mediaUrl" 
@@ -17,61 +14,41 @@
       class="carousel-media"
     ></video>
 
-    <!-- Media Type Badge -->
     <span class="media-type-badge">
       <i [ngClass]="currentMedia.mediaType === 'IMAGE' ? 'fa-solid fa-image' : 'fa-solid fa-video'"></i>
       {{ currentMedia.mediaType }}
     </span>
 
-    <!-- Slide Counter -->
     <div class="slide-counter">
       {{ currentIndex + 1 }} / {{ totalSlides }}
     </div>
 
-    <!-- Navigation Buttons (only show if multiple media) -->
     <div *ngIf="totalSlides > 1" class="carousel-controls">
-      <!-- Previous Button -->
       <button 
         class="nav-button nav-button-prev"
         (click)="previousSlide()"
         title="Previous slide"
-        aria-label="Previous slide"
       >
         <i class="fa-solid fa-chevron-left"></i>
       </button>
 
-      <!-- Next Button -->
       <button 
         class="nav-button nav-button-next"
         (click)="nextSlide()"
         title="Next slide"
-        aria-label="Next slide"
       >
         <i class="fa-solid fa-chevron-right"></i>
       </button>
-
-      <!-- Auto-play Toggle -->
-      <button 
-        class="autoplay-toggle"
-        (click)="toggleAutoPlay()"
-        [class.playing]="isAutoPlay"
-        title="Toggle auto-play"
-        aria-label="Toggle auto-play"
-      >
-        <i [ngClass]="isAutoPlay ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
-      </button>
-    </div>
+      
+      </div>
   </div>
 
-  <!-- Thumbnail Indicators (only show if multiple media) -->
   <div *ngIf="totalSlides > 1" class="carousel-indicators">
     <button 
       *ngFor="let media of mediaFiles; let i = index"
       class="indicator"
       [class.active]="i === currentIndex"
       (click)="goToSlide(i)"
-      [attr.aria-label]="'Go to slide ' + (i + 1)"
-      [title]="'Slide ' + (i + 1)"
     >
       <span class="indicator-dot"></span>
     </button>

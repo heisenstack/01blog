@@ -15,5 +15,4 @@ public class PostDTO {
         this.content = content;
         this.mediaFiles = mediaFiles;
     }
-
 }

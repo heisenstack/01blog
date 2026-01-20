@@ -95,7 +95,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   private markAndNavigate(notification: Notification, path: string): void {
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        console.log('Notification marked as read:', notification.id);
+        // console.log('Notification marked as read:', notification.id);
         this.notifications = this.notifications.filter(n => n.id !== notification.id);
         this.isDropdownOpen = false;
         this.router.navigate([path]);

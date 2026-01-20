@@ -67,7 +67,7 @@
             routerLinkActive="active" 
             class="nav-link"
             (click)="closeMobileMenu()">
-            <i class="bi bi-shield-fill-check"></i>
+            <i class="bi bi-shield-fill-check"></i> 
             <span>Admin</span>
           </a>
         </li>
@@ -91,7 +91,7 @@
           
           <!-- Profile Button -->
           <a 
-            [routerLink]="['/profile', currentUsername]" 
+            [routerLink]="['/profile', username$ | async]" 
             class="btn btn-icon profile-btn" 
             title="View profile"
             aria-label="Profile"

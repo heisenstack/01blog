@@ -12,9 +12,7 @@
         <i class="fa-solid fa-circle-exclamation"></i>
       </div>
       <p>{{ errorMessage }}</p>
-      <button type="button" class="btn-secondary" [routerLink]="['/']">
-        Go Back Home
-      </button>
+      <button type="button" class="btn-secondary" [routerLink]="['/']">Go Back Home</button>
     </div>
 
     <!-- Edit Form -->
@@ -89,7 +87,7 @@
               </div>
               <span class="info-badge">These will remain unless you add new ones</span>
             </div>
-            
+
             <div class="files-grid">
               <div *ngFor="let media of post.mediaFiles; let i = index" class="file-item">
                 <div class="file-thumbnail">
@@ -157,7 +155,12 @@
               <div class="files-header">
                 <div class="files-info">
                   <i class="fa-solid fa-check-circle"></i>
-                  <span>{{ selectedFiles.length }} new file{{ selectedFiles.length > 1 ? 's' : '' }} selected</span>
+                  <span
+                    >{{ selectedFiles.length }} new file{{
+                      selectedFiles.length > 1 ? 's' : ''
+                    }}
+                    selected</span
+                  >
                 </div>
                 <button
                   type="button"
@@ -202,7 +205,10 @@
                   <!-- File Info -->
                   <div class="file-info">
                     <p class="file-name" [title]="filePreview.name">{{ filePreview.name }}</p>
-                    <span class="file-type">{{ filePreview.type }}</span>
+                    <div class="file-meta">
+                      <span class="file-type">{{ filePreview.type }}</span>
+                      <span class="file-size">{{ filePreview.size }}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -241,19 +247,11 @@
 
         <!-- Submit Button -->
         <div class="form-actions">
-          <button
-            type="button"
-            [routerLink]="['/post', post.id]"
-            class="btn-cancel"
-          >
+          <button type="button" [routerLink]="['/post', post.id]" class="btn-cancel">
             <i class="fa-solid fa-xmark"></i>
             <span>Cancel</span>
           </button>
-          <button
-            type="submit"
-            class="btn-submit"
-            [disabled]="!postForm.valid || isSubmitting"
-          >
+          <button type="submit" class="btn-submit" [disabled]="!postForm.valid || isSubmitting">
             <span class="btn-content">
               <i *ngIf="!isSubmitting" class="fa-solid fa-floppy-disk"></i>
               <span *ngIf="!isSubmitting">Save Changes</span>

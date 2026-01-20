@@ -1,7 +1,7 @@
-import { Component, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
@@ -15,50 +15,28 @@ import { NotificationBellComponent } from '../../components/notification-bell/no
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss']
 })
-export class Navbar implements OnInit, OnDestroy {
+export class Navbar {
   isLoggedIn$: Observable<boolean>;
   username$: Observable<string | null>;
   currentTheme$: Observable<'light' | 'dark'>;
   isAdmin$: Observable<boolean>;
-  currentUsername: string = '';
 
   isMobileMenuOpen = false;
-  private subscriptions = new Subscription();
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private toastr: ToastrService,
-    private themeService: ThemeService,
-    private cdr: ChangeDetectorRef
+    private themeService: ThemeService
   ) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
     this.username$ = this.authService.currentUser$.pipe(
-      map(user => user ? user.username : null)
+      map(user => user?.username ?? null)
     );
     this.currentTheme$ = this.themeService.currentTheme$;
     this.isAdmin$ = this.authService.currentUser$.pipe(
-      map(user => user ? user.roles.includes('ROLE_ADMIN') : false)
+      map(user => user?.roles.includes('ROLE_ADMIN') ?? false)
     );
-  }
-
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-        this.cdr.detectChanges();
-      })
-    );
-
-    this.subscriptions.add(
-      this.authService.currentUser$.subscribe(user => {
-        this.currentUsername = user?.username || '';
-        this.cdr.detectChanges();
-      })
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 
   logout(): void {
