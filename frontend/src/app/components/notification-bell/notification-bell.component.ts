@@ -40,7 +40,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   setupNotificationCountsSubscription(): void {
     this.countsSubscription = this.notificationService.counts$.subscribe(counts => {
-      // console.log("Counts updated in bell:", counts);
       this.unreadCount = counts.unreadCount;
     });
     
@@ -50,11 +49,10 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   loadUnreadNotifications(): void {
     this.notificationService.getUnreadNotifications().subscribe({
       next: (notifications) => {
-        // console.log('Loaded unread notifications:', notifications);
         this.notifications = notifications.slice(0, 10);
       },
       error: (error) => {
-        console.error('Failed to load unread notifications:', error);
+        this.toastr.error(error.error.message, "Error loading notifications.")
       }
     });
   }
@@ -95,12 +93,12 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   private markAndNavigate(notification: Notification, path: string): void {
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        // console.log('Notification marked as read:', notification.id);
         this.notifications = this.notifications.filter(n => n.id !== notification.id);
         this.isDropdownOpen = false;
         this.router.navigate([path]);
       },
       error: (error) => {
+        this.toastr.error(error.error.message, "Error reading notification.")
         this.notifications = this.notifications.filter(n => n.id !== notification.id);
         this.isDropdownOpen = false;
         this.router.navigate([path]);

@@ -33,15 +33,13 @@ export class Login {
 
     this.authService.login(this.model).subscribe({
       next: (response) => {
-        // console.log(response);
         this.toastr.success('Login successful!', 'Welcome Back!');
         setTimeout(() => {
           this.router.navigate(['/home']);
         }, 100); 
       },
       error: (error) => {
-        // console.log(error);
-        
+        this.toastr.error("Failed to login.",error.error.message)
         this.isSubmitting = false;
         this.handleLoginError(error);
       }

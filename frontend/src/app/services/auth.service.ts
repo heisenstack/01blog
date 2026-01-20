@@ -54,12 +54,10 @@ export class AuthService {
       const expirationTime = decodedToken.exp * 1000;
       
       if (expirationTime < currentTime) {
-        // console.log('Token expired');
         this.clearAuthState();
         return;
       }
 
-      // console.log('Token valid');
       this.loggedIn.next(true);
       this.currentUserSubject.next({ 
         id: decodedToken.userId, 
@@ -70,7 +68,6 @@ export class AuthService {
       this.verifyTokenInBackground();
 
     } catch (error) {
-      console.error('Token decode error:', error);
       this.clearAuthState();
     }
   }
@@ -79,10 +76,8 @@ export class AuthService {
   private verifyTokenInBackground(): void {
     this.http.get(`${this.authApiUrl}/verify`).pipe(
       catchError(error => {
-        // console.log('error :', error.status);
 
         if (error.status === 401) {
-          console.log('Token is invalid, logging out');
           this.logout();
         }
         return of(null);
@@ -116,7 +111,6 @@ export class AuthService {
         }
       }),
       catchError(error => {
-        // console.error('Login error:', error);
         throw error;
       })
     );
@@ -148,8 +142,6 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    // console.log("loggedIn.value: ", this.loggedIn);
-    
     return this.loggedIn.value;
   }
 

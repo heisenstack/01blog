@@ -51,8 +51,6 @@ export class PostCardComponent {
         this.post = updatedPost;
       },
       error: (error) => {
-        console.log("Post card view ",error);
-        
         this.toastr.error("Error liking post");
       }
     });

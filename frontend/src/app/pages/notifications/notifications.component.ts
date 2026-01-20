@@ -61,7 +61,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   subscribeToCountsChanges(): void {
     this.countsSubscription = this.notificationService.counts$.subscribe({
       next: (counts) => {
-        console.log('Counts updated:', counts);
         this.counts = counts;
       }
     });
@@ -71,10 +70,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.notificationService.getNotificationCounts().subscribe({
       next: (counts) => {
         this.counts = counts;
-        console.log('Initial counts loaded:', counts);
       },
       error: () => {
-        // console.error('Failed to load notification counts');
+        this.toastr.error('Failed to load notification counts');
       }
     });
   }
@@ -92,8 +90,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
     this.notificationService.getNotificationsPaginated(this.activeTab, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        console.log("Notifications: ", response);
-        
         if (reset) {
           this.notifications = response.content;
         } else {
@@ -135,9 +131,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         next: (counts) => {
           notification.read = true;
           this.toastr.success('Marked as read');
-          console.log('Updated counts after mark as read:', counts);
           
-          // If we're on unread tab, remove from list
           if (this.activeTab === 'unread') {
             this.notifications = this.notifications.filter(n => n.id !== notification.id);
           }
@@ -153,10 +147,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     // Mark as read if unread
     if (!notification.read) {
       this.notificationService.markAsRead(notification.id).subscribe({
-        next: (counts) => {
+        next: () => {
           notification.read = true;
-          console.log('Updated counts after click:', counts);
-          
           // Remove from unread tab
           if (this.activeTab === 'unread') {
             this.notifications = this.notifications.filter(n => n.id !== notification.id);
@@ -254,7 +246,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
           if (completed === total) {
             this.selectedNotifications.clear();
             this.selectAllChecked = false;
-            console.log('Final counts after bulk mark as read:', counts);
             
             // If on unread tab, remove marked items
             if (this.activeTab === 'unread') {
@@ -289,7 +280,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         );
         this.selectedNotifications.clear();
         this.selectAllChecked = false;
-        console.log('Updated counts after delete:', counts);
         this.toastr.success(`${idsToDelete.length} notification${idsToDelete.length > 1 ? 's' : ''} deleted`);
       },
       error: () => {
@@ -302,7 +292,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.notificationService.markAllAsRead().subscribe({
       next: (counts) => {
         this.notifications.forEach(n => n.read = true);
-        console.log('Updated counts after mark all as read:', counts);
         
         // If on unread tab, clear the list
         if (this.activeTab === 'unread') {

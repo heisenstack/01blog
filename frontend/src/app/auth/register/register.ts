@@ -30,7 +30,6 @@ export class Register {
 
     this.authService.register(this.model).subscribe({
       next: (response) => {
-        console.log(response);
 
         this.toastr.success(
           'You can now log in with your new account.',
@@ -39,8 +38,7 @@ export class Register {
         this.router.navigate(['/login']);
       },
       error: (error) => {
-        console.log(error);
-
+        this.toastr.error("Failed to register.", error.error.message);
         this.isSubmitting = false;
         this.handleRegistrationError(error);
       },
@@ -50,7 +48,6 @@ export class Register {
   private handleRegistrationError(error: any): void {
     if (error.status === 400 && error.error?.message) {
       const message = error.error.message;
-      console.log('Registration Failed error: ', error.error.message);
       this.toastr.error(message, 'Validation Error');
       return;
     }

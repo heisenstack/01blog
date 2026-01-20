@@ -48,8 +48,6 @@ export class CreatePostComponent {
   }
 
   onDrop(event: DragEvent): void {
-    console.log("Event: ", event);
-    
     event.preventDefault();
     this.isDragging = false;
     if (event.dataTransfer?.files) {
@@ -164,7 +162,6 @@ export class CreatePostComponent {
     this.postService.createPost(formData).subscribe({
       next: (post: any) => this.router.navigate(['/post', post.id]),
       error: (err: any) => {
-        // console.error('Error creating post:', err);
         this.toastr.error(err.error.message, 'Failed to create post');
         this.isSubmitting = false;
       },

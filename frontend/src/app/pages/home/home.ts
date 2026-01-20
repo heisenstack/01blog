@@ -62,14 +62,13 @@ export class Home implements OnInit {
     this.isLoading = true;
     this.postService.getPosts(this.currentPage, this.pageSize).subscribe({
       next: (data: Page<Post>) => {
-        // console.log("Daaaaaaaaaata: ", data);
         
         this.posts = data.content;
         this.totalPages = data.totalPages;
         this.isLoading = false;
       },
       error: (err: any) => {
-        // console.error('Failed to fetch posts:', err);
+        this.toastr.error('Could not load posts. Please try again later.', 'Error');
         this.isLoading = false;
       }
     });
@@ -88,8 +87,8 @@ export class Home implements OnInit {
         this.posts = [...this.posts, ...data.content];
         this.isLoadingMore = false;
       },
-      error: (err: any) => {
-        // console.error('Failed to fetch more posts:', err);
+      error: () => {
+        this.toastr.error('Could not load more posts. Please try again later.', 'Error');
         this.isLoadingMore = false;
       }
     });
@@ -103,12 +102,11 @@ export class Home implements OnInit {
       next: (response) => {
         
         this.suggestedUsers = response.content || [];
-        // console.log('Suggested users array:', this.suggestedUsers);
         
         this.isSuggestionsLoading = false;
       },
-      error: (err) => {
-        // console.error('Failed to load suggested users:', err);
+      error: () => {
+        this.toastr.error('Could not load user suggestions. Please try again later.', 'Error');
         this.isSuggestionsLoading = false;
       }
     });
@@ -128,8 +126,6 @@ export class Home implements OnInit {
         user.subscribed ? user.followerCount++ : user.followerCount--;
       },
       error: (error) => {
-        // console.log("Home comp view: ", error);
-        
         this.toastr.error(error.error.message, 'Error following user');
       }
     });

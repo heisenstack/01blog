@@ -65,7 +65,6 @@ export class CommentSectionComponent implements OnInit {
 
     this.commentService.getComments(this.postId, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        console.log("Commmmmment: ", response);
 
         this.comments = response.content || [];
         this.totalPages = response.totalPages || 0;
@@ -74,8 +73,7 @@ export class CommentSectionComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.log(err);
-
+        this.toastr.error(err.error.message, "Error loading comments.")
         this.comments = [];
         this.isLoading = false;
       },
@@ -97,7 +95,7 @@ export class CommentSectionComponent implements OnInit {
         this.isLoadingMore = false;
       },
       error: (err: any) => {
-        // console.error('Failed to load more comments:', err);
+        this.toastr.error(err.error.message, "Error loading more comments.")
         this.isLoadingMore = false;
       },
     });
@@ -109,7 +107,6 @@ export class CommentSectionComponent implements OnInit {
 
     this.commentService.addComment(this.postId, this.newCommentContent).subscribe({
       next: (response) => {
-        // console.log(response);
         this.toastr.success('Your comment has been posted.', 'Comment Added');
         this.newCommentContent = '';
         this.isSubmitting = false;
@@ -117,7 +114,6 @@ export class CommentSectionComponent implements OnInit {
         this.loadComments();
       },
       error: (err: any) => {
-        console.log(err);
         const errorMessage = err.error?.message || 'Failed to post comment. Please try again.';
         this.toastr.error(errorMessage, 'Error');
         this.isSubmitting = false;
@@ -151,7 +147,6 @@ export class CommentSectionComponent implements OnInit {
       error: (err: any) => {
         const errorMessage = err.error?.message || 'Failed to update comment. Please try again.';
         this.toastr.error(errorMessage, 'Error');
-        // console.error('Failed to update comment:', err);
       },
     });
   }
@@ -165,15 +160,11 @@ handleDeleteConfirm(): void {
 
   this.commentService.deleteComment(this.commentToDelete).subscribe({
     next: (resp) => {
-      console.log(resp.message);
       this.toastr.success('Your comment has been deleted.', 'Comment Deleted');
-      // this.comments = this.comments.filter(c => c.id !== this.commentToDelete);
-      // this.totalComments--;
       this.loadComments();
       this.closeDeleteModal();
     },
     error: (err: any) => {
-      console.log('Failed to delete comment:', err);
       const errorMessage = err.error?.message || 'Failed to delete comment. Please try again.';
       this.toastr.error(errorMessage, 'Error');
       this.closeDeleteModal();

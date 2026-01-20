@@ -16,11 +16,8 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // console.log("AuthTokenInterceptor");
 
     const authToken = this.authService.getToken();
-
-    // console.log('AuthTokenInterceptor here:', next);
 
     if (authToken) {
       const authReq = request.clone({
@@ -30,11 +27,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       });
       
       
-      return next.handle(authReq).pipe(
-        tap((event) => {
-        // console.log('AuthTokenInterceptor response: ', event);
-      }),
-      );
+      return next.handle(authReq);
     }
 
     return next.handle(request);

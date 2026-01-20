@@ -17,13 +17,9 @@ export class RateLimitInterceptor implements HttpInterceptor {
   constructor(private toastr: ToastrService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // console.log("RateLimitInterceptor");
 
     return next.handle(req).pipe(
-      tap(event => {
-        // console.log('RateLimitInterceptor response: ', event);
-        
-      }),
+
       catchError((error: HttpErrorResponse) => {
         
         if (error.status === 429) {
@@ -55,6 +51,5 @@ export class RateLimitInterceptor implements HttpInterceptor {
       this.isShowingRateLimitError = false;
     }, 2000);
 
-    // console.warn('Rate limit exceeded:', error);
   }
 }

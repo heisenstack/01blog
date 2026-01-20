@@ -46,7 +46,6 @@ export class UserSuggestionsComponent implements OnInit {
   }
 
   selectTab(tab: 'suggestions' | 'following'): void {
-    // Only fetch if switching to a different tab
     if (this.activeTab === tab) {
       return;
     }
@@ -70,7 +69,6 @@ export class UserSuggestionsComponent implements OnInit {
     
     this.userService.getSuggestedUsers(this.suggestionsCurrentPage, this.suggestionsPageSize).subscribe({
       next: response => {
-        console.log("This is response: " , response);
         
         this.suggestions = response.content || [];
         this.suggestionsTotalPages = response.totalPages || 0;
@@ -78,6 +76,7 @@ export class UserSuggestionsComponent implements OnInit {
         this.isSuggestionsLoading = false;
       },
       error: () => {
+        this.toastr.error("Error loading suggestions.")
         this.suggestionsError = 'Failed to load suggested users.';
         this.suggestions = [];
         this.isSuggestionsLoading = false;
@@ -95,8 +94,6 @@ export class UserSuggestionsComponent implements OnInit {
 
     this.userService.getSuggestedUsers(this.suggestionsCurrentPage, this.suggestionsPageSize).subscribe({
       next: response => {
-        console.log("This is load more response: " , response);
-
         this.suggestions = [...this.suggestions, ...(response.content || [])];
         this.isLoadingMoreSuggestions = false;
       },
@@ -116,8 +113,6 @@ export class UserSuggestionsComponent implements OnInit {
     
     this.userService.getFollowingUsers(this.followingCurrentPage, this.followingPageSize).subscribe({
       next: response => {
-        console.log(response);
-        
         this.following = response.content || [];
         this.followingTotalPages = response.totalPages || 0;
         this.followingTotalElements = response.totalElements || 0;
@@ -173,9 +168,7 @@ export class UserSuggestionsComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.log("suggs comp view: ", error);
-
-        this.toastr.error('Something went wrong. Please try again.');
+        this.toastr.error(error.error.message);
       }
     });
   }

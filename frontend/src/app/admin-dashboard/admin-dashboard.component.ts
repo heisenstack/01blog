@@ -43,7 +43,6 @@ export class AdminDashboardComponent implements OnInit {
   isLoadingMoreBannedUsers = false;
   isBannedUsersLastPage = false;
 
-  
   // Reports pagination
   reports: Report[] = [];
   isReportsLoading = false;
@@ -65,7 +64,6 @@ export class AdminDashboardComponent implements OnInit {
   postsTotalPages = 0;
   postsTotalElements = 0;
   isPostsLastPage = false;
-
   isLoadingMorePosts = false;
 
   // Reported Users pagination
@@ -79,7 +77,6 @@ export class AdminDashboardComponent implements OnInit {
   isLoadingMoreReportedUsers = false;
   isReportedUsersLastPage = false;
 
-
   // Users pagination
   users: UserAdminView[] = [];
   isUsersLoading = false;
@@ -90,7 +87,6 @@ export class AdminDashboardComponent implements OnInit {
   usersTotalElements = 0;
   isLoadingMoreUsers = false;
   isUsersLastPage = false;
-
 
   // Hidden Posts pagination
   hiddenPosts: HiddenPost[] = [];
@@ -150,8 +146,6 @@ export class AdminDashboardComponent implements OnInit {
       next: (data) => {
         this.dashboardStats = data;
         this.isStatsLoading = false;
-
-        console.log('Stats: ', data);
       },
 
       error: () => {
@@ -167,14 +161,10 @@ export class AdminDashboardComponent implements OnInit {
     this.postsError = null;
     this.postService.getPostsforAdmin(this.postsCurrentPage, this.postsPageSize).subscribe({
       next: (response) => {
-        console.log("Posssssst: ", response);
-
-
         this.posts = response.content || [];
-        // console.log([this.posts]);
         this.postsTotalPages = response.totalPages || 0;
         this.postsTotalElements = response.totalElements || 0;
-        this.isPostsLastPage = response.last || false; 
+        this.isPostsLastPage = response.last || false;
         this.isPostsLoading = false;
       },
       error: () => {
@@ -186,23 +176,23 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadMorePosts(): void {
-  if (this.isLoadingMorePosts || this.postsCurrentPage >= this.postsTotalPages - 1) {
-    return;
+    if (this.isLoadingMorePosts || this.postsCurrentPage >= this.postsTotalPages - 1) {
+      return;
+    }
+    this.isLoadingMorePosts = true;
+    this.postsCurrentPage++;
+    this.postService.getPostsforAdmin(this.postsCurrentPage, this.postsPageSize).subscribe({
+      next: (response) => {
+        this.posts = [...this.posts, ...(response.content || [])];
+        this.isPostsLastPage = response.last || false;
+        this.isLoadingMorePosts = false;
+      },
+      error: () => {
+        this.toastr.error('Failed to load more posts.');
+        this.isLoadingMorePosts = false;
+      },
+    });
   }
-  this.isLoadingMorePosts = true;
-  this.postsCurrentPage++;
-  this.postService.getPostsforAdmin(this.postsCurrentPage, this.postsPageSize).subscribe({  
-    next: (response) => {
-      this.posts = [...this.posts, ...(response.content || [])];
-      this.isPostsLastPage = response.last || false;
-      this.isLoadingMorePosts = false;
-    },
-    error: () => {
-      this.toastr.error('Failed to load more posts.');
-      this.isLoadingMorePosts = false;
-    },
-  });
-}
 
   // ===== REPORTS =====
   loadReports(): void {
@@ -364,7 +354,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.hiddenPosts = [...this.hiddenPosts, ...(response.content || [])];
-          this.isHiddenPostsLastPage = response.last || false; 
+          this.isHiddenPostsLastPage = response.last || false;
           this.isLoadingMoreHiddenPosts = false;
         },
         error: () => {
@@ -394,36 +384,36 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // ===== HIDE POST MODAL =====
-onHidePost(postId: number, postTitle: string): void {
-  this.modalTitle = 'Confirm Hide Post';
-  this.modalMessage = `Are you sure you want to hide "${postTitle}"? The post will no longer be visible to regular users but can be restored later from the Hidden Posts tab.`;
-  this.modalConfirmText = 'Hide Post';
-  this.modalCancelText = 'Cancel';
-  this.modalConfirmClass = 'btn-warning';
-  this.confirmAction = () => this.executeHidePost(postId);
-  this.isModalOpen = true;
-}
+  onHidePost(postId: number, postTitle: string): void {
+    this.modalTitle = 'Confirm Hide Post';
+    this.modalMessage = `Are you sure you want to hide "${postTitle}"? The post will no longer be visible to regular users but can be restored later from the Hidden Posts tab.`;
+    this.modalConfirmText = 'Hide Post';
+    this.modalCancelText = 'Cancel';
+    this.modalConfirmClass = 'btn-warning';
+    this.confirmAction = () => this.executeHidePost(postId);
+    this.isModalOpen = true;
+  }
 
   private executeHidePost(postId: number): void {
-  this.adminService.hidePost(postId).subscribe({
-    next: () => {
-      this.toastr.success('Post has been hidden successfully.', 'Success');
+    this.adminService.hidePost(postId).subscribe({
+      next: () => {
+        this.toastr.success('Post has been hidden successfully.', 'Success');
 
-      this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
-      this.reportsTotalElements--;
+        this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
+        this.reportsTotalElements--;
 
-      const post = this.posts.find((p) => p.id === postId);
-      if (post) {
-        post.hidden = true;
-      }
+        const post = this.posts.find((p) => p.id === postId);
+        if (post) {
+          post.hidden = true;
+        }
 
-      this.loadDashboardStats();
-    },
-    error: (e) => {
-      this.toastr.error(e.error.message, 'Failed to hide post.');
-    },
-  });
-}
+        this.loadDashboardStats();
+      },
+      error: (e) => {
+        this.toastr.error(e.error.message, 'Failed to hide post.');
+      },
+    });
+  }
 
   // ===== REPORT ACTIONS =====
   onDismissReport(reportId: number): void {
@@ -448,93 +438,94 @@ onHidePost(postId: number, postTitle: string): void {
     });
   }
 
-onDeletePost(postId: number): void {
-  this.modalTitle = 'Confirm Post Deletion';
-  this.modalMessage = 'Are you sure you want to permanently delete this post? This action cannot be undone.';
-  this.modalConfirmText = 'Delete Post'; 
-  this.modalConfirmClass = 'btn-danger'; 
-  this.confirmAction = () => this.executeDeletePost(postId);
-  this.isModalOpen = true;
-}
+  onDeletePost(postId: number): void {
+    this.modalTitle = 'Confirm Post Deletion';
+    this.modalMessage =
+      'Are you sure you want to permanently delete this post? This action cannot be undone.';
+    this.modalConfirmText = 'Delete Post';
+    this.modalConfirmClass = 'btn-danger';
+    this.confirmAction = () => this.executeDeletePost(postId);
+    this.isModalOpen = true;
+  }
 
-private executeDeletePost(postId: number): void {
-  this.adminService.deletePost(postId).subscribe({
-    next: () => {
-      this.toastr.success('Post deleted successfully.');
-      
-      this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
-      this.posts = this.posts.filter((p) => p.id !== postId);
-      this.hiddenPosts = this.hiddenPosts.filter((p) => p.id !== postId);
-      
-      this.reportsTotalElements--;
-      this.postsTotalElements--;
-      this.hiddenPostsTotalElements--;
-      
-      if (this.posts.length === 0 && !this.isPostsLastPage) {
-        this.postsCurrentPage = 0;
-        this.loadPosts();
-      }
-      
-      if (this.reports.length === 0 && !this.isReportsLastPage) {
-        this.reportsCurrentPage = 0;
-        this.loadReports();
-      }
-      
-      if (this.hiddenPosts.length === 0 && !this.isHiddenPostsLastPage) {
-        this.hiddenPostsCurrentPage = 0;
-        this.loadHiddenPosts();
-      }
-      
-      this.loadDashboardStats();
-    },
-    error: (e) => {
-      this.toastr.error(e.error.message, 'Failed to delete post.');
-    },
-  });
-}
+  private executeDeletePost(postId: number): void {
+    this.adminService.deletePost(postId).subscribe({
+      next: () => {
+        this.toastr.success('Post deleted successfully.');
 
-onDeleteUser(userId: number, username: string): void {
-  this.modalTitle = 'Confirm User Deletion';
-  this.modalMessage = `Are you sure you want to delete the user "${username}"? All their data will be permanently removed.`;
-  this.modalConfirmText = 'Delete User'; 
-  this.modalConfirmClass = 'btn-danger'; 
-  this.confirmAction = () => this.executeDeleteUser(userId);
-  this.isModalOpen = true;
-}
+        this.reports = this.reports.filter((r) => r.reportedPostId !== postId);
+        this.posts = this.posts.filter((p) => p.id !== postId);
+        this.hiddenPosts = this.hiddenPosts.filter((p) => p.id !== postId);
 
-private executeDeleteUser(userId: number): void {
-  this.adminService.deleteUser(userId).subscribe({
-    next: () => {
-      this.toastr.success('User deleted successfully.');
-      
-      this.users = this.users.filter((u) => u.id !== userId);
-      this.bannedUsers = this.bannedUsers.filter((u) => u.id !== userId);
-      this.reportedUsers = this.reportedUsers.filter((r) => r.reportedUserId !== userId);
-      
-      this.usersTotalElements--;
-      this.bannedUsersTotalElements--;
-      this.reportedUsersTotalElements--;
-      
-      if (this.users.length === 0 && !this.isUsersLastPage) {
-        this.usersCurrentPage = 0;
-        this.loadUsers();
-      }
-      
-      if (this.bannedUsers.length === 0 && !this.isBannedUsersLastPage) {
-        this.bannedUsersCurrentPage = 0;
-        this.loadBannedUsers();
-      }
-      
-      if (this.reportedUsers.length === 0 && !this.isReportedUsersLastPage) {
-        this.reportedUsersCurrentPage = 0;
-        this.loadReportedUsers();
-      }
-    },
-    error: (e) => {
-      this.toastr.error(e.error.message, 'Failed to delete user.');
-    },
-  });
-}
+        this.reportsTotalElements--;
+        this.postsTotalElements--;
+        this.hiddenPostsTotalElements--;
+
+        if (this.posts.length === 0 && !this.isPostsLastPage) {
+          this.postsCurrentPage = 0;
+          this.loadPosts();
+        }
+
+        if (this.reports.length === 0 && !this.isReportsLastPage) {
+          this.reportsCurrentPage = 0;
+          this.loadReports();
+        }
+
+        if (this.hiddenPosts.length === 0 && !this.isHiddenPostsLastPage) {
+          this.hiddenPostsCurrentPage = 0;
+          this.loadHiddenPosts();
+        }
+
+        this.loadDashboardStats();
+      },
+      error: (e) => {
+        this.toastr.error(e.error.message, 'Failed to delete post.');
+      },
+    });
+  }
+
+  onDeleteUser(userId: number, username: string): void {
+    this.modalTitle = 'Confirm User Deletion';
+    this.modalMessage = `Are you sure you want to delete the user "${username}"? All their data will be permanently removed.`;
+    this.modalConfirmText = 'Delete User';
+    this.modalConfirmClass = 'btn-danger';
+    this.confirmAction = () => this.executeDeleteUser(userId);
+    this.isModalOpen = true;
+  }
+
+  private executeDeleteUser(userId: number): void {
+    this.adminService.deleteUser(userId).subscribe({
+      next: () => {
+        this.toastr.success('User deleted successfully.');
+
+        this.users = this.users.filter((u) => u.id !== userId);
+        this.bannedUsers = this.bannedUsers.filter((u) => u.id !== userId);
+        this.reportedUsers = this.reportedUsers.filter((r) => r.reportedUserId !== userId);
+
+        this.usersTotalElements--;
+        this.bannedUsersTotalElements--;
+        this.reportedUsersTotalElements--;
+
+        if (this.users.length === 0 && !this.isUsersLastPage) {
+          this.usersCurrentPage = 0;
+          this.loadUsers();
+        }
+
+        if (this.bannedUsers.length === 0 && !this.isBannedUsersLastPage) {
+          this.bannedUsersCurrentPage = 0;
+          this.loadBannedUsers();
+        }
+
+        if (this.reportedUsers.length === 0 && !this.isReportedUsersLastPage) {
+          this.reportedUsersCurrentPage = 0;
+          this.loadReportedUsers();
+        }
+      },
+      error: (e) => {
+        this.toastr.error(e.error.message, 'Failed to delete user.');
+      },
+    });
+  }
 
   loadBannedUsers(): void {
     this.isBannedUsersLoading = true;
@@ -546,7 +537,7 @@ private executeDeleteUser(userId: number): void {
           this.bannedUsers = response.content || [];
           this.bannedUsersTotalPages = response.totalPages || 0;
           this.bannedUsersTotalElements = response.totalElements || 0;
-          this.isBannedUsersLastPage = response.last || false; 
+          this.isBannedUsersLastPage = response.last || false;
           this.isBannedUsersLoading = false;
         },
         error: () => {
@@ -571,7 +562,7 @@ private executeDeleteUser(userId: number): void {
       .subscribe({
         next: (response) => {
           this.bannedUsers = [...this.bannedUsers, ...(response.content || [])];
-          this.isBannedUsersLastPage = response.last || false; 
+          this.isBannedUsersLastPage = response.last || false;
           this.isLoadingMoreBannedUsers = false;
         },
         error: () => {
@@ -585,14 +576,14 @@ private executeDeleteUser(userId: number): void {
     this.onBanUserAction(userId, username);
   }
 
-onBanUserAction(userId: number, username: string): void {
-  this.modalTitle = 'Confirm User Ban';
-  this.modalMessage = `Are you sure you want to ban "${username}"? They will not be able to login or interact until unbanned.`;
-  this.modalConfirmText = 'Ban User'; 
-  this.modalConfirmClass = 'btn-danger'; 
-  this.confirmAction = () => this.executeBanUser(userId);
-  this.isModalOpen = true;
-}
+  onBanUserAction(userId: number, username: string): void {
+    this.modalTitle = 'Confirm User Ban';
+    this.modalMessage = `Are you sure you want to ban "${username}"? They will not be able to login or interact until unbanned.`;
+    this.modalConfirmText = 'Ban User';
+    this.modalConfirmClass = 'btn-danger';
+    this.confirmAction = () => this.executeBanUser(userId);
+    this.isModalOpen = true;
+  }
 
   private executeBanUser(userId: number): void {
     this.adminService.banUser(userId).subscribe({
@@ -617,14 +608,14 @@ onBanUserAction(userId: number, username: string): void {
     });
   }
 
-onUnbanUser(userId: number, username: string): void {
-  this.modalTitle = 'Confirm User Unban';
-  this.modalMessage = `Are you sure you want to unban "${username}"? They will be able to login and interact again.`;
-  this.modalConfirmText = 'Unban User'; 
-  this.modalConfirmClass = 'btn-success'; 
-  this.confirmAction = () => this.executeUnbanUser(userId);
-  this.isModalOpen = true;
-}
+  onUnbanUser(userId: number, username: string): void {
+    this.modalTitle = 'Confirm User Unban';
+    this.modalMessage = `Are you sure you want to unban "${username}"? They will be able to login and interact again.`;
+    this.modalConfirmText = 'Unban User';
+    this.modalConfirmClass = 'btn-success';
+    this.confirmAction = () => this.executeUnbanUser(userId);
+    this.isModalOpen = true;
+  }
 
   private executeUnbanUser(userId: number): void {
     this.adminService.unbanUser(userId).subscribe({

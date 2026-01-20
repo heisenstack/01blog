@@ -69,8 +69,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     if (postId) {
       this.postService.getPost(postId).subscribe({
         next: (data: Post) => {
-          console.log(data);
-
           this.post = data;
         },
         error: (err) => {
@@ -108,7 +106,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
     action.subscribe({
       next: (response: PostLikeResponse) => {
-        console.log(response);
 
         this.post = {
           ...currentPost,
@@ -117,8 +114,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
         };
       },
       error: (err) => {
-        console.log(err);
-
+        this.toastr.error('Error updating like status.', 'Error');
         this.handleError(err, 'updating like');
       },
     });
@@ -138,8 +134,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     if (!this.post) return;
     this.postService.deletePost(this.post.id).subscribe({
       next: (response) => {
-        console.log(response);
-
         this.toastr.success('The post has been permanently deleted.', 'Post Deleted');
         this.router.navigate(['/']);
       },

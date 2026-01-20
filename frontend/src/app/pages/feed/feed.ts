@@ -42,12 +42,10 @@ export class FeedComponent implements OnInit {
       next: (data: Page<Post>) => {
         
         this.posts = data.content;
-        // console.log("Pooooost:", this.posts.length);
         this.totalPages = data.totalPages;
         this.isLoading = false;
       },
       error: (err: any) => {
-        // console.error('Failed to fetch personalized feed:', err);
         this.error = 'Could not load your feed. Please try again later.';
         this.isLoading = false;
       }
@@ -68,7 +66,6 @@ export class FeedComponent implements OnInit {
         this.isLoadingMore = false;
       },
       error: (err: any) => {
-        // console.error('Failed to fetch more of the feed:', err);
         this.isLoadingMore = false;
       }
     });

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Notification, PagedNotifications, NotificationCounts } from '../models/notification.model';
+import {ToastrService } from 'ngx-toastr'
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class NotificationService {
   });
   public counts$ = this.countsSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private toastr: ToastrService) { }
 
 
   getUnreadNotifications(): Observable<Notification[]> {
@@ -57,7 +58,7 @@ export class NotificationService {
         this.countsSubject.next(counts);
       },
       error: (error) => {
-        // console.error('Failed to refresh notification counts:', error);
+        this.toastr.error("Failed to refresh notification count");
       }
     });
   }
@@ -71,9 +72,7 @@ export class NotificationService {
           observer.complete();
         },
         error: (error) => {
-          observer.error(error);
-          console.log("erroor: ", error);
-          
+          this.toastr.error("Failed to read notification.")
         }
       });
     });
@@ -140,8 +139,7 @@ export class NotificationService {
           observer.complete();
         },
         error: (error) => {
-          console.log(error);
-          observer.error(error);
+          this.toastr.error("Failed to delete notification.")
         }
       });
     });

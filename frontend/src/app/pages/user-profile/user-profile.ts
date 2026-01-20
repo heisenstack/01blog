@@ -74,14 +74,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.userService.getUserProfile(this.username, this.currentPage, this.pageSize).subscribe({
       next: (profile) => {
-        console.log(profile);
-
         this.userProfile = profile;
         this.posts = profile.posts?.content || [];
         this.isLoading = false;
       },
       error: (err) => {
-        // console.error('Error loading user profile', err);
         this.isLoading = false;
         this.toastr.error('Could not load user profile.', 'Error');
         this.router.navigate(['/']);
@@ -97,14 +94,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.currentPage++;
     this.userService.getUserProfile(this.username, this.currentPage, this.pageSize).subscribe({
       next: (profile) => {
-        console.log('Profile: ', profile);
 
         this.posts.push(...profile.posts.content);
         this.userProfile!.posts = profile.posts;
         this.isLoadingMore = false;
       },
       error: (err) => {
-        // console.error('Error loading more posts', err);
+        this.toastr.error('Could not load more posts.', 'Error');
         this.isLoadingMore = false;
       },
     });
@@ -138,10 +134,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toastr.error(err.error.message, 'Error');
-        console.log("Errrrros: ", err);
         
         this.isSubscribing = false;
-        // console.error('Subscription error:', err);
       },
     });
   }
@@ -168,8 +162,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
     this.userService.reportUser(this.userProfile.username, reportData).subscribe({
       next: (response) => {
-        console.log(response);
-
         this.toastr.success(
           'User has been reported. Our moderation team will review it.',
           'Report Submitted'
@@ -177,7 +169,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         this.isReportModalOpen = false;
       },
       error: (err) => {
-        console.log('Failed to report user:', err);
         const errorMessage = err.error?.message || 'An unknown error occurred. Please try again.';
         this.toastr.error(errorMessage, 'Error');
       },
