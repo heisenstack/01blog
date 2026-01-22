@@ -1,0 +1,6 @@
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install maven
+
+sdk list java | grep 21.
+sdk install java 21.0.5-tem
