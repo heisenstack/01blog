@@ -1,5 +1,6 @@
 package com.zerooneblog.api.infrastructure.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,6 +78,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         return;
                     }
                     
+                } catch (ExpiredJwtException ex) {
+                    sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token has expired. Please login again.");
+                    return;
                 } catch (UsernameNotFoundException ex) {
                     sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "User not found");
                     return;
