@@ -14,7 +14,6 @@ A modern, full-stack blogging platform built with Angular and Spring Boot. 01Blo
 - [API Documentation](#api-documentation)
 - [Database](#database)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## 🎯 Overview
 
