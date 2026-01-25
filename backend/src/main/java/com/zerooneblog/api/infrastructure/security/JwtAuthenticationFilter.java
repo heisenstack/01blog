@@ -60,8 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         
                         // Verify user ID matches token
                         if (!currentUserId.equals(userIdFromToken)) {
-                            logger.warn("User ID mismatch in token. Token userId: " + userIdFromToken + 
-                                      ", Actual userId: " + currentUserId);
                             sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token user ID mismatch");
                             return;
                         }
@@ -73,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
-                        logger.error("UserDetails is not an instance of CustomUserDetails");
                         sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Invalid user details");
                         return;
                     }
@@ -88,7 +85,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT claims string is empty");
                     return;
                 } catch (Exception ex) {
-                    logger.error("JWT authentication failed", ex);
                     sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
                     return;
                 }
