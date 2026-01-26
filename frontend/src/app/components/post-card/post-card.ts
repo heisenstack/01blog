@@ -51,7 +51,7 @@ export class PostCardComponent {
         this.post = updatedPost;
       },
       error: (error) => {
-        this.toastr.error("Error liking post");
+        this.toastr.error(error.error.message, "Error liking post");
       }
     });
   }
