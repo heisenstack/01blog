@@ -39,7 +39,6 @@ export class Login {
         }, 100); 
       },
       error: (error) => {
-        this.toastr.error("Failed to login.",error.error.message)
         this.isSubmitting = false;
         this.handleLoginError(error);
       }

@@ -38,7 +38,6 @@ export class Register {
         this.router.navigate(['/login']);
       },
       error: (error) => {
-        this.toastr.error("Failed to register.", error.error.message);
         this.isSubmitting = false;
         this.handleRegistrationError(error);
       },
