@@ -55,29 +55,4 @@ export class PostCardComponent {
       }
     });
   }
-
-  private handleError(error: any): void {
-    // Handle rate limiting (429)
-    if (error.status === 429) {
-      return; // in Rate limit intercepto
-    }
-
-    // Handle not found errors (404) - post was deleted
-    if (error.status === 404) {
-      const message = error.error?.message || 'This post no longer exists.';
-      this.toastr.warning(message, 'Post Not Found');
-      // Optionally refresh the page or remove the post from view
-      return;
-    }
-
-    // Handle authentication errors (401)
-    if (error.status === 401) {
-      this.toastr.error('Please log in to like posts.', 'Authentication Required');
-      return;
-    }
-
-    // Default error message
-    const message = error.error?.message || 'Could not update like status.';
-    this.toastr.error(message, 'Error');
-  }
 }
