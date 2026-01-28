@@ -55,4 +55,5 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new MessageResponse("FAILURE", "Invalid token"));
     }
+    
 }

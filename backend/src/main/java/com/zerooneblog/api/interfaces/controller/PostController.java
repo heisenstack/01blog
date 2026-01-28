@@ -32,7 +32,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> createPost(
             @RequestParam("title") @Size(max = 255, message = "Title must not exceed 255 characters") String title,
-            @RequestParam("content") @Size(max = 1500, message = "Content must not exceed 1500 characters") String content,
+            @RequestParam("content") @Size(max = 2000, message = "Content must not exceed 2000 characters") String content,
             @RequestParam(value = "mediaFiles", required = false) MultipartFile[] mediaFiles,
             @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();

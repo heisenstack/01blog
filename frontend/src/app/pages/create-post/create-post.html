@@ -47,8 +47,13 @@
           rows="12"
           [(ngModel)]="model.content"
           placeholder="Write your story..."
+          maxlength="2000"
           required
-        ></textarea>
+        >
+                <span class="char-count" [class.warning]="model.content.length > 2000">
+            {{ model.content.length }}/2000
+          </span>
+      </textarea>
       </div>
 
       <!-- Media Section -->

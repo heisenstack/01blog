@@ -59,7 +59,7 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
             return auth.getName();
         }
 
-        return null;
+        return request.getRemoteAddr();
     }
 
     // Simple sliding window rate limiter

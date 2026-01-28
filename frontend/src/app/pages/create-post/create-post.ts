@@ -70,12 +70,13 @@ export class CreatePostComponent {
       return;
     }
 
-    const availableSlots = this.maxFiles - this.selectedFiles.length;
+    const empty = this.maxFiles - this.selectedFiles.length;
+    // empty = 5 - 3 = 2
     let addedCount = 0;
     let skippedCount = 0;
     const errors: string[] = [];
 
-    for (let i = 0; i < files.length && addedCount < availableSlots; i++) {
+    for (let i = 0; i < files.length && addedCount < empty; i++) {
       const file = files[i];
 
       const validation = this.validateFile(file);
@@ -90,6 +91,8 @@ export class CreatePostComponent {
       const reader = new FileReader();
 
       reader.onload = (e: any) => {
+        console.log("Render: ", e);
+        
         this.selectedFiles.push({
           file: file,
           preview: e.target.result,
@@ -123,9 +126,9 @@ export class CreatePostComponent {
       }
     }
 
-    if (files.length > availableSlots && addedCount === availableSlots) {
+    if (files.length > empty && addedCount === empty) {
       this.toastr.info(
-        `Only ${availableSlots} more file${availableSlots > 1 ? 's' : ''} could be added`,
+        `Only ${empty} more file${empty > 1 ? 's' : ''} could be added`,
         'Upload Limit'
       );
     }
@@ -141,11 +144,15 @@ export class CreatePostComponent {
 
   handleUploadClick(): void {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    console.log("FileInput:", fileInput);
+    
     fileInput?.click();
   }
 
   openFilePicker(): void {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    console.log("FileInput open filepicker:", fileInput);
+
     fileInput?.click();
   }
 
