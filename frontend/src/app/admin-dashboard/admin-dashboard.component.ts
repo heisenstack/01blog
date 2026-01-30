@@ -111,7 +111,7 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     private adminService: AdminService,
     private toastr: ToastrService,
-    private postService: PostService
+    private postService: PostService,
   ) {}
 
   ngOnInit(): void {
@@ -126,7 +126,7 @@ export class AdminDashboardComponent implements OnInit {
       | 'users'
       | 'posts'
       | 'hiddenPosts'
-      | 'bannedUsers'
+      | 'bannedUsers',
   ): void {
     this.activeTab = tab;
     if (tab === 'dashboard' && !this.dashboardStats) this.loadDashboardStats();
@@ -144,6 +144,8 @@ export class AdminDashboardComponent implements OnInit {
     this.statsError = null;
     this.adminService.getDashboardStats().subscribe({
       next: (data) => {
+        console.log("Dashboard stat: ", data);
+        
         this.dashboardStats = data;
         this.isStatsLoading = false;
       },
@@ -363,7 +365,9 @@ export class AdminDashboardComponent implements OnInit {
         },
       });
   }
-
+  onHidePostFromReport(report: Report): void {
+    this.onHidePost(report.reportedPostId, report.reportedPostTitle);
+  }
   onUnhidePost(postId: number): void {
     this.adminService.unhidePost(postId).subscribe({
       next: () => {

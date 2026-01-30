@@ -6,6 +6,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import com.zerooneblog.api.domain.Role;
 
 import java.time.Instant;
 import java.util.List;
@@ -70,4 +71,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         @Modifying
         @Query(value = "DELETE FROM user_followers WHERE follower_id = :userId OR following_id = :userId", nativeQuery = true)
         void deleteUserRelationships(@Param("userId") Long userId);
+
+        Page<User> findAllByRolesNotContaining(Role role, Pageable pageable);
+
 }

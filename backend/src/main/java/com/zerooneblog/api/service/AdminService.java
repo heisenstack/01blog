@@ -47,12 +47,40 @@ public class AdminService {
         Instant thirtyDaysAgo = Instant.now().minus(30, ChronoUnit.DAYS);
         long newUsers = userRepository.countByCreatedAtAfter(thirtyDaysAgo);
         long bannedUsers = userRepository.countByEnabled(false);
+        
         stats.setTotalUsers(totalUsers);
         stats.setTotalPosts(totalPosts);
         stats.setHiddenPosts(hiddenPosts);
         stats.setActiveReports(activeReports);
         stats.setNewUsersLast30Days(newUsers);
         stats.setBannedUsers(bannedUsers);
+        
+        // Get most reported user (excluding admins)
+        Pageable topReportedPageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "reportedCount"));
+        Page<User> topReportedUsers = userRepository.findAllByRolesNotContaining(Role.ADMIN, topReportedPageable);
+        if (!topReportedUsers.isEmpty()) {
+            User mostReported = topReportedUsers.getContent().get(0);
+            Long reportedCount = mostReported.getReportedCount() != null ? mostReported.getReportedCount() : 0L;
+            stats.setMostReportedUser(new DashboardStatsDto.TopUserDto(
+                mostReported.getId(),
+                mostReported.getUsername(),
+                reportedCount
+            ));
+        }
+        
+        // Get most reporter user (user who reports the most, excluding admins)
+        Pageable topReporterPageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "reportingCount"));
+        Page<User> topReporterUsers = userRepository.findAllByRolesNotContaining(Role.ADMIN, topReporterPageable);
+        if (!topReporterUsers.isEmpty()) {
+            User mostReporter = topReporterUsers.getContent().get(0);
+            Long reportingCount = mostReporter.getReportingCount() != null ? mostReporter.getReportingCount() : 0L;
+            stats.setMostReporterUser(new DashboardStatsDto.TopUserDto(
+                mostReporter.getId(),
+                mostReporter.getUsername(),
+                reportingCount
+            ));
+        }
+        
         return stats;
     }
 

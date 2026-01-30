@@ -4,6 +4,8 @@ export interface Report {
   details: string;
   createdAt: string; 
   reporterUsername: string;
+  reportedUsername: string;
+
   reportedPostId: number;
   reportedPostTitle: string;
 }
