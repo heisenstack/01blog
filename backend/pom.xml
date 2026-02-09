@@ -86,6 +86,12 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Rate limit -->
+		<dependency>
+    		<groupId>com.bucket4j</groupId>
+    		<artifactId>bucket4j-core</artifactId>
+    		<version>8.10.1</version>
+		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -97,6 +103,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
