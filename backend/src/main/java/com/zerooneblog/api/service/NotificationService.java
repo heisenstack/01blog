@@ -19,17 +19,20 @@ import com.zerooneblog.api.interfaces.exception.NotificationNotFoundException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedActionException;
 import com.zerooneblog.api.interfaces.exception.UnauthorizedOperationException;
 
-// Service for managing user notifications
+// Service for managing user notifications with WebSocket support
 @Service
 public class NotificationService {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+    private final WebSocketNotificationService webSocketService;
 
     public NotificationService(
             NotificationRepository notificationRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            WebSocketNotificationService webSocketService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.webSocketService = webSocketService;
     }
 
     // Create a single notification for a user
@@ -49,7 +52,15 @@ public class NotificationService {
         notification.setPost(post);
         notification.setRead(false);
 
-        notificationRepository.save(notification);
+        notification = notificationRepository.save(notification);
+
+        // Send real-time notification via WebSocket
+        NotificationDto notificationDto = mapToDto(notification);
+        webSocketService.sendNotificationToUser(recipient.getUsername(), notificationDto);
+        
+        // Send updated counts
+        NotificationCountDto counts = getNotificationCounts(recipient.getUsername());
+        webSocketService.sendNotificationCountsToUser(recipient.getUsername(), counts);
     }
 
     // Get notifications by read status with pagination
@@ -105,12 +116,24 @@ public class NotificationService {
 
         notification.setRead(true);
         notificationRepository.save(notification);
+
+        // Send WebSocket updates
+        webSocketService.notifyNotificationRead(username, notificationId);
+        NotificationCountDto counts = getNotificationCounts(username);
+        webSocketService.sendNotificationCountsToUser(username, counts);
     }
 
     // Mark all notifications as read for user
     @Transactional
     public void markAllAsRead(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+        
         notificationRepository.markAllAsReadForUser(userId);
+
+        // Send WebSocket updates
+        NotificationCountDto counts = getNotificationCounts(user.getUsername());
+        webSocketService.sendNotificationCountsToUser(user.getUsername(), counts);
     }
 
     // Get notification counts (total, read, unread)
@@ -139,6 +162,11 @@ public class NotificationService {
         }
 
         notificationRepository.delete(notification);
+
+        // Send WebSocket updates
+        webSocketService.notifyNotificationsDeleted(username, List.of(notificationId));
+        NotificationCountDto counts = getNotificationCounts(username);
+        webSocketService.sendNotificationCountsToUser(username, counts);
     }
 
     // Delete multiple notifications at once
@@ -157,6 +185,11 @@ public class NotificationService {
         });
 
         notificationRepository.deleteAll(notifications);
+
+        // Send WebSocket updates
+        webSocketService.notifyNotificationsDeleted(username, notificationIds);
+        NotificationCountDto counts = getNotificationCounts(username);
+        webSocketService.sendNotificationCountsToUser(username, counts);
     }
 
     // Get unread notifications (limited to 10 most recent)
@@ -192,6 +225,16 @@ public class NotificationService {
                 })
                 .collect(Collectors.toList());
         
-        notificationRepository.saveAll(notifications);
+        notifications = notificationRepository.saveAll(notifications);
+
+        // Send real-time notifications to all followers via WebSocket
+        notifications.forEach(notification -> {
+            NotificationDto notificationDto = mapToDto(notification);
+            webSocketService.sendNotificationToUser(notification.getRecipient().getUsername(), notificationDto);
+            
+            // Send updated counts
+            NotificationCountDto counts = getNotificationCounts(notification.getRecipient().getUsername());
+            webSocketService.sendNotificationCountsToUser(notification.getRecipient().getUsername(), counts);
+        });
     }
 }
