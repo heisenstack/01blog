@@ -37,6 +37,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   };
 
   private countsSubscription?: Subscription;
+  private newNotificationSubscription?: Subscription;
+  private notificationReadSubscription?: Subscription;
+  private notificationsDeletedSubscription?: Subscription;
 
   constructor(
     private notificationService: NotificationService,
@@ -49,19 +52,65 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.loadCounts();
     this.loadNotifications();
     this.subscribeToCountsChanges();
+    this.setupWebSocketListeners();
   }
 
   ngOnDestroy(): void {
     if (this.countsSubscription) {
       this.countsSubscription.unsubscribe();
     }
+    if (this.newNotificationSubscription) {
+      this.newNotificationSubscription.unsubscribe();
+    }
+    if (this.notificationReadSubscription) {
+      this.notificationReadSubscription.unsubscribe();
+    }
+    if (this.notificationsDeletedSubscription) {
+      this.notificationsDeletedSubscription.unsubscribe();
+    }
   }
-
 
   subscribeToCountsChanges(): void {
     this.countsSubscription = this.notificationService.counts$.subscribe({
       next: (counts) => {
         this.counts = counts;
+      }
+    });
+  }
+
+
+  setupWebSocketListeners(): void {
+    // Listen for new notifications
+    this.newNotificationSubscription = this.notificationService.getNewNotificationStream().subscribe(notification => {
+      if (notification) {
+        // Add new notification to the list based on active tab
+        if (this.activeTab === 'all' || this.activeTab === 'unread') {
+          this.notifications = [notification, ...this.notifications];
+        }
+      }
+    });
+
+    // Listen for notification read events
+    this.notificationReadSubscription = this.notificationService.getNotificationReadStream().subscribe(notificationId => {
+      if (notificationId) {
+        // Update the notification in the list
+        const notification = this.notifications.find(n => n.id === notificationId);
+        if (notification) {
+          notification.read = true;
+          
+          // Remove from unread tab
+          if (this.activeTab === 'unread') {
+            this.notifications = this.notifications.filter(n => n.id !== notificationId);
+          }
+        }
+      }
+    });
+
+    // Listen for notification deleted events
+    this.notificationsDeletedSubscription = this.notificationService.getNotificationsDeletedStream().subscribe(notificationIds => {
+      if (notificationIds && notificationIds.length > 0) {
+        // Remove deleted notifications from the list
+        this.notifications = this.notifications.filter(n => !notificationIds.includes(n.id));
       }
     });
   }
