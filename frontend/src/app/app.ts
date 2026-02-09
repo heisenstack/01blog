@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './shared/navbar/navbar'; 
 import { ThemeService } from './services/theme';
@@ -12,7 +12,7 @@ import { AuthService } from './services/auth.service';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   // title = 'frontend';
 
   constructor(
@@ -27,6 +27,17 @@ export class App implements OnInit {
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       console.log('User is logged in');
+      this.notificationService.connectWebSocket();
     }
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.notificationService.connectWebSocket();
+      } else {
+        this.notificationService.disconnectWebSocket();
+      }
+    });
+  }
+    ngOnDestroy(): void {
+    this.notificationService.disconnectWebSocket();
   }
 }
